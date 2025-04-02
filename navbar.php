@@ -101,7 +101,7 @@
                             </a>
                             <ul class="nav flex-column ms-5 " id="coopMenu" style="display: none;">
                                 <li><a class="dropdown-item" href="about_story.php"><i class="bi bi-book me-2"></i>ความเป็นมาสหกิจศึกษา</a></li>
-                                <li><a class="dropdown-item" href="about_company.php"><i class="bi bi-building me-2"></i>สถานประกอบการ</a></li>
+                                <li><a class="dropdown-item" href="about_company.php"><i class="bi bi-building me-2"></i>บทบาทสถานประกอบการ</a></li>
                                 <li><a class="dropdown-item" href="about_teacher.php"><i class="bi bi-person-badge me-2"></i>อาจารย์ที่ปรึกษา</a></li>
                                 <li><a class="dropdown-item" href="about_student.php"><i class="bi bi-people me-2"></i>บทบาทนิสิต</a></li>
                            
