@@ -79,7 +79,7 @@ mysqli_close($conn);
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
-        <h2 class="heading" >แก้ไขข้อมูลอาจารย์</h2>
+        <h2 class="heading" >แก้ไขข้อมูล-Admin</h2>
         <div class="d-flex justify-content-between mb-3">
         </div>
         <form method="post" enctype="multipart/form-data">

@@ -209,7 +209,7 @@ if (isset($_GET['Std_id'])) {
             <td>รหัสนิสิต</td>
             <td><?php echo $row['Std_id']; ?></td>
             <td>ชื่อ-นามสกุล</td>
-            <td><?php echo $row['Std_ prefix'].' '.$row['Std_name'].' '.$row['Std_surname']; ?></td>
+            <td><?php echo $row['Std_prefix'].' '.$row['Std_name'].' '.$row['Std_surname']; ?></td>
         </tr>
         <tr>
             <td>สาขาวิชา</td>

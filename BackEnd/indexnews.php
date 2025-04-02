@@ -77,7 +77,7 @@ if (!$result) {
         <a href="indexmajor.php"><i class="fas fa-sitemap"></i><span> ข้อมูลสาขา</span></a>
         <a href="indexnews.php"class="active"><i class="fas fa-newspaper"></i><span> ข้อมูลข่าวสาร</span></a>
         <a href="indexadmin.php"><i class="fas fa-user-cog"></i><span> Admin</span></a>
-        <a href="indexbanner.php"><i class="fas fa-bullhorn"></i><span> แจ้งเตือน</span></a>
+        <a href="indexbanner.php"><i class="fas fa-bullhorn"></i><span> Banner</span></a>
         <a href="logout.php"><i class="fas fa-sign-out-alt"></i><span> ออกจากระบบ</span></a>
     </div>
 
