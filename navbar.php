@@ -52,11 +52,11 @@
                     </a>
                     <ul class="dropdown-menu text-small shadow dropdown-menu-end" style="width: max-content; max-width: 100vw; overflow-x: auto;">
                         <?php if (isset($_SESSION['Std_id'])): ?>
-                            <li><a class="dropdown-item" href="profile.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span >บัญชี</span></a></li>
-                            <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span >ตั้งค่าบัญชี</span></a></li>
-                                <hr class="dropdown-divider">
+                            <li><a class="dropdown-item" href="profile.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span>บัญชี</span></a></li>
+                            <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span>ตั้งค่าบัญชี</span></a></li>
+                            <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="logout_std.php"><span >ออกจากระบบ</span></a></li>
+                            <li><a class="dropdown-item" href="logout_std.php"><span>ออกจากระบบ</span></a></li>
                         <?php else: ?>
                             <li><a class="dropdown-item text-wrap" href="login_student.php">สำหรับนิสิต</a></li>
                             <li><a class="dropdown-item text-wrap" href="approval_system/login.php">สำหรับอาจารย์</a></li>
@@ -137,11 +137,30 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link link-dark">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>
-                                เข้าสู่ระบบ
+                            <a class="nav-link link-dark d-flex align-items-center gap-2" href="#" onclick="toggleMenu('login', event)">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span>เข้าสู่ระบบ</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
                         </li>
+
+                        <ul class="nav flex-column ms-5" id="login" style="display: none;">
+                            <?php if (isset($_SESSION['Std_id'])): ?>
+                                <li><a class="dropdown-item" href="profile.php?cid=<?php echo $_SESSION['Std_id']; ?>"><i class="bi bi-person-circle me-2"></i> บัญชี</a></li>
+                                <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><i class="bi bi-gear me-2"></i> ตั้งค่าบัญชี</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="logout_std.php"><i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item" href="login_student.php"><i class="bi bi-mortarboard me-2"></i> สำหรับนิสิต</a></li>
+                                <li><a class="dropdown-item" href="approval_system/login.php"><i class="bi bi-person-badge me-2"></i> สำหรับอาจารย์</a></li>
+                                <li><a class="dropdown-item" href="BackEnd/login.php"><i class="bi bi-shield-lock me-2"></i> สำหรับแอดมิน</a></li>
+                            <?php endif; ?>
+                        </ul>
+
+
+
                     </ul>
                 </div>
             </div>

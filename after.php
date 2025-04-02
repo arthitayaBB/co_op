@@ -2,7 +2,7 @@
 include_once("connectdb.php");
 session_start();
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
-$Std_id = isset($_SESSION['id']) ? intval($_SESSION['id']) : 0;
+$Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
 
 // ดึงข้อมูลสาขาของนักศึกษา
 $sql = "

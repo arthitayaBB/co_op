@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $Std_phone = $_POST['Std_phone'];
     $Std_email = $_POST['Std_email'];
     if ($_FILES['Std_picture']['name']) {
-        $target_dir = "img/"; 
+        $target_dir = "img_student/"; 
         $target_file = $target_dir . basename($_FILES["Std_picture"]["name"]);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
