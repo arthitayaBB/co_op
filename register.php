@@ -452,6 +452,9 @@ include_once("connectdb.php");
   </div>
   </div>
   <?php
+  error_reporting(E_ALL);
+  ini_set('display_errors', 1);
+  
 if (isset($_POST['submit_form'])) {
     // เข้ารหัสรหัสผ่าน
     $stdpassword = md5($_POST['password']);
