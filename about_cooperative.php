@@ -1,16 +1,23 @@
+<?php
+include_once("connectdb.php");
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>กระบวนการและขั้นตอนสหกิจศึกษา</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="images/Logo.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="style.css">
-
-    <style>
+</head>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -81,11 +88,9 @@
 
         }
     </style>
-</head>
-
-<body>
+<body >
     <?php include("navbar.php"); ?>
-
+    <section class="faq-section ">
     <div class="wrapper">
         <div class="container text-center fade-in">
             <h1 class="fade-in minimal-heading">กระบวนการและขั้นตอนสหกิจศึกษา</h1>
@@ -269,14 +274,11 @@
         </div>
 
 
-    </div>
-
-
+    </div>  
+    </section>
     <?php include("footer.php"); ?>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
-
+    <script src="script.js"></script><!-- ควบคุม navbar และ fade-in -->
 </body>
 
 </html>
