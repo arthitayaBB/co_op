@@ -501,6 +501,7 @@ if (isset($_POST['submit_form'])) {
         if (mysqli_query($conn, $sqli)) {
             // ดึงข้อมูลจาก student
             $student_id = $_POST['studentId'];
+            $acayear = mysqli_real_escape_string($conn, $_POST['Acayear']);
             
             // เพิ่มข้อมูลลงใน proposal
             $proposal_sql = "INSERT INTO proposal (
