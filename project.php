@@ -57,7 +57,7 @@ if (isset($_POST['Submit'])) {
             if (mysqli_stmt_execute($stmt)) {
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ!'); window.location='proposal.php';</script>";
             } else {
-                echo "<script>alert('เกิดข้อผิดพลาดขณะบันทึก: " . mysqli_error($conn) . "');</script>";
+                echo "<script>alert('เกิดข้อผิดพลาดขณะบันทึก:kk " . mysqli_error($conn) . "');</script>";
             }
         } else {
             echo "<script>alert('ไม่สามารถอัปโหลดไฟล์ได้!'); window.history.back();</script>";
