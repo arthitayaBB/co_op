@@ -144,7 +144,7 @@ include_once("connectdb.php");
     <div class="row">
       <!-- รูปภาพทางซ้าย -->
       <div class="col-md-6 d-flex justify-content-center">
-        <img id="image1" src="images/design/reg1.svg" alt="รูปภาพ" class="img-fluid">
+        <img id="image1" src="images/design/step-co_op.svg" alt="รูปภาพ" class="img-fluid">
       </div>
 
       <!-- ฟอร์มทางขวา -->
@@ -157,7 +157,7 @@ include_once("connectdb.php");
           <div class="profile-container">
 
             <div class="profile-box" id="profileBox">
-              <img id="displayProfileImage" src="images/design/step-co_op.svg" alt="รูปโปรไฟล์">
+              <img id="displayProfileImage" src="images/design/profile.svg" alt="รูปโปรไฟล์">
             </div>
             <p><strong>กรุณอัพโหลดรูปภาพ</strong></p>
             <input type="file" id="profileImage" accept="image/*" name="Std_picture" required>
