@@ -21,6 +21,7 @@
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu text-small shadow" style="min-width: 100%; width: max-content;">
+                    <li><a class="dropdown-item" href="about_cooperative.php">บทบาทและขั้นตอน</a></li>
                         <li><a class="dropdown-item" href="about_story.php">ความเป็นมาสหกิจศึกษา</a></li>
                         <li><a class="dropdown-item" href="about_company.php">สถานประกอบการ</a></li>
                         <li><a class="dropdown-item" href="about_teacher.php">อาจารย์ที่ปรึกษา</a></li>
@@ -100,6 +101,7 @@
                                 <i class="bi bi-chevron-down"></i>
                             </a>
                             <ul class="nav flex-column ms-5 " id="coopMenu" style="display: none;">
+                            <li><a class="dropdown-item" href="about_cooperative.php"><i class="bi-journal-check me-2"></i>บทบาทและขั้นตอน</a></li>
                                 <li><a class="dropdown-item" href="about_story.php"><i class="bi bi-book me-2"></i>ความเป็นมาสหกิจศึกษา</a></li>
                                 <li><a class="dropdown-item" href="about_company.php"><i class="bi bi-building me-2"></i>บทบาทสถานประกอบการ</a></li>
                                 <li><a class="dropdown-item" href="about_teacher.php"><i class="bi bi-person-badge me-2"></i>อาจารย์ที่ปรึกษา</a></li>

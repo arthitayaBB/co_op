@@ -157,7 +157,7 @@ include_once("connectdb.php");
           <div class="profile-container">
 
             <div class="profile-box" id="profileBox">
-              <img id="displayProfileImage" src="images/design/profile.svg" alt="รูปโปรไฟล์">
+              <img id="displayProfileImage" src="images/design/step-co_op.svg" alt="รูปโปรไฟล์">
             </div>
             <p><strong>กรุณอัพโหลดรูปภาพ</strong></p>
             <input type="file" id="profileImage" accept="image/*" name="Std_picture" required>
