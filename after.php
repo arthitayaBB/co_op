@@ -1,6 +1,11 @@
 <?php
 include_once("connectdb.php");
 session_start();
+  // เปิด error reporting
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+  error_reporting(E_ALL);
+  ini_set('display_errors', 1);
+  
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
 
