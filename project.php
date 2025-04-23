@@ -10,7 +10,7 @@ $Std_id = isset($_GET['Std_id']) ? intval($_GET['Std_id']) : 0;
 
 // ตรวจสอบ Std_id
 if ($Std_id <= 0) {
-    echo "<script>alert('ไม่พบรหัสนักศึกษา'); window.location='proposal.php';</script>";
+    echo "<script>alert('ไม่พบรหัสนิสิต'); window.location='proposal.php';</script>";
     exit;
 }
 
