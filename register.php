@@ -452,13 +452,32 @@ include_once("connectdb.php");
   </div>
   </div>
   <?php
+// เปิด error reporting
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-  
-if (isset($_POST['submit_form'])) {
-    // เข้ารหัสรหัสผ่าน
-    $stdpassword = md5($_POST['password']);
+require_once('db_connect.php');
 
-    // ตรวจสอบและอัปโหลดไฟล์รูปภาพ
+// รับรหัสผ่านแล้วเข้ารหัส
+$stdpassword = md5($_POST['password']);
+
+// รับค่าและ ชื่อสาขา
+$major_name = mysqli_real_escape_string($conn, $_POST['branch']);
+
+// ดึง Major_id และ Tec_id จากตาราง major/teacher
+$sql_major = "SELECT m.Major_id, t.Tec_id 
+              FROM major m 
+              JOIN teacher t ON m.Major_id = t.Major_id 
+              WHERE m.Major_name = '$major_name'";
+$result_major = mysqli_query($conn, $sql_major);
+$major_data = mysqli_fetch_assoc($result_major);
+
+if ($major_data) {
+    $major_id = $major_data['Major_id'];
+    $tec_id = $major_data['Tec_id'];
+
+    // เตรียมข้อมูลรูป
     $std_picture = '';
     if (isset($_FILES['Std_picture']) && $_FILES['Std_picture']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['Std_picture']['tmp_name'];
@@ -470,52 +489,56 @@ if (isset($_POST['submit_form'])) {
             $newFileName = "profile_" . $_POST['studentId'] . "." . $fileExtension;
             $uploadFileDir = 'profile_pic/';
             $dest_path = $uploadFileDir . $newFileName;
-            
+
             if (!is_dir($uploadFileDir)) {
                 mkdir($uploadFileDir, 0777, true);
             }
-            
+
             if (move_uploaded_file($fileTmpPath, $dest_path)) {
-              $std_picture = $newFileName;
-              echo "✅ รูปถูกย้ายเรียบร้อย: $newFileName<br>";
-          } else {
-              echo "❌ ย้ายไฟล์ไม่สำเร็จ: $fileTmpPath → $dest_path<br>";
-              echo "Error code: " . $_FILES['Std_picture']['error'];
-          }
-          
+                $std_picture = $newFileName;
+            } else {
+                echo "<script>alert('ไม่สามารถอัปโหลดรูปได้');</script>";
+            }
         }
     }
 
-    // ดึง Major_id และ Tec_id จากตาราง major
-    $major_name = mysqli_real_escape_string($conn, $_POST['branch']);
-    $sql_major = "SELECT m.Major_id, t.Tec_id FROM major m JOIN teacher t ON m.Major_id = t.Major_id WHERE m.Major_name = '$major_name'";
-    $result_major = mysqli_query($conn, $sql_major);
-    $major_data = mysqli_fetch_assoc($result_major);
+    // เพิ่มข้อมูลลงใน student
+    $sqli = "INSERT INTO student (
+                Std_id, Id_number, Std_prefix, Std_name, Std_surname, 
+                Major_id, Grade_level, GPA, GPAX, CGX, 
+                Tec_id, Std_phone, Std_email, Std_picture, Std_pwd, 
+                Academic_year, Std_add, Province, Zip_id
+            ) VALUES (
+                '{$_POST['studentId']}', '{$_POST['idCard']}', '{$_POST['prefix']}', '{$_POST['name']}', '{$_POST['surname']}',
+                '$major_id', '{$_POST['year']}', '{$_POST['GPA']}', '{$_POST['GPAX']}', '{$_POST['CGX']}',
+                '$tec_id', '{$_POST['phone']}', '{$_POST['email']}', '$std_picture', '$stdpassword',
+                '{$_POST['Acayear']}', '{$_POST['address']}', '{$_POST['province']}', '{$_POST['postcode']}'
+            )";
 
-    if ($major_data) {
-        $major_id = $major_data['Major_id'];
-        $tec_id = $major_data['Tec_id'];
+    if (mysqli_query($conn, $sqli)) {
+        // เพิ่มข้อมูลลงใน proposal
+        $student_id = $_POST['studentId'];
+        $acayear = $_POST['Acayear'];
+        $proposal_sql = "INSERT INTO proposal (
+                            Std_id, Tec_id, Sug_year, Pro_status, Com_status, 
+                            Proposal_name, File_name, Company_id, Note
+                         ) VALUES (
+                            '$student_id', '$tec_id', '$acayear', 
+                            '4', '-', '-', '-', '0', '-'
+                         )";
 
-        // เพิ่มข้อมูลลงใน student
-        $sqli = "INSERT INTO student (Std_id, Id_number, Std_prefix, Std_name, Std_surname, Major_id, Grade_level, GPA, GPAX, CGX, Tec_id, Std_phone, Std_email, Std_picture, Std_pwd, Academic_year, Std_add, Province, Zip_id) 
-            VALUES ('{$_POST['studentId']}', '{$_POST['idCard']}', '{$_POST['prefix']}', '{$_POST['name']}', '{$_POST['surname']}', '$major_id', '{$_POST['year']}', '{$_POST['GPA']}', '{$_POST['GPAX']}', '{$_POST['CGX']}', '$tec_id', '{$_POST['phone']}', '{$_POST['email']}', '$std_picture', '$stdpassword', '{$_POST['Acayear']}', '{$_POST['address']}', '{$_POST['province']}', '{$_POST['postcode']}')";
-        
-        if (mysqli_query($conn, $sqli)) {
-            // ดึงข้อมูลจาก student
-            $student_id = $_POST['studentId'];
-            
-            // เพิ่มข้อมูลลงใน proposal
-            $proposal_sql = "INSERT INTO proposal (Std_id, Tec_id, Sug_year, Pro_status, Com_status, Proposal_name, File_name, Company_id, Note) 
-                VALUES ('$student_id', '$tec_id', '{$_POST['Acayear']}', '4', '-', '-', '-', '0', '-')";
-            mysqli_query($conn, $proposal_sql);
-            
+        if (mysqli_query($conn, $proposal_sql)) {
             echo "<script>alert('สมัครใช้งานสำเร็จ Please sign in'); window.location='index.php';</script>";
         } else {
-            echo "<script>alert('เกิดข้อผิดพลาด: " . mysqli_error($conn) . "');</script>";
+            echo "<script>alert('เกิดข้อผิดพลาดตอนเพิ่ม proposal: " . mysqli_error($conn) . "');</script>";
         }
+
     } else {
-        echo "<script>alert('ไม่พบข้อมูลสาขาที่เลือก');</script>";
+        echo "<script>alert('เกิดข้อผิดพลาดตอนเพิ่ม student: " . mysqli_error($conn) . "');</script>";
     }
+
+} else {
+    echo "<script>alert('ไม่พบข้อมูลสาขาที่เลือก');</script>";
 }
 ?>
 
