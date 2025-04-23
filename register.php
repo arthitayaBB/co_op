@@ -499,7 +499,7 @@ if (isset($_POST['submit_form'])) {
             
             // เพิ่มข้อมูลลงใน proposal
             $proposal_sql = "INSERT INTO proposal (Std_id, Tec_id, Sug_year, Pro_status, Com_status, Proposal_name, File_name, Company_id, Note) 
-                VALUES ('$student_id', '$tec_id', '{$_POST['Acayear']}', '-', '-', '-', '-', '0', '-')";
+                VALUES ('$student_id', '$tec_id', '{$_POST['Acayear']}', '4', '-', '-', '-', '0', '-')";
             mysqli_query($conn, $proposal_sql);
             
             echo "<script>alert('สมัครใช้งานสำเร็จ Please sign in'); window.location='index.php';</script>";
