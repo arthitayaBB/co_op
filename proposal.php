@@ -168,7 +168,7 @@ $std = mysqli_fetch_assoc($result);
 
     <div class="card">
       <div class="card-header">
-        ขออนุมัติฝึกสหกิจศึกษา (<?php echo $std['Std_id'] . ' - ' . $std['Std_prefix'] . $std['Std_name'] . '' . $std['Std_surname']; ?>)
+        ขออนุมัติฝึกสหกิจศึกษา (<?php echo $std['Std_id'] . ' - ' . $std['Std_prefix'] . $std['Std_name'] . ' ' . $std['Std_surname']; ?>)
       </div>
       <div class="table-responsive">
         <table class="table">
@@ -181,7 +181,7 @@ $std = mysqli_fetch_assoc($result);
             <th>หมายเหตุ</th>
           </tr>
           <tr>
-            <td><?php echo $std['Std_prefix'] . ' ' . $std['Std_name'] . '' . $std['Std_surname']; ?></td>
+            <td><?php echo $std['Std_prefix'] . ' ' . $std['Std_name'] . ' ' . $std['Std_surname']; ?></td>
             <td><?php echo $std['Major_name']; ?></td>
             <td><?php echo $std['Tec_name'] . ' ' . $std['Tec_surname']; ?></td>
             <td>

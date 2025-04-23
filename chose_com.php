@@ -171,7 +171,7 @@ $p = mysqli_fetch_assoc($result);
 
         <div class="card">
             <div class="card-header">
-                เลือกสถานประกอบการ (<?php echo $p['Std_id'] . ' - ' . $p['Std_prefix'] . $p['Std_name'] . '' . $p['Std_surname']; ?>)
+                เลือกสถานประกอบการ (<?php echo $p['Std_id'] . ' - ' . $p['Std_prefix'] . $p['Std_name'] . ' ' . $p['Std_surname']; ?>)
             </div>
             <div class="table-responsive">
                 <table class="table">
