@@ -231,6 +231,9 @@ $p = mysqli_fetch_assoc($result);
                                 case 3:
                                     echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                                     break;
+                                    case 4:
+                                        echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
+                                        break;
                                 default:
                                     echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
                             }

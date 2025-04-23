@@ -212,7 +212,7 @@ $std = mysqli_fetch_assoc($result);
                   echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                   break;
                   case 4:
-                    echo "<span class='status-label' style='background-color: gray;'>กรุณาเพิ่มโครงงาน</span>";
+                    echo "<span class='status-label' style='background-color: gray;'>กรุณาเพิ่มโปรเจค</span>";
                     break;
                 default:
                   echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";

@@ -453,9 +453,9 @@ include_once("connectdb.php");
   </div>
   <?php
   // เปิด error reporting
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+/*mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 1);*/
 
 if (isset($_POST['submit_form'])) {
     // เข้ารหัสรหัสผ่าน
@@ -509,7 +509,7 @@ if (isset($_POST['submit_form'])) {
               Proposal_name, File_name, Company_id, Note
            ) VALUES (
               '$student_id', '$tec_id', '$acayear', 
-              4, 0, '', '', 0, ''
+              4, 4, '', '', 0, ''
            )";
           
             mysqli_query($conn, $proposal_sql);
