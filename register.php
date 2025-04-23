@@ -452,8 +452,7 @@ include_once("connectdb.php");
   </div>
   </div>
   <?php
-  error_reporting(E_ALL);
-  ini_set('display_errors', 1);
+
   
 if (isset($_POST['submit_form'])) {
     // เข้ารหัสรหัสผ่าน
@@ -477,8 +476,13 @@ if (isset($_POST['submit_form'])) {
             }
             
             if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                $std_picture = $newFileName;
-            }
+              $std_picture = $newFileName;
+              echo "✅ รูปถูกย้ายเรียบร้อย: $newFileName<br>";
+          } else {
+              echo "❌ ย้ายไฟล์ไม่สำเร็จ: $fileTmpPath → $dest_path<br>";
+              echo "Error code: " . $_FILES['Std_picture']['error'];
+          }
+          
         }
     }
 
