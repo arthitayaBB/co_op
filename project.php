@@ -1,20 +1,11 @@
 <?php
 include_once("connectdb.php");
 session_start();
-  // เปิด error reporting
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
+// ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// ตรวจสอบ Std_id
-if ($Std_id <= 0) {
-    echo "<script>alert('ไม่พบรหัสนิสิต'); window.location='proposal.php';</script>";
-    exit;
-}
-
-// ตรวจสอบว่ามี proposal เดิมอยู่หรือไม่
+// ดึงข้อมูลโปรเจคของนักศึกษา ถ้ามีอยู่แล้ว
 $sql = "SELECT Proposal_id FROM proposal WHERE Std_id = ?";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "i", $Std_id);
@@ -39,16 +30,19 @@ if (isset($_POST['Submit'])) {
             exit;
         }
 
+        // ตั้งชื่อไฟล์ใหม่เพื่อป้องกันการชนกัน
         $newFileName = "project_" . $Std_id . "_" . time() . ".pdf";
         $uploadPath = "uploads/" . $newFileName;
 
         // ย้ายไฟล์ไปยังโฟลเดอร์ปลายทาง
         if (move_uploaded_file($fileTmpPath, $uploadPath)) {
+            // ถ้ามีอยู่แล้วให้อัปเดต
             if ($Proposal_id) {
                 $sql = "UPDATE proposal SET Proposal_name = ?, File_name = ?, Sug_year = ?, Pro_status = 3 WHERE Std_id = ?";
                 $stmt = mysqli_prepare($conn, $sql);
                 mysqli_stmt_bind_param($stmt, "ssii", $Proposalname, $newFileName, $Sugyear, $Std_id);
             } else {
+                // ถ้ายังไม่มีให้เพิ่มใหม่
                 $sql = "INSERT INTO proposal (Std_id, Proposal_name, File_name, Sug_year, Pro_status) VALUES (?, ?, ?, ?, 3)";
                 $stmt = mysqli_prepare($conn, $sql);
                 mysqli_stmt_bind_param($stmt, "issi", $Std_id, $Proposalname, $newFileName, $Sugyear);
@@ -57,7 +51,7 @@ if (isset($_POST['Submit'])) {
             if (mysqli_stmt_execute($stmt)) {
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ!'); window.location='proposal.php';</script>";
             } else {
-                echo "<script>alert('เกิดข้อผิดพลาดขณะบันทึก:" . mysqli_error($conn) . "');</script>";
+                echo "<script>alert('เกิดข้อผิดพลาด: " . mysqli_error($conn) . "');</script>";
             }
         } else {
             echo "<script>alert('ไม่สามารถอัปโหลดไฟล์ได้!'); window.history.back();</script>";
@@ -67,8 +61,6 @@ if (isset($_POST['Submit'])) {
     }
 }
 ?>
-
-
 
 <!doctype html>
 <html>
