@@ -60,6 +60,10 @@ if (isset($_POST['Submit'])) {
         echo "<script>alert('กรุณาเลือกไฟล์ก่อนทำการบันทึก!'); window.history.back();</script>";
     }
 }
+ // เปิด error reporting
+ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+ error_reporting(E_ALL);
+ ini_set('display_errors', 1);
 ?>
 
 <!doctype html>
