@@ -457,7 +457,6 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once('db_connect.php');
 
 // รับรหัสผ่านแล้วเข้ารหัส
 $stdpassword = md5($_POST['password']);
