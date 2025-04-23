@@ -139,7 +139,7 @@ if (isset($_GET['Std_id'])) {
     <div class="profile-img-wrapper">
       <div class="profile-img">
         <?php if (!empty($row['Std_picture'])) { ?>
-          <img src="img_student/<?php echo htmlspecialchars($row['Std_picture']); ?>" 
+          <img src="./profile_pic/<?php echo htmlspecialchars($row['Std_picture']); ?>" 
                alt="รูปประจำตัว" class="img-fluid">
         <?php } else { ?>
           <img src="img_student/default.jpg" alt="รูปประจำตัว" class="img-fluid">
