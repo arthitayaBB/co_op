@@ -85,7 +85,7 @@ $works = mysqli_fetch_all($rs1, MYSQLI_ASSOC);
     </div>
 
     <div class="container d-flex justify-content-end">
-        <div class="col-md-6 d-flex">
+        <div class="col-md-6 d-flex  fade-in move">
             <form method="GET" action="student_work.php" class="d-flex flex-row align-items-center">
                 <label for="category" class="me-2">สาขา:</label>
                 <select name="w" id="category" class="form-select me-3">
@@ -159,7 +159,7 @@ $works = mysqli_fetch_all($rs1, MYSQLI_ASSOC);
                             <div class="bg-white shadow-sm mx-auto fade-in"
                                 style="width: 100%; height: 300px; border-radius: 21px 21px 0 0; overflow: hidden;">
                                 <?php if (!empty($work['Work_picture'])) : ?>
-                                    <img src="images/<?= htmlspecialchars($work['Work_picture']) ?>"
+                                    <img src="images/pic_stdwork/<?= htmlspecialchars($work['Work_picture']) ?>"
                                         alt="Work Image"
                                         class="img-fluid w-100 h-100"
                                         style="object-fit: cover;">
@@ -177,12 +177,12 @@ $works = mysqli_fetch_all($rs1, MYSQLI_ASSOC);
     </div>
 
     <!-- ระบบแบ่งหน้า -->
-<div class="pagination d-flex justify-content-center mt-4 fade-in">
-    <?php if ($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?>&w=<?= $w ?>&year=<?= $year ?>" class="btn text me-2">« ก่อนหน้า</a>
-    <?php endif; ?>
+    <div class="pagination d-flex justify-content-center mt-4 fade-in">
+        <?php if ($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?>&w=<?= $w ?>&year=<?= $year ?>" class="btn text me-2">« ก่อนหน้า</a>
+        <?php endif; ?>
 
-    <?php 
+        <?php
         // คำนวณช่วงหน้าที่จะแสดง (ประมาณ 5 หน้า)
         $start_page = max(1, $page - 2); // หน้าเริ่มต้น (3 หน้าแรกหรือจากหน้าปัจจุบันไป 2 หน้า)
         $end_page = min($total_pages, $page + 2); // หน้าสุดท้าย (2 หน้าหลังหรือสุดท้าย)
@@ -195,10 +195,10 @@ $works = mysqli_fetch_all($rs1, MYSQLI_ASSOC);
             </a>
         <?php endfor; ?>
 
-    <?php if ($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?>&w=<?= $w ?>&year=<?= $year ?>" class="btn text">ถัดไป »</a>
-    <?php endif; ?>
-</div>
+        <?php if ($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?>&w=<?= $w ?>&year=<?= $year ?>" class="btn text">ถัดไป »</a>
+        <?php endif; ?>
+    </div>
 
 
     <?php include("footer.php"); ?>

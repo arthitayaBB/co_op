@@ -45,7 +45,7 @@ session_start();
                 <!-- รูปภาพด้านซ้าย -->
                 <div class="col-md-6 d-flex ">
                     <?php if (!empty($work['Work_picture'])): ?>
-                        <img src="images/<?= htmlspecialchars($work['Work_picture']) ?>"
+                        <img src="images/pic_stdwork/<?= htmlspecialchars($work['Work_picture']) ?>"
                             alt="รูปผลงาน"
                             class="img-fluid w-100"
                             style="aspect-ratio: 16/9; border-radius: 21px; margin-left: 20px;">
@@ -62,12 +62,17 @@ session_start();
                         <p style="margin-left: 20px;"><strong>บริษัท:</strong> <?= nl2br(htmlspecialchars($work['NamecomTH'])) ?></p>
                         <p style="margin-left: 20px;"><strong>นิสิต:</strong> <?= htmlspecialchars($work['Std_name'] . ' ' . $work['Std_surname']) ?></p>
                         <p style="margin-left: 20px;"><strong>สาขา:</strong> <?= htmlspecialchars($work['Major_name']) ?></p>
-                        
+
                         <p style="margin-left: 20px;"><strong>วันที่:</strong> <?= htmlspecialchars($work['Date']) ?></p>
                         <p style="margin-left: 20px;"><strong>ปี:</strong> <?= htmlspecialchars($work['Work_year']) ?></p>
 
                         <?php if (!empty($work['Work_File'])): ?>
-                            <p style="margin-left: 20px;"><a href="files/<?= htmlspecialchars($work['Work_File']) ?>" target="_blank" class="btn btn-outline-secondary mt-3">ดาวน์โหลดไฟล์</a></p>
+                            <p class="text-end">
+                                <a href="uploads/std_workfile/<?= htmlspecialchars($work['Work_File']) ?>" target="_blank" class="btn btn-outline-secondary mt-3">
+                                    คลิกเพื่อเปิดไฟล์
+                                </a>
+                            </p>
+
                         <?php endif; ?>
                     </div>
                 </div>

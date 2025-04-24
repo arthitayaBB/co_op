@@ -71,7 +71,7 @@ $total_pages = ceil($total_row / $limit);
         <a href="detail_news.php?id=<?= htmlspecialchars($data2['N_id']) ?>" 
              class="fade-in news-link d-flex justify-content-between align-items-center text-dark text-decoration-none">
             <div class="d-flex ">
-                <img src="images/<?= htmlspecialchars($data2['N_picture']) ?>" alt="news-image" class="news-image me-3">
+                <img src="images/news/<?= htmlspecialchars($data2['N_picture']) ?>" alt="news-image" class="news-image me-3">
                 <div>
                     <p class="news-title"><?= htmlspecialchars($data2['N_heading']) ?> </p>
                     <p class="news-detail"><?= htmlspecialchars(mb_substr($data2['N_detail'], 0, 200, 'UTF-8')) ?>...</p> 
@@ -85,22 +85,42 @@ $total_pages = ceil($total_row / $limit);
     <?php $i++; }
     ?>
 
-    <!-- ระบบแบ่งหน้า -->
-    <div class="pagination d-flex justify-content-center mt-4 fade-in">
-        <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>" class="btn text me-2">« ก่อนหน้า</a>
-        <?php endif; ?>
-        
-        <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+<!-- ระบบแบ่งหน้า -->
+<div class="pagination d-flex justify-content-center my-4 fade-in">
+    <?php if ($page > 1): ?>
+        <a href="?page=<?= $page - 1 ?>" class="btn text me-2">« ก่อนหน้า</a>
+    <?php endif; ?>
+
+    <?php
+    $visible_pages = 3; // จำนวนหน้าที่จะแสดงรอบ ๆ หน้า current
+    $ellipsis_added = false;
+
+    for ($p = 1; $p <= $total_pages; $p++):
+        if (
+            $p == 1 || // หน้าแรก
+            $p == $total_pages || // หน้าสุดท้าย
+            abs($p - $page) < $visible_pages // รอบ ๆ หน้าปัจจุบัน
+        ) :
+    ?>
             <a href="?page=<?= $p ?>" class="btn <?= $p == $page ? 'btn btn-warning' : 'btn btn-outline-warning' ?> me-2">
                 <?= $p ?>
             </a>
-        <?php endfor; ?>
-        
-        <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>" class="btn text">ถัดไป »</a>
-        <?php endif; ?>
-    </div>
+    <?php
+            $ellipsis_added = false;
+        elseif (!$ellipsis_added):
+            echo '<span class="mx-2">...</span>';
+            $ellipsis_added = true;
+        endif;
+    endfor;
+    ?>
+
+    <?php if ($page < $total_pages): ?>
+        <a href="?page=<?= $page + 1 ?>" class="btn text">ถัดไป »</a>
+    <?php endif; ?>
+</div>
+
+
+    
 </div>
 
 <?php include("footer.php"); ?>

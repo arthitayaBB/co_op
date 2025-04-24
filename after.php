@@ -1,23 +1,28 @@
 <?php
 include_once("connectdb.php");
 session_start();
-// ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
-$Std_id = isset($_SESSION['id']) ? intval($_SESSION['id']) : 0;
+  // เปิด error reporting
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+  error_reporting(E_ALL);
+  ini_set('display_errors', 1);
 
-// ดึงข้อมูลสาขาของนักศึกษา
+// ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
+$Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
+
+
 $sql = "
-SELECT sw.*, s.Std_id, s.Std_name, p.Proposal_id, c.Company_id, c.NamecomTH
+SELECT s.Std_id, s.Std_name, p.Proposal_id, p.Company_id, c.NamecomTH
 FROM student s 
 JOIN proposal p ON s.Std_id = p.Std_id 
-JOIN student_work sw ON s.Std_id = sw.Std_id 
-JOIN company c ON sw.Company_id = c.Company_id
+JOIN company c ON p.Company_id = c.Company_id
 WHERE s.Std_id = $Std_id
 ";
 $result = mysqli_query($conn, $sql);
 $sw = mysqli_fetch_assoc($result);
 
 $company_id = $sw['Company_id'] ?? null;
-$company_name = $sw['NamecomTH'] ?? '';
+
+
 
 ?>
 
@@ -27,7 +32,7 @@ $company_name = $sw['NamecomTH'] ?? '';
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>เลือกสถานประกอบการ</title>
+    <title>เพิ่มโปรเจสหกิจศึกษา</title>
     <link rel="icon" href="images/Logo.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -118,8 +123,8 @@ $company_name = $sw['NamecomTH'] ?? '';
 
             $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
             if (in_array($fileExtension, $allowedExtensions)) {
-                $newPicName = "profile_" . $std_id . "_" . time() . "." . $fileExtension;
-                $uploadDir = 'images/';
+                $newPicName = "profileWorkfile_" . $std_id . "_" . time() . "." . $fileExtension;
+                $uploadDir = 'images/pic_stdwork';
                 $dest_path = $uploadDir . $newPicName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
@@ -137,8 +142,8 @@ $company_name = $sw['NamecomTH'] ?? '';
             $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
             if ($fileExtension == 'pdf') {
-                $newFileName = "project_" . $std_id . "_" . time() . ".pdf";
-                $uploadDir = 'uploads/';
+                $newFileName = "Workfile_" . $std_id . "_" . time() . ".pdf";
+                $uploadDir = 'uploads/std_workfile';
                 $dest_path = $uploadDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {

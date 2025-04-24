@@ -56,7 +56,7 @@ session_start();
     <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img src="images/<?php echo $pr['Pr_picture1']; ?>" class="d-block w-100" alt="...">
+                <img src="images/public_relations/<?php echo $pr['Pr_picture1']; ?>" class="d-block w-100" alt="...">
             </div>
             <!-- เพิ่มรูปภาพอื่นๆ ตามที่ต้องการ -->
         </div>

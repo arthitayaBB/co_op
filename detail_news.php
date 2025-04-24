@@ -44,7 +44,7 @@ $news = mysqli_fetch_assoc($result);
     <div class="container-fluid py-4">
         <?php if ($news): ?>
             <div class="card mx-auto shadow-lg border-0" style="max-width: 1100px; border-radius: 15px;">
-                <img src="images/<?php echo htmlspecialchars($news['N_picture']); ?>" class="card-img-top" style="border-top-left-radius: 15px; border-top-right-radius: 15px;" alt="News Image">
+                <img src="images/news/<?php echo htmlspecialchars($news['N_picture']); ?>" class="card-img-top" style="border-top-left-radius: 15px; border-top-right-radius: 15px;" alt="News Image">
                 <div class="card-body p-4">
                     <h1 class="card-title text-center fw-bold " style="color: #333;"><?php echo htmlspecialchars($news['N_heading']); ?></h1>
                     <p class="card-text fs-5"><?php echo nl2br(htmlspecialchars($news['N_detail'])); ?></p>

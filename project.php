@@ -32,7 +32,7 @@ if (isset($_POST['Submit'])) {
 
         // ตั้งชื่อไฟล์ใหม่เพื่อป้องกันการชนกัน
         $newFileName = "project_" . $Std_id . "_" . time() . ".pdf";
-        $uploadPath = "uploads/" . $newFileName;
+        $uploadPath = "uploads/project" . $newFileName;
 
         // ย้ายไฟล์ไปยังโฟลเดอร์ปลายทาง
         if (move_uploaded_file($fileTmpPath, $uploadPath)) {
@@ -60,6 +60,10 @@ if (isset($_POST['Submit'])) {
         echo "<script>alert('กรุณาเลือกไฟล์ก่อนทำการบันทึก!'); window.history.back();</script>";
     }
 }
+ // เปิด error reporting
+ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+ error_reporting(E_ALL);
+ ini_set('display_errors', 1);
 ?>
 
 <!doctype html>
@@ -115,14 +119,17 @@ if (isset($_POST['Submit'])) {
             <label class="form-label">ชื่อโปรเจค</label>
             <input type="text" name="Proposalname" class="form-control" placeholder="เช่น ระบบจัดการร้านค้าออนไลน์" required autofocus>
         </div>
-        <div class="mb-3">
-            <label class="form-label">เพิ่มไฟล์โปรเจค (เฉพาะ PDF เท่านั้น)</label>
-            <input type="file" name="Filename" class="form-control" accept="application/pdf" required>
-        </div>
+   
         <div class="mb-3">
             <label class="form-label">ปีการศึกษา</label>
             <input type="number" name="Sugyear" class="form-control" placeholder="เช่น 2565" required min="2565">
         </div>
+
+        <div class="mb-3">
+            <label class="form-label">เพิ่มไฟล์โปรเจค (เฉพาะ PDF เท่านั้น)</label>
+            <input type="file" name="Filename" class="form-control" accept="application/pdf" required>
+        </div>
+        
         <button type="submit" name="Submit" class="btn btn-info w-100">เพิ่ม</button>
     </form>
 </div>

@@ -144,7 +144,7 @@ include_once("connectdb.php");
     <div class="row">
       <!-- รูปภาพทางซ้าย -->
       <div class="col-md-6 d-flex justify-content-center">
-        <img id="image1" src="images/design/reg1.svg" alt="รูปภาพ" class="img-fluid">
+        <img id="image1" src="images/design/step-co_op.svg" alt="รูปภาพ" class="img-fluid">
       </div>
 
       <!-- ฟอร์มทางขวา -->
@@ -452,6 +452,11 @@ include_once("connectdb.php");
   </div>
   </div>
   <?php
+  // เปิด error reporting
+/*mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);*/
+
 if (isset($_POST['submit_form'])) {
     // เข้ารหัสรหัสผ่าน
     $stdpassword = md5($_POST['password']);
@@ -496,10 +501,17 @@ if (isset($_POST['submit_form'])) {
         if (mysqli_query($conn, $sqli)) {
             // ดึงข้อมูลจาก student
             $student_id = $_POST['studentId'];
+            $acayear = mysqli_real_escape_string($conn, $_POST['Acayear']);
             
             // เพิ่มข้อมูลลงใน proposal
-            $proposal_sql = "INSERT INTO proposal (Std_id, Tec_id, Sug_year, Pro_status, Com_status, Proposal_name, File_name, Company_id, Note) 
-                VALUES ('$student_id', '$tec_id', '{$_POST['Acayear']}', '-', '-', '-', '-', '0', '-')";
+            $proposal_sql = "INSERT INTO proposal (
+              Std_id, Tec_id, Sug_year, Pro_status, Com_status, 
+              Proposal_name, File_name, Company_id, Note
+           ) VALUES (
+              '$student_id', '$tec_id', '$acayear', 
+              4, 4, '', '', 0, ''
+           )";
+          
             mysqli_query($conn, $proposal_sql);
             
             echo "<script>alert('สมัครใช้งานสำเร็จ Please sign in'); window.location='index.php';</script>";

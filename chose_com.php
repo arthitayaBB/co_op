@@ -171,7 +171,7 @@ $p = mysqli_fetch_assoc($result);
 
         <div class="card">
             <div class="card-header">
-                เลือกสถานประกอบการ (<?php echo $p['Std_id'] . ' - ' . $p['Std_prefix'] . $p['Std_name'] . '' . $p['Std_surname']; ?>)
+                เลือกสถานประกอบการ (<?php echo $p['Std_id'] . ' - ' . $p['Std_prefix'] . $p['Std_name'] . ' ' . $p['Std_surname']; ?>)
             </div>
             <div class="table-responsive">
                 <table class="table">
@@ -231,6 +231,9 @@ $p = mysqli_fetch_assoc($result);
                                 case 3:
                                     echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                                     break;
+                                    case 4:
+                                        echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
+                                        break;
                                 default:
                                     echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
                             }

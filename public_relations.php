@@ -155,7 +155,7 @@ $total_pages = ceil($total_row / $limit);
                             <a href="detail_pr.php?id=<?= $data['Pr_id']; ?>" class="text-decoration-none">
                                 <div class="card shadow-sm fade-in move">
                                     <!-- รูปภาพข่าว -->
-                                    <img src="images/<?= htmlspecialchars($data['Pr_picture1']); ?>" class="bd-placeholder-img card-img-top" width="100%" height="225" alt="รูปภาพข่าว">
+                                    <img src="images/public_relations/<?= htmlspecialchars($data['Pr_picture1']); ?>" class="bd-placeholder-img card-img-top" width="100%" height="225" alt="รูปภาพข่าว">
 
                                     <div class="card-body">
                                         <!-- รายละเอียดข่าว (ตัด 2 บรรทัด) -->
@@ -183,22 +183,42 @@ $total_pages = ceil($total_row / $limit);
             </div>
         </div>
 
-        <!-- ระบบแบ่งหน้า -->
-        <div class="pagination d-flex justify-content-center mt-4 fade-in">
-            <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn text me-2">« ก่อนหน้า</a>
-            <?php endif; ?>
+       <!-- ระบบแบ่งหน้า -->
+<div class="pagination d-flex justify-content-center my-4 fade-in">
+    <?php if ($page > 1): ?>
+        <a href="?page=<?= $page - 1 ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn text me-2">« ก่อนหน้า</a>
+    <?php endif; ?>
 
-            <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-                <a href="?page=<?= $p ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn <?= $p == $page ? 'btn btn-warning' : 'btn btn-outline-warning' ?> me-2">
-                    <?= $p ?>
-                </a>
-            <?php endfor; ?>
+    <?php
+    $visible_pages = 1; // จำนวนหน้ารอบๆ ปัจจุบันที่จะแสดง
+    $ellipsis_added = false;
 
-            <?php if ($page < $total_pages): ?>
-                <a href="?page=<?= $page + 1 ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn text">ถัดไป »</a>
-            <?php endif; ?>
-        </div>
+    for ($p = 1; $p <= $total_pages; $p++):
+        if (
+            $p == 1 || 
+            $p == $total_pages || 
+            abs($p - $page) <= $visible_pages
+        ) :
+    ?>
+        <a href="?page=<?= $p ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn <?= $p == $page ? 'btn btn-warning' : 'btn btn-outline-warning' ?> me-2">
+            <?= $p ?>
+        </a>
+    <?php
+        $ellipsis_added = false;
+        elseif (!$ellipsis_added):
+            echo '<span class="mx-2">...</span>';
+            $ellipsis_added = true;
+        endif;
+    endfor;
+    ?>
+
+    <?php if ($page < $total_pages): ?>
+        <a href="?page=<?= $page + 1 ?>&kw=<?= urlencode($kw) ?>&pr=<?= $pr ?>" class="btn text">ถัดไป »</a>
+    <?php endif; ?>
+</div>
+
+
+
     </div>
 
     <?php include("footer.php"); ?>
