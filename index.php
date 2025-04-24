@@ -1,206 +1,309 @@
-<img src="images/header.png" style="width: 100%;">
+<?php
+include_once("connectdb.php");
+session_start();
 
-<header class="site-header sticky-top py-1" style="background-color: #f8f9fa;">
-    <nav class="navbar navbar-expand-md">
-        <div class="container-fluid">
-            <!-- Hamburger Button for Small Screens -->
-            <button class="navbar-toggler d-md-none fixed-top" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation" style="z-index: 1050; top: 10px; left: 10px; position: absolute;" id="hamburgerBtn">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+?>
 
-            <!-- Navbar for Large Screens -->
-            <div class="d-none d-md-flex w-100 justify-content-between">
-                <a class="btn position-relative" href="index.php" aria-label="home">
-                    <i class="bi bi-house" style="font-size: 25px;"></i>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าหลัก</title>
+    <link rel="icon" href="images/Logo.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- เรียกใช้ไฟล์ CSS ที่แยกออกมา -->
+
+</head>
+
+<body>
+
+    <?php include("navbar.php"); ?> <!-- เรียกใช้ navbar ที่แยกออกมา -->
+
+
+    <!-- Carousel 1: myCarousel -->
+    <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="images/Bn1.png" class="d-block w-100" alt="Description of image 1">
+            </div>
+            <div class="carousel-item">
+                <img src="images/Bn2.png" class="d-block w-100" alt="Description of image 2">
+            </div>
+            <div class="carousel-item">
+                <img src="images/Bn3.png" class="d-block w-100" alt="Description of image 2">
+            </div>
+        </div>
+        <!-- ปุ่มเลื่อนซ้ายสำหรับ myCarousel -->
+        <button class="carousel-control-prev " type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <!-- ปุ่มเลื่อนขวาสำหรับ myCarousel -->
+        <button class="carousel-control-next " type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <br>
+
+    <?php
+    $sql1 = "
+        SELECT sw.*, s.Std_name, s.Std_surname, m.Major_name
+        FROM student_work sw
+        INNER JOIN student s ON sw.Std_id = s.Std_id
+        INNER JOIN major m ON s.Major_id = m.Major_id
+        ORDER BY sw.Date DESC";
+    $rs1 = mysqli_query($conn, $sql1);
+
+    if (!$rs1) {
+        die("Query failed: " . mysqli_error($conn));
+    }
+
+    // เก็บข้อมูลทั้งหมดใน array
+    $works = [];
+    while ($row = mysqli_fetch_array($rs1, MYSQLI_BOTH)) {
+        $works[] = $row;
+    }
+    ?>
+
+    <!-- Carousel 2: workCarousel -->
+
+    <div id="workCarousel" class="carousel slide" data-bs-ride="false">
+        <div class="carousel-inner fade-in">
+            <a href="detail_stdwork.php?id=<?= $work['Work_id']; ?>" class="text-decoration-none text-dark">
+                <?php foreach (array_chunk($works, 2) as $index => $workPair): ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="d-flex justify-content-center">
+                            <?php foreach ($workPair as $data1): ?>
+                                <div class="card mx-2 shadow-sm move" style="max-width: 45rem; width: 100%;">
+                                    <div class="row g-0">
+                                        <div class="col-md-8 d-flex flex-column p-3">
+                                            <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="text-decoration-none text-dark">
+                                                <!-- หัวข้อ: ตัด 1 บรรทัด -->
+                                                <h5 class="card-title text-truncate" style="max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <?= htmlspecialchars($data1['Work_name']) ?>
+                                                </h5>
+                                            </a>
+                                            <!-- สาขา-->
+                                            <p class="card-text text-muted"><?= htmlspecialchars($data1['Major_name']) ?></p>
+                                            <!-- รายละเอียด: ตัด 2 บรรทัด -->
+                                            <p class="cut-text">
+                                                <?= htmlspecialchars($data1['Work_detail']) ?>
+                                            </p>
+
+                                            <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="stretched-link">อ่านต่อ</a>
+                                        </div>
+                                        <!-- รูปภาพ -->
+                                        <div class="col-md-4 d-flex align-items-center">
+                                            <img src="images/<?= htmlspecialchars($data1['Work_picture']) ?>" alt="รูปผลงาน" class="img-fluid rounded-end" style="height: 100%; object-fit: contain;">
+                                        </div>
+
+                                    </div>
+            </a>
+        </div>
+    <?php endforeach; ?>
+    </div>
+    </div>
+<?php endforeach; ?>
+</div>
+
+<!-- ปุ่มเลื่อนซ้ายสำหรับ workCarousel -->
+<button class="carousel-control-prev" type="button" data-bs-target="#workCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+</button>
+<!-- ปุ่มเลื่อนขวาสำหรับ workCarousel -->
+<button class="carousel-control-next" type="button" data-bs-target="#workCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+</button>
+</div>
+
+
+<div class="col-12 text-end mt-3">
+    <a href="student_work.php" class="link-co fade-in">ดูผลงานทั้งหมด</a>
+</div>
+
+
+<div class="row"><!-- คอลัมน์ข่าวประกาศประชาสัมพันธ์ -->
+    <div class="col-md-8 fade-in" style="padding-right: 10px; padding-left: 10px;">
+        <h5 class="custom-heading">ข่าวประกาศประชาสัมพันธ์</h5>
+
+
+        <?php
+        //ดึงข้อมูลข่าว
+        $limit = 4; // จำนวนข่าวที่ต้องการแสดง
+        $sql2 = "SELECT * FROM news ORDER BY N_date DESC LIMIT $limit";
+        $rs2 = mysqli_query($conn, $sql2);
+        $i = 0; // ตัวนับ
+
+        while ($data2 = mysqli_fetch_assoc($rs2)) {
+            $bgClass = ($i % 2 == 0) ? 'bg-light' : 'bg-white'; // สลับสีพื้นหลัง
+        ?>
+
+            <div class="col-12 news-item shadow-sm fade-in <?= $bgClass ?>">
+                <a href="detail_news.php?id=<?= htmlspecialchars($data2['N_id']) ?>"
+                    class="fade-in news-link d-flex justify-content-between align-items-center text-dark text-decoration-none">
+                    <div>
+                        <p class="news-title"><?= htmlspecialchars($data2['N_heading']) ?></p>
+                        <p class="news-detail"><?= htmlspecialchars(mb_substr($data2['N_detail'], 0, 200, 'UTF-8')) ?>...</p>
+                        <p class="news-date "><i class="bi bi-calendar2-week"></i> <?= htmlspecialchars($data2['N_date']) ?></p>
+                    </div>
                 </a>
-                <a class="btn position-relative" href="register.php">สมัครสหกิจศึกษา</a>
-
-                <div class="dropdown">
-                    <a class="btn position-relative" href="#" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        เกี่ยวกับสหกิจศึกษา
-                        <i class="bi bi-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="dropdown-menu text-small shadow" style="min-width: 100%; width: max-content;">
-                    <li><a class="dropdown-item" href="about_cooperative.php">บทบาทและขั้นตอน</a></li>
-                        <li><a class="dropdown-item" href="about_story.php">ความเป็นมาสหกิจศึกษา</a></li>
-                        <li><a class="dropdown-item" href="about_company.php">สถานประกอบการ</a></li>
-                        <li><a class="dropdown-item" href="about_teacher.php">อาจารย์ที่ปรึกษา</a></li>
-                        <li><a class="dropdown-item" href="about_student.php">บทบาทของนิสิต</a></li>
-
-
-                    </ul>
-                </div>
-
-
-
-                <div class="dropdown">
-                    <a class="btn position-relative" href="#" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        ข่าวประกาศประชาสัมพันธ์
-                        <i class="bi bi-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="dropdown-menu text-small shadow">
-                        <li><a class="dropdown-item" href="public_relations.php">กิจกรรมสหกิจศึกษา</a></li>
-                        <li><a class="dropdown-item" href="news.php">ข่าวประชาสัมพันธ์</a></li>
-                    </ul>
-                </div>
-                <a class="btn position-relative" href="company.php">สถานประกอบการ</a>
-                <a class="btn position-relative" href="student_work.php">ผลงานนิสิต</a>
-                <a class="btn position-relative" href="contact.php">ติดต่อสอบถาม</a>
-                <div class="dropdown">
-                    <a class="btn position-relative" href="#" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle" style="font-size: 25px;"></i>
-                        <i class="bi bi-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="dropdown-menu text-small shadow dropdown-menu-end" style="width: max-content; max-width: 100vw; overflow-x: auto;">
-                        <?php if (isset($_SESSION['Std_id'])): ?>
-                            <li><a class="dropdown-item" href="std_home.php"><span>บัญชี</span></a></li>
-                            <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span>ตั้งค่าบัญชี</span></a></li>
-                            <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="logout_std.php"><span>ออกจากระบบ</span></a></li>
-                        <?php else: ?>
-                            <li><a class="dropdown-item text-wrap" href="login_student.php">สำหรับนิสิต</a></li>
-                            <li><a class="dropdown-item text-wrap" href="approval_system/login.php">สำหรับอาจารย์</a></li>
-                            <li><a class="dropdown-item text-wrap" href="BackEnd/login.php">สำหรับแอดมิน</a></li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-
-
-
             </div>
 
-            <!-- Sidebar for Small Screens -->
-            <div class="collapse d-md-none" id="sidebarMenu">
-                <div class="d-flex flex-column bg-light p-3" style="min-width: 250px; height: 100vh;">
-                    <!-- Close Button (X) -->
-                    <button class="btn btn-close align-self-end" id="closeMenu" aria-label="Close menu"></button> <!-- ปุ่มกากบาท -->
-                    <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none" href="#">
-                        <i class="bi bi-house me-2" style="font-size: 20px;"></i>
-                        <span class="fs-4">เมนู</span>
-                    </a>
+        <?php
+            $i++; // เพิ่มตัวนับ
+        }
+        ?>
 
-                    <hr>
+        <!-- ลิงก์ไปหน้าข่าวทั้งหมด -->
+        <div class="col-12 text-end mt-3">
+            <a href="news.php" class="link-co fade-in">ข่าวทั้งหมด</a>
+        </div>
+    </div>
 
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a href="index.php" class="nav-link link-dark" aria-current="page">
-                                <i class="bi bi-house-door me-2"></i>
-                                หน้าแรก
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="register.php" class="nav-link link-dark">
-                                <i class="bi bi-journal-check me-2"></i>
-                                สมัครสหกิจศึกษา
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link link-dark d-flex justify-content-between align-items-center" href="#" onclick="toggleMenu('coopMenu')">
-                                <span><i class="bi bi-info-circle me-2"></i> เกี่ยวกับสหกิจศึกษา</span>
-                                <i class="bi bi-chevron-down"></i>
-                            </a>
-                            <ul class="nav flex-column ms-5 " id="coopMenu" style="display: none;">
-                            <li><a class="dropdown-item" href="about_cooperative.php"><i class="bi-journal-check me-2"></i>บทบาทและขั้นตอน</a></li>
-                                <li><a class="dropdown-item" href="about_story.php"><i class="bi bi-book me-2"></i>ความเป็นมาสหกิจศึกษา</a></li>
-                                <li><a class="dropdown-item" href="about_company.php"><i class="bi bi-building me-2"></i>บทบาทสถานประกอบการ</a></li>
-                                <li><a class="dropdown-item" href="about_teacher.php"><i class="bi bi-person-badge me-2"></i>อาจารย์ที่ปรึกษา</a></li>
-                                <li><a class="dropdown-item" href="about_student.php"><i class="bi bi-people me-2"></i>บทบาทนิสิต</a></li>
-                           
-                               
-                            </ul>
+    <!-- คอลัมน์ขั้นตอนการยื่นสหกิจศึกษา -->
+    <div class="col-md-4 fade-in" style="padding-right: 10px; padding-left: 10px;">
+        <h2 class="text-center" style="color: #000033;">ขั้นตอนการยื่นสหกิจศึกษา</h2>
 
-                        </li>
+        <div class="container">
+            <!-- Row 1 -->
+            <div class="row align-items-center mb-3 fade-in">
+                <div class="col-auto">
+                    <i class="bi bi-person-check-fill" style="font-size: 35px; color: #5bc1ac;"></i>
+                </div>
+                <div class="col text-start">
+                    <a href="login_student.php" class="link-co">1) เข้าสู่ระบบ / ลงทะเบียนใหม่</a>
+                    <p class="mb-0">Login เข้าสู่ระบบ หรือ ลงทะเบียนใหม่</p>
+                </div>
+            </div>
 
+            <!-- Row 2 -->
+            <div class="row align-items-center mb-3 fade-in">
+                <div class="col-auto">
+                    <i class="bi bi-search" style="font-size: 35px; color: #5bc1ac;"></i>
+                </div>
+                <div class="col text-start">
+                    <a href="company.php" class="link-co">2) ค้นหาสถานประกอบการ</a>
+                    <p class="mb-0">ค้นหาข้อมูลสถานที่ฝึกสหกิจแยกตามภาคและจังหวัด</p>
+                </div>
+            </div>
 
-                        <li class="nav-item">
-                            <a class="nav-link link-dark d-flex justify-content-between align-items-center" href="#" onclick="toggleMenu('activityMenu')">
-                                <i class="bi bi-megaphone me-2"></i> ข่าวกิจกรรมสหกิจศึกษา <i class="bi bi-chevron-down"></i>
-                            </a>
-                            <ul class="nav flex-column ms-5" id="activityMenu" style="display: none;">
-                                <li><a class="dropdown-item" href="public_relations.php"><i class="bi-person-check me-2"></i>กิจกรรมสหกิจศึกษา
-                                    </a></li>
-                                <li><a class="dropdown-item" href="news.php"><i class="bi bi-newspaper me-2"></i>ข่าวประชาสัมพันธ์
-                                    </a></li>
-                            </ul>
-                        </li>
+            <!-- Row 3 -->
+            <div class="row align-items-center mb-3 fade-in">
+                <div class="col-auto">
+                    <i class="bi bi-file-text-fill" style="font-size: 35px; color: #5bc1ac;"></i>
+                </div>
+                <div class="col text-start">
+                    <a href="#" class="link-co">3) ขออนุมัติฝึกสกิจศึกษา</a>
+                    <p class="mb-0">แจ้งความประสงค์เพื่อยื่นฝึกสกิจศึกษาและยื่นโปรเจค</p>
+                </div>
+            </div>
 
-
-                        <li class="nav-item">
-                            <a href="company.php" class="nav-link link-dark">
-                                <i class="bi bi-building me-2"></i>
-                                สถานประกอบการ
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="student_work.php" class="nav-link link-dark">
-                                <i class="bi bi-file-earmark-text me-2"></i>
-                                ผลงานนิสิต
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link link-dark">
-                                <i class="bi bi-envelope me-2"></i>
-                                ติดต่อสอบถาม
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link link-dark d-flex align-items-center gap-2" href="#" onclick="toggleMenu('login', event)">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                                <span>เข้าสู่ระบบ</span>
-                                <i class="bi bi-chevron-down ms-auto"></i>
-                            </a>
-                        </li>
-
-                        <ul class="nav flex-column ms-5" id="login" style="display: none;">
-                            <?php if (isset($_SESSION['Std_id'])): ?>
-                                <li><a class="dropdown-item" href="std_home.php"><i class="bi bi-person-circle me-2"></i> บัญชี</a></li>
-                                <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><i class="bi bi-gear me-2"></i> ตั้งค่าบัญชี</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="logout_std.php"><i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ</a></li>
-                            <?php else: ?>
-                                <li><a class="dropdown-item" href="login_student.php"><i class="bi bi-mortarboard me-2"></i> สำหรับนิสิต</a></li>
-                                <li><a class="dropdown-item" href="approval_system/login.php"><i class="bi bi-person-badge me-2"></i> สำหรับอาจารย์</a></li>
-                                <li><a class="dropdown-item" href="BackEnd/login.php"><i class="bi bi-shield-lock me-2"></i> สำหรับแอดมิน</a></li>
-                            <?php endif; ?>
-                        </ul>
-
-
-
-                    </ul>
+            <!-- Row 4 -->
+            <div class="row align-items-center mb-3 fade-in">
+                <div class="col-auto">
+                    <i class="bi bi-check-square-fill" style="font-size: 35px; color: #5bc1ac"></i>
+                </div>
+                <div class="col text-start">
+                    <a href="#" class="link-co">4) ตรวจสอบสถานะ</a>
+                    <p class="mb-0">สามารถตรวจสอบสถานะการอนุมัติได้</p>
                 </div>
             </div>
         </div>
-    </nav>
-</header>
+    </div>
 
-<script>
-    // การเปิดเมนู
-    const navbarToggler = document.querySelector('#hamburgerBtn');
-    const sidebarMenu = document.querySelector('#sidebarMenu');
-    const closeMenuBtn = document.querySelector('#closeMenu');
+    <div class="container text-center  fade-in ">
+        <div class="section-title ">
+            <h1>MBS</h1>
+            <div class="title-underline"></div>
+            <div class="subtitle">highlight</div>
+        </div>
 
-    // เมื่อคลิกที่ปุ่มแฮมเบอร์เกอร์จะทำการเปิดเมนู
-    navbarToggler.addEventListener('click', function() {
-        sidebarMenu.classList.add('show'); // เปิดเมนู
-        navbarToggler.style.display = 'none'; // ซ่อนปุ่มแฮมเบอร์เกอร์
-    });
 
-    // เมื่อคลิกที่ปุ่มกากบาทจะทำการปิดเมนู
-    closeMenuBtn.addEventListener('click', function() {
-        sidebarMenu.classList.remove('show'); // ปิดเมนู
-        navbarToggler.style.display = 'block'; // แสดงปุ่มแฮมเบอร์เกอร์อีกครั้ง
-    });
+        <?php
+        $limitPr = 6;
+        $sql = "SELECT * FROM public_relations ORDER BY Pr_date DESC LIMIT $limitPr";
+        $rs = mysqli_query($conn, $sql);
 
-    function toggleMenu(menuId) {
-        var menu = document.getElementById(menuId);
-        // Toggle the display property to show or hide
-        if (menu.style.display === "none" || menu.style.display === "") {
-            menu.style.display = "block";
-        } else {
-            menu.style.display = "none";
+        if (!$rs) {
+            die("Query failed: " . mysqli_error($conn));
         }
-    }
-</script>
+
+        echo '<div class="container mt-4">';
+        echo '<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 justify-content-center fade-in">';
+
+        $i = 0;
+
+        while ($data = mysqli_fetch_array($rs, MYSQLI_BOTH)) {
+        ?>
+
+            <div class="col">
+                <a href="detail_pr.php?id=<?= $data['Pr_id']; ?>" class="text-decoration-none">
+                    <div class="card shadow-sm fade-in move">
+                        <img src="images/<?= htmlspecialchars($data['Pr_picture1']); ?>" class="bd-placeholder-img card-img-top" width="100%" height="225" alt="รูปภาพข่าว">
+                        <div class="card-body">
+                            <p class="card-text cut-text" >
+                                <?= htmlspecialchars($data['Pr_detail']); ?>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-body-secondary ms-auto"> <?= htmlspecialchars($data['Pr_date']); ?> </small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+
+        <?php
+        }
+        ?>
+    </div>
+</div>
+<!-- ลิงก์ไปหน้าข่าวทั้งหมด -->
+<div class="col-12 text-end mt-3">
+    <a href="public_relations.php" class="link-co fade-in">อ่านทั้งหมด</a>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script><!-- ควบคุม navbar และ fade-in -->
+
+<footer class="footer mt-5 py-4 fade-in" style="background-color: #f8f9fa;">
+    <div class="container text-center">
+        <!-- ข้อมูลติดต่อ -->
+        <div class="contact-info">
+            <p><strong>Contact Us</strong></p>
+            <p>Phone: +123 456 7890</p>
+            <p>Email: example@example.com</p>
+        </div>
+
+        <!-- ลิงก์ไปยังหน้าต่างต่างๆ -->
+        <div class="footer-links">
+            <p><a href="about.html" class=" text-decoration-none">About Us</a></p>
+            <p><a href="services.html" class=" text-decoration-none">Services</a></p>
+            <p><a href="privacy.html" class=" text-decoration-none">Privacy Policy</a></p>
+        </div>
+
+        <!-- ข้อความลิขสิทธิ์ -->
+        <p class="mt-3">© 2025 Your Company. All Rights Reserved.</p>
+    </div>
+</footer>
+</body>
+
+</html>
