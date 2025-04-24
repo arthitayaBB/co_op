@@ -27,15 +27,25 @@ session_start();
     <!-- Carousel 1: myCarousel -->
     <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="images/Bn1.png" class="d-block w-100" alt="Description of image 1">
-            </div>
-            <div class="carousel-item">
-                <img src="images/Bn2.png" class="d-block w-100" alt="Description of image 2">
-            </div>
-            <div class="carousel-item">
-                <img src="images/Bn3.png" class="d-block w-100" alt="Description of image 2">
-            </div>
+ <?php       // ดึงข้อมูลจากตาราง banner
+$sql = "SELECT Bn_image FROM banner";
+$result = $conn->query($sql);
+
+// สร้าง carousel item
+if ($result->num_rows > 0) {
+    $activeSet = false;
+    while ($row = $result->fetch_assoc()) {
+        $activeClass = !$activeSet ? ' active' : '';
+        $activeSet = true;
+
+        echo '<div class="carousel-item' . $activeClass . '">';
+        echo '<img src="images/banner/' . htmlspecialchars($row["Bn_image"]) . '" class="d-block w-100" alt="Description of image">';
+        echo '</div>';
+    }
+} else {
+    echo "ไม่มีข้อมูลในตาราง banner";
+}
+?>
         </div>
         <!-- ปุ่มเลื่อนซ้ายสำหรับ myCarousel -->
         <button class="carousel-control-prev " type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
@@ -100,7 +110,7 @@ session_start();
                                         </div>
                                         <!-- รูปภาพ -->
                                         <div class="col-md-4 d-flex align-items-center">
-                                            <img src="images/<?= htmlspecialchars($data1['Work_picture']) ?>" alt="รูปผลงาน" class="img-fluid rounded-end" style="height: 100%; object-fit: contain;">
+                                            <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>" alt="รูปผลงาน" class="img-fluid rounded-end" style="height: 100%; object-fit: contain;">
                                         </div>
 
                                     </div>
@@ -247,7 +257,7 @@ session_start();
             <div class="col">
                 <a href="detail_pr.php?id=<?= $data['Pr_id']; ?>" class="text-decoration-none">
                     <div class="card shadow-sm fade-in move">
-                        <img src="images/<?= htmlspecialchars($data['Pr_picture1']); ?>" class="bd-placeholder-img card-img-top" width="100%" height="225" alt="รูปภาพข่าว">
+                        <img src="images/public_relations/<?= htmlspecialchars($data['Pr_picture1']); ?>" class="bd-placeholder-img card-img-top" width="100%" height="225" alt="รูปภาพข่าว">
                         <div class="card-body">
                             <p class="card-text cut-text" >
                                 <?= htmlspecialchars($data['Pr_detail']); ?>
