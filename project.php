@@ -32,7 +32,7 @@ if (isset($_POST['Submit'])) {
 
         // ตั้งชื่อไฟล์ใหม่เพื่อป้องกันการชนกัน
         $newFileName = "project_" . $Std_id . "_" . time() . ".pdf";
-        $uploadPath = "uploads/project" . $newFileName;
+        $uploadPath = "uploads/project/" . $newFileName;
 
         // ย้ายไฟล์ไปยังโฟลเดอร์ปลายทาง
         if (move_uploaded_file($fileTmpPath, $uploadPath)) {
