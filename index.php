@@ -110,7 +110,7 @@ if ($result->num_rows > 0) {
                                         </div>
                                         <!-- รูปภาพ -->
                                         <div class="col-md-4 d-flex align-items-center">
-                                            <img src="images/<?= htmlspecialchars($data1['Work_picture']) ?>" alt="รูปผลงาน" class="img-fluid rounded-end" style="height: 100%; object-fit: contain;">
+                                            <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>" alt="รูปผลงาน" class="img-fluid rounded-end" style="height: 100%; object-fit: contain;">
                                         </div>
 
                                     </div>
