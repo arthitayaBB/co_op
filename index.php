@@ -113,8 +113,9 @@ session_start();
                                             <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>"
                                                 alt="รูปผลงาน"
                                                 class="img-fluid rounded-end"
-                                                style="width: 100px; height: 133px; object-fit: contain;">
+                                                style="width: 200px; height: 267px; object-fit: contain;">
                                         </div>
+
 
 
 
