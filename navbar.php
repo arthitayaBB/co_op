@@ -115,7 +115,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link link-dark d-flex justify-content-between align-items-center" href="#" onclick="toggleMenu('activityMenu')">
-                                <i class="bi bi-megaphone me-2"></i> ข่าวกิจกรรมสหกิจศึกษา <i class="bi bi-chevron-down"></i>
+                                <i class="bi bi-megaphone me-2"></i> ข่าวกิจกรรมสหกิจศึกษา<i class="bi bi-chevron-down"></i>
                             </a>
                             <ul class="nav flex-column ms-5" id="activityMenu" style="display: none;">
                                 <li><a class="dropdown-item" href="public_relations.php"><i class="bi-person-check me-2"></i>กิจกรรมสหกิจศึกษา
