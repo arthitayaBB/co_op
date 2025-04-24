@@ -124,7 +124,7 @@ $company_id = $sw['Company_id'] ?? null;
             $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
             if (in_array($fileExtension, $allowedExtensions)) {
                 $newPicName = "profileWorkfile_" . $std_id . "_" . time() . "." . $fileExtension;
-                $uploadDir = 'images/pic_stdwork';
+                $uploadDir = 'images/pic_stdwork/';
                 $dest_path = $uploadDir . $newPicName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
@@ -143,7 +143,7 @@ $company_id = $sw['Company_id'] ?? null;
 
             if ($fileExtension == 'pdf') {
                 $newFileName = "Workfile_" . $std_id . "_" . time() . ".pdf";
-                $uploadDir = 'uploads/std_workfile';
+                $uploadDir = 'uploads/std_workfile/';
                 $dest_path = $uploadDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
