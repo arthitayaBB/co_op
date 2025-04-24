@@ -109,12 +109,13 @@ session_start();
                                             <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="stretched-link">อ่านต่อ</a>
                                         </div>
                                         <!-- รูปภาพ -->
-                                        <div class="col-md-4 d-flex align-items-center">
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
                                             <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>"
                                                 alt="รูปผลงาน"
                                                 class="img-fluid rounded-end"
-                                                style="max-width: 100%; max-height: 300px; object-fit: contain;">
+                                                style="max-width: 100%; height: auto; width: 640px; object-fit: contain;">
                                         </div>
+
 
 
                                     </div>
