@@ -7,11 +7,12 @@ $Major_id = $Major_name = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // รับข้อมูลจากฟอร์ม
-    $Major_id = $_POST['Major_id'];
+
     $Major_name = $_POST['Major_name'];
+    $M_sub = $_POST['M_sub'];
 
     // SQL คำสั่งสำหรับเพิ่มข้อมูลสาขา
-    $query = "INSERT INTO major (Major_id, Major_name) VALUES ('$Major_id', '$Major_name')";
+    $query = "INSERT INTO major ( Major_name, M_sub) VALUES ( '$Major_name','$M_sub')";
 
     if (mysqli_query($conn, $query)) {
         echo "<script>alert('เพิ่มข้อมูลสาขาสำเร็จ'); window.location.href = 'indexmajor.php';</script>";
@@ -34,8 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
+   
 
     <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
 
@@ -45,13 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         <h2 class="heading">เพิ่มข้อมูลสาขา</h2>
         <form method="POST">
-            <div class="form-group">
-                <label for="Major_id" class="form-label">รหัสสาขา</label>
-                <input type="text" class="form-control" id="Major_id" name="Major_id" required>
-            </div>
+          
             <div class="form-group">
                 <label for="Major_name" class="form-label">ชื่อสาขา</label>
                 <input type="text" class="form-control" id="Major_name" name="Major_name" required>
+            </div>
+            <div class="form-group">
+                <label for="Major_name" class="form-label">ตัวย่อสาขา</label>
+                <input type="text" class="form-control" id="M_sub" name="M_sub" required>
             </div>
             <div class="form-group text-center">
                 <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
@@ -60,98 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // ตรวจสอบสถานะของโหมด Dark เมื่อโหลดหน้า
-        if (localStorage.getItem("dark-mode") === "enabled") {
-            document.body.classList.add("dark-mode");
-        }
-
-        // ฟังก์ชันสลับโหมด Dark/Light
-        function toggleDarkMode() {
-            const body = document.body;
-            const currentMode = body.classList.contains("dark-mode");
-
-            if (currentMode) {
-                body.classList.remove("dark-mode");
-                localStorage.setItem("dark-mode", "disabled");
-            } else {
-                body.classList.add("dark-mode");
-                localStorage.setItem("dark-mode", "enabled");
-            }
-        }
-
-        // Particles.js configuration
-        particlesJS('particles-js', {
-            "particles": {
-                "number": {
-                    "value": 100,
-                    "density": {
-                        "enable": true,
-                        "value_area": 1000
-                    }
-                },
-                "color": {
-                    "value": "#7dc9f5"
-                },
-                "shape": {
-                    "type": "circle",
-                    "stroke": {
-                        "width": 0,
-                        "color": "#000000"
-                    }
-                },
-                "opacity": {
-                    "value": 0.6,
-                    "random": false,
-                    "anim": {
-                        "enable": true,
-                        "speed": 1.5,
-                        "opacity_min": 0.1,
-                        "sync": false
-                    }
-                },
-                "size": {
-                    "value": 5,
-                    "random": true,
-                    "anim": {
-                        "enable": true,
-                        "speed": 5,
-                        "size_min": 0.5,
-                        "sync": false
-                    }
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150,
-                    "color": "#7dc9f5",
-                    "opacity": 0.4,
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 4,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false
-                }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "repulse"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    }
-                }
-            },
-            "retina_detect": true
-        });
-    </script>
+   
 </body>
 </html>

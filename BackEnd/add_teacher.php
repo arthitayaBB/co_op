@@ -19,7 +19,7 @@ if (isset($_POST['Submit'])) {
     $Tecpwd = isset($_POST['Tecpwd']) ? trim($_POST['Tecpwd']) : '';
     $Majorid = mysqli_real_escape_string($conn, $_POST['Majorid']);
 
-    if (!empty($Tecpwd)) { 
+    if (!empty($Tecpwd)) {
         $hashedPwd = md5($Tecpwd); // เข้ารหัสด้วย MD5
     } else {
         die("กรุณากรอกรหัสผ่าน");
@@ -88,6 +88,7 @@ mysqli_close($conn);
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,28 +98,31 @@ mysqli_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
-
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
-
-    <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
 
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
-        
+
         <h2 class="heading">เพิ่มข้อมูลอาจารย์</h2>
         <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="Tecname" class="form-label">ชื่อ</label>
-                <input type="text" name="Tecname" id="Tecname" class="form-control" required autofocus>
+            <div class="mb-3 row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Tecname" class="form-label">ชื่อ</label>
+                        <input type="text" name="Tecname" id="Tecname" class="form-control" required autofocus>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Tecsurname" class="form-label">นามสกุล</label>
+                        <input type="text" name="Tecsurname" id="Tecsurname" class="form-control" required autofocus>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="Tecsurname" class="form-label">นามสกุล</label>
-                <input type="text" name="Tecsurname" id="Tecsurname" class="form-control" required autofocus>
-            </div>
 
             <div class="form-group">
                 <label for="Tecpicture" class="form-label">รูปภาพ</label>
@@ -158,11 +162,12 @@ mysqli_close($conn);
 
             <div class="form-group text-center">
                 <button type="submit" name="Submit" class="btn btn-primary">บันทึกข้อมูล</button>
-   
+
             </div>
-            
+
         </form>
     </div>
-    <script src="scriptBEadd.js"></script>
+
 </body>
+
 </html>

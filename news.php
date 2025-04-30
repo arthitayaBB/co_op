@@ -7,7 +7,8 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start = ($page - 1) * $limit;
 
 // ดึงข้อมูลข่าวตามหน้าปัจจุบัน
-$sql2 = "SELECT * FROM news ORDER BY N_date DESC LIMIT $start, $limit";
+$sql2 = "SELECT * FROM news WHERE N_status = 1  ORDER BY N_date DESC LIMIT $start, $limit";
+
 $rs2 = mysqli_query($conn, $sql2);
 
 // นับจำนวนข่าวทั้งหมด

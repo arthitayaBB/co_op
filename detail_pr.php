@@ -54,12 +54,23 @@ session_start();
 <!-- Carousel for Images -->
 <div class="carousel-container fade-in">
     <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="images/public_relations/<?php echo $pr['Pr_picture1']; ?>" class="d-block w-100" alt="...">
+    <div class="carousel-inner">
+    <?php
+    $first = true;
+    for ($i = 1; $i <= 4; $i++) {
+        $picture = $pr["Pr_picture$i"];
+        if (!empty($picture)) {
+            ?>
+            <div class="carousel-item <?php echo $first ? 'active' : ''; ?>">
+                <img src="images/public_relations/<?php echo htmlspecialchars($picture); ?>" class="d-block w-100" alt="ภาพ <?php echo $i; ?>">
             </div>
-            <!-- เพิ่มรูปภาพอื่นๆ ตามที่ต้องการ -->
-        </div>
+            <?php
+            $first = false;
+        }
+    }
+    ?>
+</div>
+
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -74,8 +85,9 @@ session_start();
 <!-- แสดงข้อมูลประกาศ -->
 <div class="container fade-in">
 
-    <center><h1><strong></strong> <?php echo $pr['NamecomTH']; ?></h1></center>
+    <center><h1><strong></strong> <?php echo $pr['Pr_title']; ?></h1></center>
     <p> <?php echo $pr['Pr_detail']; ?></p>
+    <p><strong>บริษัท:</strong> <?php echo $pr['NamecomTH']; ?></p>
     <p><strong>สาขา:</strong> <?php echo $pr['Major_name']; ?></p>
     <p><strong>ปีที่ประกาศ:</strong> <?php echo $pr['Pr_year']; ?></p>
     <p><strong>วันที่ประกาศ:</strong> <?php echo $pr['Pr_date']; ?></p>

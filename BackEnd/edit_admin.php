@@ -25,6 +25,7 @@ if (isset($_POST['Submit'])) {
     $ademail = mysqli_real_escape_string($conn, $_POST['Ademail']);
     $adpwd = isset($_POST['Adpwd']) ? trim($_POST['Adpwd']) : '';
 
+
     // ตรวจสอบว่ามี Admin_id จริงก่อนรัน UPDATE
     if ($Adminid > 0) {
         $updateSql = "UPDATE adminn SET 
@@ -33,10 +34,10 @@ if (isset($_POST['Submit'])) {
                         Ad_phone = '$adphone', 
                         Ad_email = '$ademail'";
 
-if (!empty($adpwd)) { 
-    $hashedPwd = md5($adpwd); // แฮชรหัสผ่านแบบไม่มี salt
-    $updateSql .= ", Ad_pwd = '$hashedPwd'";   
-}
+        if (!empty($adpwd)) {
+            $hashedPwd = md5($adpwd);
+            $updateSql .= ", Ad_pwd = '$hashedPwd'";
+        }
 
         $updateSql .= " WHERE Admin_id = $Adminid";
 
@@ -60,6 +61,7 @@ mysqli_close($conn);
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,53 +71,66 @@ mysqli_close($conn);
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
 
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
 
-    <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
 
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
-        <h2 class="heading" >แก้ไขข้อมูล-Admin</h2>
+        <h2 class="heading">แก้ไขข้อมูล-Admin</h2>
         <div class="d-flex justify-content-between mb-3">
         </div>
         <form method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">ชื่อ</label>
-            <input type="text" class="form-control" name="Adname" value="<?= htmlspecialchars($user['Ad_name']) ?>" required>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">นามสกุล</label>
-            <input type="text" class="form-control" name="Adsurname" value="<?= htmlspecialchars($user['Ad_surname']) ?>" required>
-        </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Adname" class="form-label">ชื่อ</label>
+                        <input type="text" name="Adname" id="Adname" class="form-control" value="<?= htmlspecialchars($user['Ad_name']) ?>" required autofocus>
 
-        <div class="mb-3">
-            <label class="form-label">เบอร์โทรศัพท์</label>
-            <input type="text" class="form-control" name="Adphone" value="<?= htmlspecialchars($user['Ad_phone']) ?>" required>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">อีเมล</label>
-            <input type="email" class="form-control" name="Ademail" value="<?= htmlspecialchars($user['Ad_email']) ?>">
-        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Adsurname" class="form-label">นามสกุล</label>
+                        <input type="text" name="Adsurname" id="Adsurname" class="form-control" value="<?= htmlspecialchars($user['Ad_surname']) ?>" required>
+                    </div>
+                </div>
+            </div>
 
-  
 
-<script>
-    function togglePassword() {
-        var passwordField = document.getElementById('password');
-        passwordField.type = passwordField.type === "password" ? "text" : "password";
-    }
-</script>
-        
-        
-        <button type="submit" name="Submit" class="btn btn-primary">บันทึก</button>
-    </form>
+            <div class="mb-3">
+                <label class="form-label">เบอร์โทรศัพท์</label>
+                <input type="tel" class="form-control" name="Adphone" maxlength="10" required pattern="[0-9]{10}" value="<?= htmlspecialchars($user['Ad_phone']) ?>" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">อีเมล</label>
+                <input type="email" class="form-control" name="Ademail" value="<?= htmlspecialchars($user['Ad_email']) ?>">
+            </div>
+
+
+            <div class="form-group">
+                <label for="Adpwd" class="form-label">Password</label>
+                <input type="password" name="Adpwd" id="Adpwd" class="form-control">
+            </div>
+
+
+            <script>
+                function togglePassword() {
+                    var passwordField = document.getElementById('Adpwd'); // ให้ตรงกับ ID ด้านบน
+                    passwordField.type = passwordField.type === "password" ? "text" : "password";
+                }
+            </script>
+
+<div class="form-group text-center">
+
+            <button type="submit" name="Submit" class="btn btn-primary">บันทึก</button>
+</div>
+        </form>
     </div>
     <script src="scriptBEadd.js"></script>
 </body>
+
 </html>

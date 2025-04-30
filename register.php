@@ -486,18 +486,23 @@ if (isset($_POST['submit_form'])) {
 
     // ดึง Major_id และ Tec_id จากตาราง major
     $major_name = mysqli_real_escape_string($conn, $_POST['branch']);
-    $sql_major = "SELECT m.Major_id, t.Tec_id FROM major m JOIN teacher t ON m.Major_id = t.Major_id WHERE m.Major_name = '$major_name'";
+    $sql_major = "SELECT m.Major_id, t.Tec_id AS Tec_id1, t2.Tec_id AS Tec_id2 
+                  FROM major m 
+                  JOIN teacher t ON m.Major_id = t.Major_id
+                  LEFT JOIN teacher t2 ON m.Major_id = t2.Major_id AND t2.Tec_id != t.Tec_id
+                  WHERE m.Major_name = '$major_name'";
     $result_major = mysqli_query($conn, $sql_major);
     $major_data = mysqli_fetch_assoc($result_major);
 
     if ($major_data) {
         $major_id = $major_data['Major_id'];
-        $tec_id = $major_data['Tec_id'];
+        $tec_id1 = $major_data['Tec_id1'];
+        $tec_id2 = $major_data['Tec_id2'] ?? null; // ใช้ null ถ้าไม่มี Tec_id2
 
         // เพิ่มข้อมูลลงใน student
-        $sqli = "INSERT INTO student (Std_id, Id_number, Std_prefix, Std_name, Std_surname, Major_id, Grade_level, GPA, GPAX, CGX, Tec_id, Std_phone, Std_email, Std_picture, Std_pwd, Academic_year, Std_add, Province, Zip_id) 
-            VALUES ('{$_POST['studentId']}', '{$_POST['idCard']}', '{$_POST['prefix']}', '{$_POST['name']}', '{$_POST['surname']}', '$major_id', '{$_POST['year']}', '{$_POST['GPA']}', '{$_POST['GPAX']}', '{$_POST['CGX']}', '$tec_id', '{$_POST['phone']}', '{$_POST['email']}', '$std_picture', '$stdpassword', '{$_POST['Acayear']}', '{$_POST['address']}', '{$_POST['province']}', '{$_POST['postcode']}')";
-        
+        $sqli = "INSERT INTO student (Std_id, Id_number, Std_prefix, Std_name, Std_surname, Major_id, Grade_level, GPA, GPAX, CGX, Std_phone, Std_email, Std_picture, Std_pwd, Academic_year, Std_add, Province, Zip_id) 
+            VALUES ('{$_POST['studentId']}', '{$_POST['idCard']}', '{$_POST['prefix']}', '{$_POST['name']}', '{$_POST['surname']}', '$major_id', '{$_POST['year']}', '{$_POST['GPA']}', '{$_POST['GPAX']}', '{$_POST['CGX']}', '{$_POST['phone']}', '{$_POST['email']}', '$std_picture', '$stdpassword', '{$_POST['Acayear']}', '{$_POST['address']}', '{$_POST['province']}', '{$_POST['postcode']}')";
+
         if (mysqli_query($conn, $sqli)) {
             // ดึงข้อมูลจาก student
             $student_id = $_POST['studentId'];
@@ -505,14 +510,19 @@ if (isset($_POST['submit_form'])) {
             
             // เพิ่มข้อมูลลงใน proposal
             $proposal_sql = "INSERT INTO proposal (
-              Std_id, Tec_id, Sug_year, Pro_status, Com_status, 
+              Std_id, Sug_year, Pro_status, Com_status, 
               Proposal_name, File_name, Company_id, Note
            ) VALUES (
-              '$student_id', '$tec_id', '$acayear', 
+              '$student_id', '$acayear', 
               4, 4, '', '', 0, ''
            )";
           
             mysqli_query($conn, $proposal_sql);
+            
+            // เพิ่มข้อมูลลงใน advisor
+            $advisor_sql = "INSERT INTO advisor (Tec_id1, Tec_id2, Std_id)
+                            VALUES ('$tec_id1', '$tec_id2', '$student_id')";
+            mysqli_query($conn, $advisor_sql);
             
             echo "<script>alert('สมัครใช้งานสำเร็จ Please sign in'); window.location='index.php';</script>";
         } else {
@@ -523,6 +533,7 @@ if (isset($_POST['submit_form'])) {
     }
 }
 ?>
+
 
 
 

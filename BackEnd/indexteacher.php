@@ -1,4 +1,4 @@
-<?php 
+<?php
 include 'connectdb.php';
 include 'check_admin.php';
 
@@ -8,7 +8,13 @@ if (isset($_GET['search'])) {
 }
 
 // Change query to fetch teacher data
-$query = "SELECT * FROM teacher WHERE Tec_id LIKE '%$search%' OR Tec_name LIKE '%$search%' OR Tec_surname LIKE '%$search%'";
+$query = "SELECT teacher.*, major.Major_name 
+          FROM teacher
+          LEFT JOIN major ON teacher.Major_id = major.Major_id
+          WHERE teacher.Tec_id LIKE '%$search%' 
+          OR teacher.Tec_name LIKE '%$search%' 
+          OR teacher.Tec_surname LIKE '%$search%'";
+
 $result = mysqli_query($conn, $query);
 
 if (!$result) {
@@ -18,6 +24,7 @@ if (!$result) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,24 +38,24 @@ if (!$result) {
     <link rel="stylesheet" href="stylBE.CSS">
     <script>
         $(document).ready(function() {
-    $('#teacherTable').DataTable({
-        "pageLength": 10,
-        "lengthMenu": [10, 25, 50, 100],
-        "language": {
-            "search": "ค้นหา:",
-            "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
-            "zeroRecords": "ไม่พบข้อมูลที่ต้องการ",
-            "info": "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
-            "infoEmpty": "ไม่มีข้อมูล",
-            "paginate": {
-                "first": "หน้าแรก",
-                "last": "หน้าสุดท้าย",
-                "next": "ถัดไป",
-                "previous": "ก่อนหน้า"
-            }
-        }
-    });
-});
+            $('#teacherTable').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
+                "language": {
+                    "search": "ค้นหา:",
+                    "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
+                    "zeroRecords": "ไม่พบข้อมูลที่ต้องการ",
+                    "info": "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                    "infoEmpty": "ไม่มีข้อมูล",
+                    "paginate": {
+                        "first": "หน้าแรก",
+                        "last": "หน้าสุดท้าย",
+                        "next": "ถัดไป",
+                        "previous": "ก่อนหน้า"
+                    }
+                }
+            });
+        });
 
         function searchTeacher() {
             var searchQuery = document.getElementById('search').value;
@@ -56,6 +63,7 @@ if (!$result) {
         }
     </script>
 </head>
+
 <body>
 
     <div class="header">
@@ -64,24 +72,10 @@ if (!$result) {
             <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
             <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
         </div>
-        
+
     </div>
-        
-    <div class="sidebar">
-        <a class="ad-name" style="display: block;">
-        <i class="fas fa-user-circle"></i> <!-- ไอคอนโปรไฟล์ -->
-        <?=$_SESSION['Ad_name'];?> <?=$_SESSION['Ad_surname'];?> <!-- แสดงชื่อและนามสกุล -->
-        </a>
-        <a href="indexteacher.php" class="active"><i class="fas fa-chalkboard-teacher"></i><span> ข้อมูลอาจารย์</span></a>
-        <a href="indexstudent.php"><i class="fas fa-user-graduate"></i><span> ข้อมูลนิสิต</span></a>
-        <a href="indexstudentwork.php"><i class="fas fa-folder"></i><span> ผลงานนิสิต</span></a>
-        <a href="indexcompany.php"><i class="fas fa-building"></i><span> ข้อมูลสถานประกอบการ</span></a>
-        <a href="indexmajor.php"><i class="fas fa-sitemap"></i><span> ข้อมูลสาขา</span></a>
-        <a href="indexnews.php"><i class="fas fa-newspaper"></i><span> ข้อมูลข่าวสาร</span></a>
-        <a href="indexadmin.php"><i class="fas fa-user-cog"></i><span> Admin</span></a>
-        <a href="indexbanner.php"><i class="fas fa-bullhorn"></i><span> Banner</span></a>
-        <a href="logout.php"><i class="fas fa-sign-out-alt"></i><span> ออกจากระบบ</span></a>
-    </div>
+    <?php include('sidebar.php'); ?>
+
 
     <div class="content">
         <h2>จัดการข้อมูลอาจารย์</h2>
@@ -90,7 +84,7 @@ if (!$result) {
                 <i class="fas fa-plus"></i> เพิ่มข้อมูลอาจารย์
             </a>
         </div>
-       
+
         <div class="table-container">
             <table id="teacherTable" class="table table-striped table-hover table-bordered align-middle">
                 <thead>
@@ -100,35 +94,33 @@ if (!$result) {
                         <th>รหัสอาจารย์</th>
                         <th>ชื่อ</th>
                         <th>นามสกุล</th>
-                        <th>รหัสสาขา</th>
+                        <th>สาขา</th>
                         <th>เบอร์โทรศัพท์</th>
                         <th>อีเมล</th>
-                        <th>Password</th>
-                       
                     </tr>
                 </thead>
                 <tbody>
                     <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr>
-                        <td>
-                            <a href="edit_teacher.php?id=<?php echo $row['Tec_id']; ?>" class="btn btn-warning btn-sm">
-                <i class="fas fa-pencil-alt"></i> แก้ไข
-</a>
-<a href="delete_teacher.php?id=<?php echo $row['Tec_id']; ?>" class="btn btn-danger btn-sm" onClick="return confirm('คุณแน่ใจหรือไม่?');">
-                <i class="fas fa-trash-alt"></i> ลบ
-</a>
+                        <tr>
+                            <td>
+                                <a href="edit_teacher.php?id=<?php echo $row['Tec_id']; ?>" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="delete_teacher.php?id=<?php echo $row['Tec_id']; ?>" class="btn btn-danger btn-sm" onClick="return confirm('คุณแน่ใจหรือไม่?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
 
-                        </td>
-                        <td><img src="img_teacher/<?php echo (!empty($row['Tec_picture']) && file_exists('img_teacher/' . $row['Tec_picture'])) ? $row['Tec_picture'] : 'default.jpg'; ?>" 
-                                 alt="ภาพอาจารย์" class="teacher-img1"></td>
-                        <td><?php echo $row['Tec_id']; ?></td>
-                        <td><?php echo $row['Tec_name']; ?></td>
-                        <td><?php echo $row['Tec_surname']; ?></td>
-                        <td><?php echo $row['Major_id']; ?></td>
-                        <td><?php echo $row['Tec_phone']; ?></td>
-                        <td><?php echo $row['Tec_email']; ?></td>
-                        <td><?php echo $row['Tec_pwd']; ?></td>
-                    </tr>
+                            </td>
+                            <td><img src="img_teacher/<?php echo (!empty($row['Tec_picture']) && file_exists('img_teacher/' . $row['Tec_picture'])) ? $row['Tec_picture'] : 'default.jpg'; ?>"
+                                    alt="ภาพอาจารย์" class="teacher-img1"></td>
+                            <td><?php echo $row['Tec_id']; ?></td>
+                            <td><?php echo $row['Tec_name']; ?></td>
+                            <td><?php echo $row['Tec_surname']; ?></td>
+                            <td><?php echo $row['Major_name']; ?></td>
+                            <td><?php echo $row['Tec_phone']; ?></td>
+                            <td><?php echo $row['Tec_email']; ?></td>
+
+                        </tr>
                     <?php } ?>
                 </tbody>
             </table>
@@ -137,6 +129,7 @@ if (!$result) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
 
 <?php mysqli_close($conn); ?>

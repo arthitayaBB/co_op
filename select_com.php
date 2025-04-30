@@ -72,7 +72,7 @@ while ($row = mysqli_fetch_assoc($rs1)) {
 </head>
 <body>
   <div class="container">
-    <a href="proposal.php">
+    <a href="chose_com.php">
       <i class="bi bi-x-lg close-icon"></i>
     </a>
     <h2 class="mb-4 text-center">เลือกสถานประกอบการ</h2>

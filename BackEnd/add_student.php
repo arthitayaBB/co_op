@@ -1,148 +1,362 @@
 <?php
 include 'connectdb.php';
 include 'check_admin.php';
-$Std_id = $Id_number = $Std_name = $Std_surname = $Major_id = $Grade_level =$GPA = $GPAX = $CGX = $Tec_id = $Std_phone = $Std_email = $Std_picture = '';
+
+$Std_id = $Id_number = $Std_name = $Std_surname = $Major_id = $Grade_level = $GPA = $GPAX = $CGX = $Std_phone = $Std_email = $Std_picture = '';
+$Std_prefix = $Academic_year = $address = $province = $postcode = $Std_pwd = '';
+
 $major_query = "SELECT Major_id, Major_name FROM major";
 $major_result = mysqli_query($conn, $major_query);
-$teacher_query = "SELECT Tec_id, Tec_name FROM teacher"; 
+
+$teacher_query = "SELECT Tec_id, Tec_name FROM teacher";
 $teacher_result = mysqli_query($conn, $teacher_query);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // รับค่าจากฟอร์ม
     $Std_id = $_POST['Std_id'];
     $Id_number = $_POST['Id_number'];
+    $Std_prefix = $_POST['Std_prefix'];
     $Std_name = $_POST['Std_name'];
     $Std_surname = $_POST['Std_surname'];
-    $Major_id = $_POST['Major_id'];
+    $Academic_year = $_POST['Academic_year'];
     $Grade_level = $_POST['Grade_level'];
     $GPA = $_POST['GPA'];
     $GPAX = $_POST['GPAX'];
     $CGX = $_POST['CGX'];
-    $Tec_id = $_POST['Tec_id'];
+    $address = $_POST['address'];
+    $province = $_POST['province'];
+    $postcode = $_POST['postcode'];
     $Std_phone = $_POST['Std_phone'];
     $Std_email = $_POST['Std_email'];
+    $Std_pwd = $_POST['Std_pwd'];
+
+    if (!empty($Std_pwd)) {
+        $hashed_password = md5($Std_pwd); // เข้ารหัสด้วย MD5
+    } else {
+        die("กรุณากรอกรหัสผ่าน");
+    }
+
+    // อัปโหลดรูป
     if ($_FILES['Std_picture']['name']) {
-        $target_dir = "img_student/"; 
+        $target_dir = "../profile_pic/";
         $target_file = $target_dir . basename($_FILES["Std_picture"]["name"]);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        if (getimagesize($_FILES["Std_picture"]["tmp_name"]) === false) {
-            echo "ไฟล์ที่อัปโหลดไม่ใช่รูปภาพ.";
-            $uploadOk = 0;
+
+        $check = getimagesize($_FILES["Std_picture"]["tmp_name"]);
+        if ($check === false) {
+            die("ไฟล์ที่อัปโหลดไม่ใช่รูปภาพ.");
         }
         if ($_FILES["Std_picture"]["size"] > 500000) {
-            echo "ขนาดไฟล์ใหญ่เกินไป.";
-            $uploadOk = 0;
+            die("ขนาดไฟล์ใหญ่เกินไป.");
+        }
+        if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
+            die("ไฟล์ที่อัปโหลดต้องเป็น JPG, JPEG, PNG หรือ GIF เท่านั้น.");
         }
 
-        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-            echo "ไฟล์ที่อัปโหลดต้องเป็น JPG, JPEG, PNG หรือ GIF เท่านั้น.";
-            $uploadOk = 0;
+        if (!move_uploaded_file($_FILES["Std_picture"]["tmp_name"], $target_file)) {
+            die("เกิดข้อผิดพลาดในการอัปโหลดไฟล์.");
         }
 
-        if ($uploadOk == 0) {
-            echo "ไม่สามารถอัปโหลดไฟล์ได้.";
-        } else {
-            if (move_uploaded_file($_FILES["Std_picture"]["tmp_name"], $target_file)) {
-                $Std_picture = basename($_FILES["Std_picture"]["name"]);
-            } else {
-                echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์.";
-            }
-        }
+        $Std_picture = basename($_FILES["Std_picture"]["name"]);
     }
 
-// SQL คำสั่งสำหรับเพิ่มข้อมูล
-$query = "INSERT INTO student (Std_id, Id_number, Std_name, Std_surname, Major_id, Grade_level, GPA, GPAX, CGX, Tec_id, Std_phone, Std_email, Std_picture) 
-          VALUES ('$Std_id', '$Id_number', '$Std_name', '$Std_surname', '$Major_id', '$Grade_level', '$GPA', '$GPAX', '$CGX', '$Tec_id', '$Std_phone', '$Std_email', '$Std_picture')";
+    // ดึงข้อมูล Major และ Advisor
+    $Major_id = mysqli_real_escape_string($conn, $_POST['Major_id']);
 
-    if (mysqli_query($conn, $query)) {
-        echo "<script>alert('เพิ่มข้อมูลนิสิตสำเร็จ'); window.location.href = 'indexstudent.php';</script>";
+    $sql_major = "SELECT 
+        t.Tec_id AS Tec_id1, 
+        t2.Tec_id AS Tec_id2 
+    FROM teacher t 
+    LEFT JOIN teacher t2 ON t.Major_id = t2.Major_id AND t2.Tec_id != t.Tec_id 
+    WHERE t.Major_id = '$Major_id' 
+    LIMIT 1";
+    
+    $result_major = mysqli_query($conn, $sql_major);
+    $major_data = mysqli_fetch_assoc($result_major);
+    
+    if ($major_data) {
+        $tec_id1 = $major_data['Tec_id1'];
+        $tec_id2 = !empty($major_data['Tec_id2']) ? $major_data['Tec_id2'] : 'NULL';
+        
+        // Insert เข้า student
+        $query = "INSERT INTO student 
+        (Std_id, Id_number, Std_prefix, Std_name, Std_surname, Major_id, Academic_year, Grade_level, GPA, GPAX, CGX, Std_add, province, Zip_id, Std_phone, Std_email, Std_pwd, Std_picture) 
+        VALUES 
+        ('$Std_id', '$Id_number', '$Std_prefix', '$Std_name', '$Std_surname', '$Major_id', '$Academic_year', '$Grade_level', '$GPA', '$GPAX', '$CGX', '$address', '$province', '$postcode', '$Std_phone', '$Std_email', '$hashed_password', '$Std_picture')";
+
+        if (mysqli_query($conn, $query)) {
+            // Insert เข้า proposal
+            $proposal_sql = "INSERT INTO proposal (
+                Std_id, Sug_year, Pro_status, Com_status, Proposal_name, File_name, Company_id, Note
+            ) VALUES (
+                '$Std_id', '$Academic_year', 4, 4, '', '', 0, ''
+            )";
+            mysqli_query($conn, $proposal_sql);
+
+            // Insert เข้า advisor
+            $advisor_sql = "INSERT INTO advisor (Tec_id1, Tec_id2, Std_id)
+                            VALUES ('$tec_id1', ".($tec_id2 === 'NULL' ? "NULL" : "'$tec_id2'").", '$Std_id')";
+            mysqli_query($conn, $advisor_sql);
+
+            echo "<script>alert('เพิ่มข้อมูลนิสิตสำเร็จ'); window.location.href = 'indexstudent.php';</script>";
+        } else {
+            echo "Error: " . $query . "<br>" . mysqli_error($conn);
+        }
     } else {
-        echo "Error: " . $query . "<br>" . mysqli_error($conn);
+        echo "ไม่พบข้อมูลสาขาวิชา";
     }
 }
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>เพิ่มข้อมูลนิสิต</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
 
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
-
-    <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
 
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
-        
+
         <h2 class="heading">เพิ่มข้อมูลนิสิต</h2>
+
+
         <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="Std_id" class="form-label">รหัสนิสิต</label>
-                <input type="text" class="form-control" id="Std_id" name="Std_id" required>
+            <div class="mb-3 text-center">
+                <label class="form-label">รูปภาพ</label><br>
+                <img id="preview" src="../profile_pic/<?= htmlspecialchars($row['Std_picture']) ?>" width="150" class="mb-2"><br>
+                <label class="form-label">กรุณาอัพโหลดรูปภาพใหม่</label><br>
+                <input type="file" class="form-control" name="Std_picture" id="pictureInput" accept="image/*">
             </div>
 
-            <div class="form-group">
-                <label for="Id_number" class="form-label">รหัสบัตรประชาชน</label>
-                <input type="text" class="form-control" id="Id_number" name="Id_number" required>
+            <script>
+                document.getElementById('pictureInput').addEventListener('change', function(event) {
+                    const [file] = event.target.files;
+                    if (file) {
+                        const preview = document.getElementById('preview');
+                        preview.src = URL.createObjectURL(file);
+                    }
+                });
+            </script>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="Std_id" class="form-label">รหัสนิสิต</label>
+                    <input type="text" class="form-control" id="Std_id" name="Std_id" required>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="Id_number" class="form-label">รหัสบัตรประชาชน</label>
+                    <input type="text" class="form-control" id="Id_number" name="Id_number" required>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="Std_name" class="form-label">ชื่อ</label>
-                <input type="text" class="form-control" id="Std_name" name="Std_name" required>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="Std_prefix" class="form-label">คำนำหน้า</label>
+                    <input type="text" class="form-control" id="Std_prefix" name="Std_prefix" required>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="Std_name" class="form-label">ชื่อ</label>
+                    <input type="text" class="form-control" id="Std_name" name="Std_name" required>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="Std_surname" class="form-label">นามสกุล</label>
+                    <input type="text" class="form-control" id="Std_surname" name="Std_surname" required>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="Std_surname" class="form-label">นามสกุล</label>
-                <input type="text" class="form-control" id="Std_surname" name="Std_surname" required>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Major_id" class="form-label">สาขา</label>
+                        <select class="form-control" id="Major_id" name="Major_id" required>
+                            <?php
+                            $sql1 = "SELECT Major_id, Major_name FROM major;";
+                            $rs1 = mysqli_query($conn, $sql1);
+
+                            if (!$rs1) {
+                                die("Query failed: " . mysqli_error($conn));
+                            }
+
+                            while ($row = mysqli_fetch_array($rs1, MYSQLI_ASSOC)) {
+                                echo "<option value='{$row['Major_id']}'>{$row['Major_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Academic_year" class="form-label">ปีการศึกษา</label>
+                        <input type="text" class="form-control" id="Academic_year" name="Academic_year">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="Major_id" class="form-label">สาขา</label>
-                <select class="form-select" id="Major_id" name="Major_id" required>
-                    <?php while ($row = mysqli_fetch_assoc($major_result)) { ?>
-                        <option value="<?php echo $row['Major_id']; ?>"><?php echo $row['Major_name']; ?></option>
-                    <?php } ?>
-                </select>
-            </div>
 
-            <div class="form-group">
-                <label for="Grade_level" class="form-label">ระดับการศึกษา</label>
-                <input type="text" class="form-control" id="Grade_level" name="Grade_level" required>
-            </div>
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label for="Grade_level" class="form-label">ชั้นปี</label>
+                    <input type="text" class="form-control" id="Grade_level" name="Grade_level" required>
+                </div>
 
-            <div class="form-group">
-                <label for="GPA" class="form-label">GPA</label>
-                <input type="text" class="form-control" id="GPA" name="GPA" required>
-            </div>
+                <div class="form-group col-md-3">
+                    <label for="GPA" class="form-label">GPA</label>
+                    <input type="text" class="form-control" id="GPA" name="GPA" required>
+                </div>
 
-            <div class="form-group">
-                <label for="GPAX" class="form-label">GPAX</label>
-                <input type="text" class="form-control" id="GPAX" name="GPAX" required>
-            </div>
+                <div class="form-group col-md-3">
+                    <label for="GPAX" class="form-label">GPAX</label>
+                    <input type="text" class="form-control" id="GPAX" name="GPAX" required>
+                </div>
 
-            <div class="form-group">
-                <label for="CGX" class="form-label">CGX</label>
-                <input type="text" class="form-control" id="CGX" name="CGX" required>
+                <div class="form-group col-md-3">
+                    <label for="CGX" class="form-label">CGX</label>
+                    <input type="text" class="form-control" id="CGX" name="CGX" required>
+                </div>
             </div>
+            <div class="row ">
+                <div class="form-group col-md-6">
+                    <label for="floatingCGX" class="form-label">ที่อยู่</label>
+                    <input type="text" class="form-control" id="floatingCGX" name="address" required>
+                </div>
 
-            <div class="form-group">
-                <label for="Tec_id" class="form-label">อาจารย์ที่ปรึกษา</label>
-                <select class="form-select" id="Tec_id" name="Tec_id" required>
-                    <?php while ($row = mysqli_fetch_assoc($teacher_result)) { ?>
-                        <option value="<?php echo $row['Tec_id']; ?>"><?php echo $row['Tec_name']; ?></option>
-                    <?php } ?>
-                </select>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="province" class="form-label">จังหวัด</label>
+                        <input type="text" class="form-control" list="provinceList" id="province" name="province" onblur="validateInput()" required>
+                    </div>
+                </div>
+                <datalist id="provinceList">
+                    <option value="กระบี่">
+                    <option value="กรุงเทพมหานคร">
+                    <option value="กาญจนบุรี">
+                    <option value="กาฬสินธุ์">
+                    <option value="กำแพงเพชร">
+                    <option value="ขอนแก่น">
+                    <option value="จันทบุรี">
+                    <option value="ฉะเชิงเทรา">
+                    <option value="ชลบุรี">
+                    <option value="ชัยนาท">
+                    <option value="ชัยภูมิ">
+                    <option value="ชุมพร">
+                    <option value="เชียงใหม่">
+                    <option value="เชียงราย">
+                    <option value="ตรัง">
+                    <option value="ตราด">
+                    <option value="ตาก">
+                    <option value="นครนายก">
+                    <option value="นครปฐม">
+                    <option value="นครพนม">
+                    <option value="นครราชสีมา">
+                    <option value="นครศรีธรรมราช">
+                    <option value="นครสวรรค์">
+                    <option value="นนทบุรี">
+                    <option value="นราธิวาส">
+                    <option value="หนองคาย">
+                    <option value="หนองบัวลำภู">
+                    <option value="ระนอง">
+                    <option value="ระยอง">
+                    <option value="ราชบุรี">
+                    <option value="ลพบุรี">
+                    <option value="ลำปาง">
+                    <option value="ลำพูน">
+                    <option value="เลย">
+                    <option value="ศรีสะเกษ">
+                    <option value="สกลนคร">
+                    <option value="สงขลา">
+                    <option value="สมุทรปราการ">
+                    <option value="สมุทรสงคราม">
+                    <option value="สมุทรสาคร">
+                    <option value="สระแก้ว">
+                    <option value="สระบุรี">
+                    <option value="สิงห์บุรี">
+                    <option value="สุโขทัย">
+                    <option value="สุพรรณบุรี">
+                    <option value="สุราษฎร์ธานี">
+                    <option value="สุรินทร์">
+                    <option value="สตูล">
+                    <option value="อ่างทอง">
+                    <option value="อำนาจเจริญ">
+                    <option value="อุดรธานี">
+                    <option value="อุตรดิตถ์">
+                    <option value="อุบลราชธานี">
+                    <option value="ยโสธร">
+                    <option value="ระนอง">
+                    <option value="ร้อยเอ็ด">
+                    <option value="เพชรบูรณ์">
+                    <option value="เพชรบุรี">
+                    <option value="บุรีรัมย์">
+                    <option value="ปทุมธานี">
+                    <option value="พิษณุโลก">
+                    <option value="พิจิตร">
+                    <option value="พัทลุง">
+                    <option value="พะเยา">
+                    <option value="แพร่">
+                    <option value="ภูเก็ต">
+                    <option value="มหาสารคาม">
+                    <option value="มุกดาหาร">
+                    <option value="แม่ฮ่องสอน">
+                    <option value="ลำพูน">
+                    <option value="ลำปาง">
+                    <option value="นครสวรรค์">
+                    <option value="ปัตตานี">
+                    <option value="ประจวบคีรีขันธ์">
+                    <option value="ภูเก็ต">
+                    <option value="สุพรรณบุรี">
+                    <option value="สุราษฎร์ธานี">
+                    <option value="นครพนม">
+                    <option value="เพชรบุรี">
+                    <option value="ชัยภูมิ">
+                    <option value="สตูล">
+                </datalist>
+
+                <script>
+                    function validateInput() {
+                        var input = document.getElementById("province").value;
+                        var datalistOptions = document.getElementById("provinceList").options;
+                        var isValid = false;
+
+                        // ตรวจสอบว่า input ตรงกับค่าที่มีใน datalist หรือไม่
+                        for (var i = 0; i < datalistOptions.length; i++) {
+                            if (input === datalistOptions[i].value) {
+                                isValid = true;
+                                break;
+                            }
+                        }
+
+                        // ถ้าค่าที่พิมพ์ไม่ตรงกับ datalist ให้เคลียร์ช่องกรอก
+                        if (!isValid) {
+                            alert("กรุณาเลือกจังหวัดจากรายการ");
+                            document.getElementById("province").value = ""; // เคลียร์ช่องกรอก
+                        }
+                    }
+                </script>
+
+                <div class="form-group col-md-3">
+                    <label for="floatingPostcode" class="form-label">รหัสไปรษณีย์</label>
+                    <input type="text" class="form-control" id="floatingPostcode" name="postcode">
+                </div>
+
             </div>
 
             <div class="form-group">
@@ -151,23 +365,22 @@ $query = "INSERT INTO student (Std_id, Id_number, Std_name, Std_surname, Major_i
             </div>
 
             <div class="form-group">
-                <label for="Std_email" class="form-label">อีเมล</label>
+                <label for="Std_email" class="form-label">อีเมล์</label>
                 <input type="email" class="form-control" id="Std_email" name="Std_email" required>
             </div>
-
-            <div class="form-group">
-                <label for="Std_picture" class="form-label">รูปภาพนิสิต</label><br>
-                <div class="upload-btn-wrapper">
-                 
-                    <input type="file" name="Std_picture" accept="image/*" />
-                </div>
+            <div class="mb-3">
+                <label class="form-label">รหัสผ่าน</label>
+                <input type="password" class="form-control" name="Std_pwd" id="password">
             </div>
+
+
 
             <div class="form-group text-center">
-                <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
-            </div>
+                <button type="submit" name="Submit" class="btn btn-primary">เพิ่มข้อมูล</button>
+
         </form>
     </div>
     <script src="scriptBEadd.js"></script>
 </body>
+
 </html>

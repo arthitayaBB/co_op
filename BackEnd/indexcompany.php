@@ -64,21 +64,8 @@ if (!$result) {
         </div>
     </div>
 
-<div class="sidebar">
-        <a class="ad-name" style="display: block;">
-        <i class="fas fa-user-circle"></i> <!-- ไอคอนโปรไฟล์ -->
-        <?=$_SESSION['Ad_name'];?> <?=$_SESSION['Ad_surname'];?> <!-- แสดงชื่อและนามสกุล -->
-        </a>
-        <a href="indexteacher.php"><i class="fas fa-chalkboard-teacher"></i><span> ข้อมูลอาจารย์</span></a>
-        <a href="indexstudent.php"><i class="fas fa-user-graduate"></i><span> ข้อมูลนิสิต</span></a>
-        <a href="indexstudentwork.php"><i class="fas fa-folder"></i><span> ผลงานนิสิต</span></a>
-        <a href="indexcompany.php" class="active"><i class="fas fa-building"></i><span> ข้อมูลสถานประกอบการ</span></a>
-        <a href="indexmajor.php"><i class="fas fa-sitemap"></i><span> ข้อมูลสาขา</span></a>
-        <a href="indexnews.php"><i class="fas fa-newspaper"></i><span> ข้อมูลข่าวสาร</span></a>
-        <a href="indexadmin.php"><i class="fas fa-user-cog"></i><span> Admin</span></a>
-        <a href="indexbanner.php"><i class="fas fa-bullhorn"></i><span> Banner</span></a>
-        <a href="logout.php"><i class="fas fa-sign-out-alt"></i><span> ออกจากระบบ</span></a>
-    </div>
+    <?php include('sidebar.php'); ?>
+
 <div class="content">
   <h2>จัดการข้อมูลสถานประกอบการ</h2>
   <div class="d-flex justify-content-between mb-3">  <a href="add_company.php" class="btn btn-success">

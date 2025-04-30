@@ -4,11 +4,11 @@ session_start();
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
-$Std_id = $_SESSION['Std_id']; 
+$Std_id = $_SESSION['Std_id'];
 
 // คิวรีข้อมูลจากฐานข้อมูล
 $sql = "
-    SELECT std.*, p.Com_status, p.Pro_status, p.Proposal_name, c.NamecomTH, c.Company_add, c.Province, c.Com_phone
+    SELECT std.*, p.Com_status, p.Pro_status, p.Proposal_name, c.NamecomTH, c.Company_add, c.Province, c.Com_phone,c.NamecomEng
     FROM student std
     INNER JOIN proposal p ON std.Std_id = p.Std_id
     INNER JOIN company c ON p.Company_id = c.Company_id
@@ -58,7 +58,6 @@ $p = mysqli_fetch_assoc($result);
     }
 
     .card {
-        border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         background-color: white;
         margin-top: 20px;
@@ -144,8 +143,41 @@ $p = mysqli_fetch_assoc($result);
     }
 
 
+    @media (max-width: 1200px) {
+        .btn-group a {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+
+        .card-header {
+            font-size: 1.3rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+        }
+
+        .note-text {
+            font-size: 0.9rem;
+        }
+    }
 
     @media (max-width: 768px) {
+        .btn-group a {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .card-header {
+            font-size: 1.2rem;
+        }
 
         .table th,
         .table td {
@@ -156,6 +188,40 @@ $p = mysqli_fetch_assoc($result);
         .status-label {
             font-size: 0.8rem;
         }
+
+        .note-text {
+            font-size: 0.8rem;
+        }
+
+        .table-responsive {
+            margin-top: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .btn-group a {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .card-header {
+            font-size: 1.1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 6px;
+            font-size: 0.85rem;
+        }
+
+        .status-label {
+            font-size: 0.7rem;
+        }
+
+        .note-text {
+            font-size: 0.7rem;
+        }
+
     }
 </style>
 
@@ -176,17 +242,18 @@ $p = mysqli_fetch_assoc($result);
             <div class="table-responsive">
                 <table class="table">
                     <tr>
-                        <th style="width: 250px;"> </th>
-                        <th>ชื่อสถานประกอบการ</th>
-                        <th>ที่อยู่</th>
-                        <th>จังหวัด</th>
-                        <th>ติดต่อ</th>
-                        <th>สถานะ</th>
-
+                    <tr>
+                        <th style="width: 150px;"> </th> <!-- ใช้ช่องว่างเล็กๆ ถ้าต้องการแค่เป็นช่องว่าง -->
+                        <th style="width: 250px;">ชื่อสถานประกอบการ</th>
+                        <th style="width: 300px;">ที่อยู่</th>
+                        <th style="width: 150px;">จังหวัด</th>
+                        <th style="width: 150px;">ติดต่อ</th>
+                        <th style="width: 150px;">สถานะ</th>
+                    </tr>
                     </tr>
                     <tr>
-                        <td><a href="select_com.php?id=<?= $Std_id ?>" class="btn btn-secondary">เลือกสถานประกอบการ</a></td>
-                        <td><?php echo $p['NamecomTH']; ?></td>
+                        <td><a href="select_com.php?id=<?= $Std_id ?>" class="btn btn-link"><i class=" bi bi-building-add me-2 fs-4"></i>เลือกสถานประกอบการ</a></td>
+                        <td><?php echo $p['NamecomTH'] . '<br>' . $p['NamecomEng'] ?></td>
                         <td><?php echo $p['Company_add']; ?></td>
                         <td>
                             <?php echo $p['Province']; ?>
@@ -211,12 +278,15 @@ $p = mysqli_fetch_assoc($result);
                                 case 3:
                                     echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                                     break;
+                                case 4:
+                                    echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
+                                    break;
                                 default:
                                     echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
                             }
                             ?>
                             <hr>
-                            <?php echo "สถานะการตอบรับจากหน่วยงาน <br><br>";
+                            <?php echo "สถานะการตอบรับจากสถานประกอบการ <br><br>";
                             $status = $p['Com_status'];
                             switch ($status) {
                                 case 0:
@@ -231,19 +301,22 @@ $p = mysqli_fetch_assoc($result);
                                 case 3:
                                     echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                                     break;
-                                    case 4:
-                                        echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
-                                        break;
+                                case 4:
+                                    echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
+                                    break;
                                 default:
                                     echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
                             }
+
                             ?>
 
+                        </td>
 
                     </tr>
                 </table>
             </div>
-        </div><br>
+        </div> <br><span class="note-text">**หมายเหตุ คลิก <i class="bi bi-building-add"></i> เพื่อเลือกสถานประกอบการ</span>
+
 
 
 

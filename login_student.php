@@ -1,86 +1,175 @@
-
 <?php
-    session_start();
-    include_once("connectdb.php");
-?>
+session_start();
+include_once("connectdb.php");
 
-<!doctype html>
-<html lang="th">
-<head>
-<meta charset="utf-8">
-<title>เข้าสู่ระบบ</title>
-<!-- icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-<!-- ฟ้อนต์ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: #f8f9fa;
-    }
-
-    .form-signin {
-        background-color: white;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-    }
-</style>
-</head>
-
-<body>
-    <div class="form-signin">
-        <a href="index.php" class="btn position-absolute top-0 end-0 m-2">
-            <i class="bi bi-x-circle-fill" style="font-size: 2rem;"></i>
-        </a>
-        <form method="POST" action="">
-            <h1 class="h5 mb-3 fw-normal"><span >เข้าสู่ระบบ</span></h1>
-            <div class="form-floating mb-2">
-                <input type="email" class="form-control" name="email" id="floatingInput" placeholder="name@example.com" required>
-                <label for="floatingInput"><span>Email address</span></label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="password" class="form-control" name="pwd" id="floatingPassword" placeholder="Password" required>
-                <label for="floatingPassword"><span >Password</span></label>
-            </div>
-            <button class="btn btn-primary w-100 py-2" type="submit" name="Submit"><span >เข้าสู่ระบบ</span></button>
-        </form>
-        <br>
-        <div class="text-center">
-            <h1 class="h5 mb-3 fw-normal"><span >ยังไม่มีสมาชิก/<a href="register.php">สมัครสมาชิก</a></span></h1>
-        </div>
-    </div>
-
-    <?php
 if (isset($_POST['Submit'])) {
-    $sql = "SELECT * FROM student WHERE Std_email = '{$_POST['email']}' AND Std_pwd = '".md5($_POST['pwd'])."'";
-    $rs = mysqli_query($conn, $sql);
-    $num = mysqli_num_rows($rs);
+    $email = $_POST['email'];
+    $password = $_POST['pwd'];
+
+    $stmt = $conn->prepare("SELECT * FROM student WHERE Std_email = ? AND Std_pwd = ?");
+    $hashed_password = md5($password);
+    $stmt->bind_param("ss", $email, $hashed_password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $num = $result->num_rows;
 
     if ($num > 0) {
-        $data = mysqli_fetch_array($rs);
+        $data = $result->fetch_assoc();
         $_SESSION['Std_id'] = $data['Std_id'];
         echo "<script>window.location='std_home.php';</script>";
+        exit;
     } else {
         echo "<script>alert('Username หรือ Password ไม่ถูกต้อง');</script>";
-        exit;
     }
-    var_dump($_SESSION);
 }
 ?>
 
 
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Login</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- ฟอนต์ -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #d6eaff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .login-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-form .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form .form-group i.fa-user,
+        .login-form .form-group i.fa-lock {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0d6efd;
+            font-size: 1.2rem;
+        }
+
+        .login-form input.form-control {
+            padding: 12px 45px 12px 45px;
+            /* padding ขวา-ซ้าย */
+            height: 50px;
+            /* สูงขึ้น */
+            border: 1px solid #0d6efd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .login-form .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #0d6efd;
+            font-size: 1.2rem;
+        }
+
+        .login-form button {
+            background-color: #0d6efd;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            padding: 12px;
+        }
+
+        .login-form button:hover {
+            background-color: #0b5ed7;
+        }
+
+        .login-form .options {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .login-form .form-check-label {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-form position-relative">
+        <a href="index.php" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close"></a>
+
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Avatar" width="80" class="mb-4">
+
+        <form method="POST" action="">
+            <div class="form-group">
+                <i class="fa fa-user"></i>
+                <input type="email" class="form-control" name="email" placeholder="Email" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" class="form-control" name="pwd" id="password" placeholder="Password" required>
+                <i class="fa fa-eye toggle-password" onclick="togglePassword()"></i>
+            </div>
+
+            <div class="mb-3 text-center">
+                <span>ยังไม่มีบัญชี?/<a href="#">สมัคร</a></span>
+            </div>
+
+            <button type="submit" name="Submit" class="btn btn-primary w-100">LOGIN</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript สำหรับโชว์/ซ่อนรหัสผ่าน -->
+    <script>
+        function togglePassword() {
+            var passwordInput = document.getElementById("password");
+            var eyeIcon = document.querySelector(".toggle-password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+
 </body>
+
 </html>

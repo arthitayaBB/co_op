@@ -1,37 +1,31 @@
-<?php 
+<?php
 include 'connectdb.php';
 include 'check_admin.php';
 
-if (isset($_GET['Std_id'])) {
-    $std_id = trim($_GET['Std_id']);
-    $query = "SELECT * FROM student WHERE Std_id = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "s", $std_id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($result);
+if (isset($_GET['Std_ids'])) {
+    $std_ids = explode(",", $_GET['Std_ids']);
+    $placeholders = implode(",", array_fill(0, count($std_ids), "?"));
+    $query = "SELECT * FROM student WHERE Std_id IN ($placeholders)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param(str_repeat('s', count($std_ids)), ...$std_ids);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (!$row) {
+    $students = [];
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row;
+    }
+
+    if (empty($students)) {
         die("❌ ไม่พบข้อมูลนิสิตที่รหัสนี้");
     }
-    $major_query = "SELECT * FROM major WHERE Major_id = ?";
-    $stmt = mysqli_prepare($conn, $major_query);
-    mysqli_stmt_bind_param($stmt, "s", $row['Major_id']);
-    mysqli_stmt_execute($stmt);
-    $major_result = mysqli_stmt_get_result($stmt);
-    $major_row = mysqli_fetch_assoc($major_result);
-    $teacher_query = "SELECT * FROM teacher WHERE Tec_id = ?";
-    $stmt = mysqli_prepare($conn, $teacher_query);
-    mysqli_stmt_bind_param($stmt, "s", $row['Tec_id']);
-    mysqli_stmt_execute($stmt);
-    $teacher_result = mysqli_stmt_get_result($stmt);
-    $teacher_row = mysqli_fetch_assoc($teacher_result);
 } else {
     die("❌ ไม่ได้รับค่ารหัสนิสิต");
 }
 ?>
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <title>แบบคำร้องขอเข้าฝึกสหกิจศึกษา</title>
@@ -54,6 +48,7 @@ if (isset($_GET['Std_id'])) {
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             position: relative;
+            page-break-after: always; /* แยกหน้าทุกคน */
         }
 
         .header-table {
@@ -106,13 +101,15 @@ if (isset($_GET['Std_id'])) {
             margin-top: 30px;
         }
 
-        .info-table td, .info-table th {
+        .info-table td,
+        .info-table th {
             padding: 12px 18px;
             font-size: 18px;
             vertical-align: top;
         }
 
-        .info-table td:first-child, .info-table th:first-child {
+        .info-table td:first-child,
+        .info-table th:first-child {
             font-weight: bold;
         }
 
@@ -148,39 +145,53 @@ if (isset($_GET['Std_id'])) {
         }
 
         @media print {
-            .print-btn {
-                display: none;
+            .print-btn,
+            .print-btn.cancel,
+            div[style*="text-align:center"] {
+                display: none !important;
             }
-
+            body {
+                margin: 0;
+                padding: 0;
+            }
             .container {
                 box-shadow: none;
                 padding: 0;
             }
-
-            .header-table td, .info-table td {
-                font-size: 16px;
-            }
-
-            .photo-box {
-                width: 100px;
-                height: 130px;
-            }
-
-            .logo {
-                width: 80px;
-            }
-
-            .report-title {
-                font-size: 24px;
-            }
-
-            .sub-title {
-                font-size: 20px;
-            }
         }
     </style>
 </head>
-<body>
+
+<body onload="window.print()">
+
+<?php foreach ($students as $row): ?>
+<?php
+    // โหลด Major
+    $major_query = "SELECT * FROM major WHERE Major_id = ?";
+    $stmt_major = $conn->prepare($major_query);
+    $stmt_major->bind_param("s", $row['Major_id']);
+    $stmt_major->execute();
+    $major_result = $stmt_major->get_result();
+    $major_row = $major_result->fetch_assoc();
+
+    // โหลด Advisor
+    $sql_advisor = "
+        SELECT 
+            CONCAT(t1.Tec_name, ' ', t1.Tec_surname) AS advisor1, 
+            CONCAT(t2.Tec_name, ' ', t2.Tec_surname) AS advisor2
+        FROM advisor a
+        LEFT JOIN teacher t1 ON a.Tec_id1 = t1.Tec_id
+        LEFT JOIN teacher t2 ON a.Tec_id2 = t2.Tec_id
+        WHERE LOWER(a.Std_id) = ?
+    ";
+    $stmt_advisor = $conn->prepare($sql_advisor);
+    $stmt_advisor->bind_param("s", $row['Std_id']);
+    $stmt_advisor->execute();
+    $result_advisor = $stmt_advisor->get_result();
+    $advisor_data = $result_advisor->fetch_assoc();
+    $advisor1 = $advisor_data['advisor1'] ?? 'ไม่มีข้อมูล';
+    $advisor2 = $advisor_data['advisor2'] ?? 'ไม่มีข้อมูล';
+?>
 
 <div class="container">
     <table class="header-table">
@@ -195,7 +206,7 @@ if (isset($_GET['Std_id'])) {
             <td style="width: 15%; text-align: right;">
                 <div class="photo-box">
                     <?php if (!empty($row['Std_picture'])) { ?>
-                        <img src="img_student/<?php echo $row['Std_picture']; ?>" alt="รูปประจำตัว">
+                        <img src="../profile_pic/<?php echo $row['Std_picture']; ?>" alt="รูปประจำตัว">
                     <?php } else { ?>
                         <p>ไม่มีรูป</p>
                     <?php } ?>
@@ -207,51 +218,56 @@ if (isset($_GET['Std_id'])) {
     <table class="info-table">
         <tr>
             <td>รหัสนิสิต</td>
-            <td><?php echo $row['Std_id']; ?></td>
+            <td><?php echo htmlspecialchars($row['Std_id']); ?></td>
             <td>ชื่อ-นามสกุล</td>
-            <td><?php echo $row['Std_prefix'].' '.$row['Std_name'].' '.$row['Std_surname']; ?></td>
+            <td><?php echo htmlspecialchars($row['Std_prefix'] . ' ' . $row['Std_name'] . ' ' . $row['Std_surname']); ?></td>
         </tr>
         <tr>
             <td>สาขาวิชา</td>
-            <td><?php echo $major_row['Major_name']; ?></td>
+            <td><?php echo htmlspecialchars($major_row['Major_name']); ?></td>
             <td>ระดับการศึกษา</td>
-            <td><?php echo $row['Grade_level']; ?></td>
+            <td><?php echo htmlspecialchars($row['Grade_level']); ?></td>
         </tr>
         <tr>
             <td>อาจารย์ที่ปรึกษา</td>
-            <td><?php echo $teacher_row['Tec_name']; ?></td>
+            <td>1. <?php echo htmlspecialchars($advisor1); ?><br>2. <?php echo htmlspecialchars($advisor2); ?></td>
             <td>GPA</td>
-            <td><?php echo $row['GPA']; ?></td>
+            <td><?php echo htmlspecialchars($row['GPA']); ?></td>
         </tr>
         <tr>
             <td>GPAX</td>
-            <td><?php echo $row['GPAX']; ?></td>
+            <td><?php echo htmlspecialchars($row['GPAX']); ?></td>
             <td>CGX</td>
-            <td><?php echo $row['CGX']; ?></td>
+            <td><?php echo htmlspecialchars($row['CGX']); ?></td>
         </tr>
         <tr>
             <td>เบอร์โทรศัพท์</td>
-            <td><?php echo $row['Std_phone']; ?></td>
+            <td><?php echo htmlspecialchars($row['Std_phone']); ?></td>
             <td>อีเมล์</td>
-            <td><?php echo $row['Std_email']; ?></td>
+            <td><?php echo htmlspecialchars($row['Std_email']); ?></td>
         </tr>
         <tr>
             <td>ที่อยู่</td>
-            <td><?php echo $row['Std_add']; ?></td>
+            <td><?php echo htmlspecialchars($row['Std_add']); ?></td>
             <td>จังหวัด</td>
-            <td><?php echo $row['Province']; ?></td>
+            <td><?php echo htmlspecialchars($row['Province']); ?></td>
         </tr>
         <tr>
             <td>รหัสไปรษณีย์</td>
-            <td><?php echo $row['Zip_id']; ?></td>
+            <td><?php echo htmlspecialchars($row['Zip_id']); ?></td>
         </tr>
     </table>
+</div>
 
-    <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์</button>
-    <button class="print-btn cancel" onclick="window.location.href='student_details.php?Std_id=<?php echo $std_id; ?>'">
-    <i class="fas fa-times-circle"></i> ยกเลิก
-</button>
+<?php endforeach; ?>
 
+<div style="text-align:center; margin-top: 20px;">
+    <button class="print-btn" onclick="window.print()">
+        <i class="fas fa-print"></i> พิมพ์
+    </button>
+    <button class="print-btn cancel" onclick="window.history.back()">
+        <i class="fas fa-times-circle"></i> ยกเลิก
+    </button>
 </div>
 
 </body>

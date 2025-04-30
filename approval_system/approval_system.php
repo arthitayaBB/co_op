@@ -1,13 +1,14 @@
 <?php
 session_start();
 session_regenerate_id(true);
-include 'connectdb.php';
+include 'connectdb.php'; // เชื่อมต่อแล้วได้ตัวแปร $conn
 
 if (!isset($_SESSION['teacher_id'])) {
     header('Location: login.php');
     exit();
 }
 
+// ดึงข้อมูลอาจารย์
 $teacher_query = "SELECT t.Tec_name, m.Major_name, t.Major_id FROM teacher t JOIN major m ON t.Major_id = m.Major_id WHERE t.Tec_id = ?";
 $stmt = $conn->prepare($teacher_query);
 $stmt->bind_param("i", $_SESSION['teacher_id']);
@@ -15,59 +16,50 @@ $stmt->execute();
 $teacher_result = $stmt->get_result();
 $teacher = $teacher_result->fetch_assoc();
 
-// ดึงข้อมูลคำค้นหาจากฟอร์ม
+// ดึงข้อมูลนักศึกษา
 $search = isset($_POST['search']) ? $_POST['search'] : '';
-$view_option = isset($_POST['view_option']) ? $_POST['view_option'] : 'all';
+$view_status = isset($_POST['view_status']) ? $_POST['view_status'] : '';  // รับค่าจากฟอร์ม
 
-// ปรับคำสั่ง SQL สำหรับการค้นหานิสิต
-if ($view_option == 'advisor') {
-    // ค้นหานิสิตที่เป็นที่ปรึกษาของอาจารย์
-    $students_query = "SELECT * FROM student WHERE Major_id = ? AND Tec_id = ? AND (Std_id LIKE ? OR Std_name LIKE ? OR Std_surname LIKE ?)";
-    $like_search = "%" . $search . "%";
-    $stmt = $conn->prepare($students_query);
-    $stmt->bind_param("iisss", $teacher['Major_id'], $_SESSION['teacher_id'], $like_search, $like_search, $like_search);
+$students_query = "SELECT s.Std_id, s.Std_name, s.Std_surname, p.Pro_status 
+FROM student s 
+LEFT JOIN proposal p ON s.Std_id = p.Std_id 
+LEFT JOIN advisor a ON s.Std_id = a.Std_id
+WHERE (a.Tec_id1 = ? OR a.Tec_id2 = ?) 
+AND (s.Std_id LIKE ? OR s.Std_name LIKE ? OR s.Std_surname LIKE ?)";
+if ($view_status !== '') {
+    $students_query .= " AND p.Pro_status = ?";
+}
+$students_query .= " ORDER BY p.Proposal_id DESC";
+
+// ดึงจำนวนสถานะจากฐานข้อมูล
+$status_counts_query = "SELECT Pro_status, COUNT(*) as count 
+                        FROM proposal 
+                        WHERE Std_id IN (SELECT Std_id FROM advisor WHERE Tec_id1 = ? OR Tec_id2 = ?) 
+                        GROUP BY Pro_status";
+$stmt = $conn->prepare($status_counts_query);
+$stmt->bind_param("ii", $_SESSION['teacher_id'], $_SESSION['teacher_id']);
+$stmt->execute();
+$status_counts_result = $stmt->get_result();
+$status_counts = [];
+
+while ($row = $status_counts_result->fetch_assoc()) {
+    $status_counts[$row['Pro_status']] = $row['count'];
+}
+
+// ค่าเริ่มต้นถ้าจำนวนสถานะบางตัวไม่มีค่า
+$status_counts += [0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0];
+
+
+$stmt = $conn->prepare($students_query);
+$search_param = "%$search%";
+if ($view_status !== '') {
+    $stmt->bind_param("iisssi", $_SESSION['teacher_id'], $_SESSION['teacher_id'], $search_param, $search_param, $search_param, $view_status);
 } else {
-    // ค้นหานิสิตทั้งหมดในสาขาวิชา
-    $students_query = "SELECT * FROM student WHERE Major_id = ? AND (Std_id LIKE ? OR Std_name LIKE ? OR Std_surname LIKE ?)";
-    $like_search = "%" . $search . "%";
-    $stmt = $conn->prepare($students_query);
-    $stmt->bind_param("isss", $teacher['Major_id'], $like_search, $like_search, $like_search);
+    $stmt->bind_param("iisss", $_SESSION['teacher_id'], $_SESSION['teacher_id'], $search_param, $search_param, $search_param);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['approve']) || isset($_POST['disapprove'])) {
-        if (!isset($_POST['student_id']) || !is_numeric($_POST['student_id'])) {
-            die("ข้อมูลไม่ถูกต้อง");
-        }
-
-        $student_id = intval($_POST['student_id']);
-        $status = isset($_POST['approve']) ? 1 : 2;  // เปลี่ยนเป็นค่า 1 หรือ 2
-
-        // ตรวจสอบสิทธิ์ในการอัปเดตสถานะนิสิต
-        $check_query = "SELECT * FROM student WHERE Std_id = ? AND Major_id = ?";
-        $stmt = $conn->prepare($check_query);
-        $stmt->bind_param("ii", $student_id, $teacher['Major_id']);
-        $stmt->execute();
-        $check_result = $stmt->get_result();
-        if ($check_result->num_rows === 0) {
-            die("ไม่มีสิทธิ์เปลี่ยนสถานะนิสิตนี้");
-        }
-
-        // อัปเดตสถานะนิสิต
-        $update_query = "UPDATE student SET Pro_status = ? WHERE Std_id = ?";
-        $stmt = $conn->prepare($update_query);
-        $stmt->bind_param("ii", $status, $student_id);
-        if ($stmt->execute()) {
-            echo "อัปเดตสำเร็จ";
-        } else {
-            echo "เกิดข้อผิดพลาด";
-        }
-        exit();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -79,6 +71,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>ระบบอนุมัติการออกฝึกสหกิจ</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -119,14 +114,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .logout-custom-btn {
             font-size: 0.75rem;
-            /* ลดขนาดฟอนต์ */
             padding: 0.25rem 0.5rem;
-            /* ลดขนาดของ padding */
+        }
+
+        /* เอาขอบออกจาก alert */
+        .alert {
+            border: none;
+            /* ยกเลิกขอบ */
+            box-shadow: none;
+            /* เอารูปเงาออก */
+        }
+
+        /* ปรับขนาดไอคอน */
+        .fas {
+            font-size: 24px;
+            /* ขนาดไอคอน */
+            margin-right: 8px;
+            /* ระยะห่างจากข้อความ */
+        }
+
+        /* ปรับตำแหน่งไอคอน */
+        .alert i {
+            vertical-align: middle;
+            /* ทำให้ไอคอนอยู่ในแนวเดียวกับข้อความ */
         }
     </style>
+
 </head>
 
 <body>
+    <script>
+        $(document).ready(function() {
+            $('.table').DataTable({
+                "language": {
+                    "search": "ค้นหา:",
+                    "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
+                    "info": "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
+                    "paginate": {
+                        "first": "หน้าแรก",
+                        "last": "หน้าสุดท้าย",
+                        "next": "ถัดไป",
+                        "previous": "ก่อนหน้า"
+                    },
+                    "zeroRecords": "ไม่พบข้อมูลที่ค้นหา",
+                    "infoEmpty": "ไม่มีข้อมูล",
+                    "infoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)"
+                },
+                "ordering": true,
+                "lengthChange": true,
+                "pageLength": 10,
+            });
+        });
+    </script>
+
 
     <div class="container mt-4">
         <div class="header text-center">
@@ -142,96 +182,229 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="text-end">
                 <a href="logout_tec.php" class="btn btn-danger logout-custom-btn">ออกจากระบบ</a>
             </div>
-
         </div>
 
         <!-- ฟอร์มเลือกดูข้อมูล -->
         <form method="POST" class="mb-4">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="view_option">เลือกดูข้อมูล:</label>
-                    <select name="view_option" id="view_option" class="form-control" onchange="this.form.submit()">
-                        <option value="all" <?php echo $view_option == 'all' ? 'selected' : ''; ?>>ดูข้อมูลนิสิตทั้งหมดในสาขา</option>
-                        <option value="advisor" <?php echo $view_option == 'advisor' ? 'selected' : ''; ?>>ดูเฉพาะนิสิตที่อาจารย์เป็นที่ปรึกษา</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="search">ค้นหานิสิต:</label>
-                    <input type="text" class="form-control" name="search" id="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="ค้นหานิสิต (รหัสนิสิต, ชื่อ, นามสกุล)">
+
+
+            <div class="col">
+                <label for="view_status">สถานะ:</label>
+                <select name="view_status" id="view_status" class="form-control">
+                    <option value="">ทั้งหมด</option>
+                    <option value="0">ไม่อนุมัติ</option>
+                    <option value="1">อนุมัติ</option>
+                    <option value="2">แก้ไข</option>
+                    <option value="3">รอตรวจสอบ</option>
+                    <option value="4">ยังไม่เพิ่มโปรเจค</option>
+                </select>
+            </div>
+
+
+
+        </form>
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-2">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-times-circle"></i> <strong>ไม่อนุมัติ:</strong> <?php echo $status_counts[0]; ?>
                 </div>
             </div>
-        </form>
+            <div class="col-md-2">
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle"></i> <strong>อนุมัติ:</strong> <?php echo $status_counts[1]; ?>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-pencil-alt"></i> <strong>แก้ไข:</strong> <?php echo $status_counts[2]; ?>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-clock"></i> <strong>รอตรวจสอบ:</strong> <?php echo $status_counts[3]; ?>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="alert alert-secondary" role="alert">
+                    <i class="fas fa-hourglass-half"></i> <strong>ยังไม่เพิ่มโปรเจค:</strong> <?php echo $status_counts[4]; ?>
+                </div>
+            </div>
+        </div>
 
-        <table class="table table-hover table-bordered mt-4">
+
+
+
+        <table id="studentsTable" class="table table-hover table-bordered mt-4">
+
             <thead class="table-primary">
+
                 <tr>
-                    <th>ลำดับที่</th>
-                    <th>รหัสนิสิต</th>
-                    <th>ชื่อ-นามสกุล</th>
-                    <th>สถานะ</th>
-                    <?php if ($view_option == 'advisor'): ?>
-                        <th>ดำเนินการ</th>
-                    <?php endif; ?>
+                    <th scope="col" class="text-center" style="width: 8%;">ลำดับที่</th>
+                    <th scope="col" class="text-center" style="width: 12%;">รหัสนิสิต</th>
+                    <th scope="col" class="text-center" style="width: 20%;">ชื่อ-นามสกุล</th>
+                    <th scope="col" class="text-center" style="width: 10%;">สถานะ</th>
+                    <th scope="col" class="text-center" style="width: 50%;">ดำเนินการ</th>
                 </tr>
             </thead>
+
+
             <tbody>
-                <?php if ($result->num_rows > 0): ?>
-                    <?php $i = 1;
-                    while ($row = $result->fetch_assoc()): ?>
-                        <tr id="student-<?php echo $row['Std_id']; ?>">
+                <?php if (isset($result) && $result->num_rows > 0): ?>
+                    <?php $i = 1; ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
                             <td><?php echo $i++; ?></td>
-                            <td><?php echo $row['Std_id']; ?></td>
-                            <td><?php echo $row['Std_name'] . ' ' . $row['Std_surname']; ?></td>
-                            <td id="status-<?php echo $row['Std_id']; ?>" class="<?php echo ($row['Pro_status'] == 1) ? 'text-success' : (($row['Pro_status'] == 2) ? 'text-danger' : ''); ?>">
+                            <td><?php echo htmlspecialchars($row['Std_id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['Std_name'] . ' ' . $row['Std_surname']); ?></td>
+                            <td>
                                 <?php
-                                if ($row['Pro_status'] == 1) {
-                                    echo 'อนุมัติแล้ว';
-                                } elseif ($row['Pro_status'] == 2) {
-                                    echo 'ไม่อนุมัติ';
-                                } else {
-                                    echo 'รอการอนุมัติ';
+                                switch ($row['Pro_status']) {
+                                    case 0:
+                                        echo '<span class="text-danger">ไม่อนุมัติ</span>';
+                                        break;
+                                    case 1:
+                                        echo '<span class="text-success">อนุมัติ</span>';
+                                        break;
+                                    case 2:
+                                        echo '<span class="text-warning">แก้ไข</span>';
+                                        break;
+                                    case 3:
+                                        echo '<span class="text-info">รอตรวจสอบ</span>';
+                                        break;
+                                    case 4:
+                                    default:
+                                        echo '<span class="text-secondary">ยังไม่เพิ่มโปรเจค</span>';
+                                        break;
                                 }
                                 ?>
                             </td>
-                            <?php if ($view_option == 'advisor'): ?>
-                                <td>
-                                    <a href="Std_details.php?Std_id=<?php echo $row['Std_id']; ?>" class="btn btn-info">ดูรายละเอียด</a>
-                                    <button class="btn btn-approve" data-id="<?php echo $row['Std_id']; ?>">อนุมัติ</button>
-                                    <button class="btn btn-disapprove" data-id="<?php echo $row['Std_id']; ?>">ไม่อนุมัติ</button>
-                                </td>
-                            <?php endif; ?>
+                            <td>
+                                <a href="Std_details.php?Std_id=<?php echo $row['Std_id']; ?>" class="btn btn-sm btn-info">ดูรายละเอียด</a>
+                                <button class="btn btn-sm btn-warning edit-btn"
+                                    data-student-id="<?php echo $row['Std_id']; ?>"
+                                    data-status="2">แก้ไข</button>
+                                <button class="btn btn-approve"
+                                    data-student-id="<?php echo $row['Std_id']; ?>"
+                                    data-status="1">อนุมัติ</button>
+                                <button class="btn btn-disapprove"
+                                    data-student-id="<?php echo $row['Std_id']; ?>"
+                                    data-status="0">ไม่อนุมัติ</button>
+                            </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" class="text-center text-danger">ไม่พบผลลัพธ์ที่ตรงกับคำค้น</td>
+                        <td colspan="5" class="text-center text-danger">ไม่พบข้อมูลนิสิต</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
+
         </table>
-    </div>
 
-    <script>
-        $(document).on("click", ".btn-approve, .btn-disapprove", function() {
-            var studentId = $(this).data("id");
-            var action = $(this).hasClass("btn-approve") ? "approve" : "disapprove";
+        <script>
+            $(document).ready(function() {
+                // กำหนดสถานะปัจจุบัน
+                var currentStatus = "<?php echo isset($view_status) ? $view_status : ''; ?>";
+                $("#view_status").val(currentStatus);
 
-            $.ajax({
-                url: 'approval_system.php',
-                method: 'POST',
-                data: {
-                    student_id: studentId,
-                    [action]: true
-                },
-                success: function(response) {
-                    $("#status-" + studentId).text(action === "approve" ? "อนุมัติแล้ว" : "ไม่อนุมัติ")
-                        .removeClass("text-danger text-success")
-                        .addClass(action === "approve" ? "text-success" : "text-danger");
-                    alert("อัปเดตสถานะสำเร็จ");
-                }
+                // เมื่อเปลี่ยนสถานะ
+                $("#view_status").change(function() {
+                    var selectedStatus = $(this).val();
+
+                    $("tbody tr").each(function() {
+                        var rowStatus = $(this).find("td:eq(3) span").attr("class"); // อ่าน class ของ <span> สถานะ
+                        var statusValue = "";
+
+                        if (rowStatus.includes("text-danger")) statusValue = "0";
+                        else if (rowStatus.includes("text-success")) statusValue = "1";
+                        else if (rowStatus.includes("text-warning")) statusValue = "2";
+                        else if (rowStatus.includes("text-info")) statusValue = "3";
+                        else statusValue = "4"; // ยังไม่เพิ่มโปรเจค
+
+                        // เช็คว่า status ตรงกับที่เลือกมั้ย
+                        if (selectedStatus === "" || selectedStatus === statusValue) {
+                            $(this).show(); // แสดงแถวนี้
+                        } else {
+                            $(this).hide(); // ซ่อนแถวนี้
+                        }
+                    });
+                });
+
+                $('#search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+
+                // กดปุ่มอนุมัติ/แก้ไข/ไม่อนุมัติ แล้วอัปเดตสถานะในหน้าทันที
+                $(".edit-btn, .btn-approve, .btn-disapprove").click(function(e) {
+                    e.preventDefault();
+
+                    var button = $(this);
+                    var student_id = button.data("student-id");
+                    var status = button.data("status");
+                    var row = button.closest("tr");
+
+                    $.ajax({
+                        url: 'update_status.php',
+                        method: 'POST',
+                        data: {
+                            student_id: student_id,
+                            status: status
+                        },
+                        success: function(response) {
+                            var statusCell = row.find("td:eq(3)");
+
+                            switch (status) {
+                                case 0:
+                                    statusCell.html('<span class="text-danger">ไม่อนุมัติ</span>');
+                                    break;
+                                case 1:
+                                    statusCell.html('<span class="text-success">อนุมัติ</span>');
+                                    break;
+                                case 2:
+                                    statusCell.html('<span class="text-warning">แก้ไข</span>');
+                                    break;
+                                default:
+                                    statusCell.html('<span class="text-secondary">ยังไม่เพิ่มโปรเจค</span>');
+                                    break;
+                            }
+
+                            // หลังจากแก้ไขสถานะแล้ว ทำการกรองใหม่อีกครั้ง
+                            $("#view_status").change();
+                            // อัปเดตจำนวนสถานะ
+                            updateStatusCounts();
+                        },
+                        error: function() {
+                            alert('เกิดข้อผิดพลาด');
+                        }
+                    });
+                });
             });
-        });
-    </script>
+
+            function updateStatusCounts() {
+                $.ajax({
+                    url: 'get_status_counts.php', // สร้างไฟล์นี้เพื่อดึงจำนวนสถานะจากฐานข้อมูล
+                    method: 'GET',
+                    success: function(response) {
+                        var counts = JSON.parse(response);
+
+                        // อัปเดตข้อมูลสถานะใน UI แบบเคลียร์ไอคอนแล้วเติมใหม่ทั้งหมด
+                        $(".alert-danger").html('<i class="fas fa-times-circle"></i> <strong>ไม่อนุมัติ:</strong> ' + counts[0]);
+                        $(".alert-success").html('<i class="fas fa-check-circle"></i> <strong>อนุมัติ:</strong> ' + counts[1]);
+                        $(".alert-warning").html('<i class="fas fa-pencil-alt"></i> <strong>แก้ไข:</strong> ' + counts[2]);
+                        $(".alert-info").html('<i class="fas fa-clock"></i> <strong>รอตรวจสอบ:</strong> ' + counts[3]);
+                        $(".alert-secondary").html('<i class="fas fa-hourglass-half"></i> <strong>ยังไม่เพิ่มโปรเจค:</strong> ' + counts[4]);
+                    },
+                    error: function() {
+                        alert('เกิดข้อผิดพลาดในการดึงข้อมูลสถานะ');
+                    }
+                });
+            }
+        </script>
+
+    </div>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 </body>
 
 </html>

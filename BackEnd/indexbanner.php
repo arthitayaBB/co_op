@@ -17,6 +17,7 @@ if (!$result) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,6 +28,7 @@ if (!$result) {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="stylBE.CSS">
     <script>
         $(document).ready(function() {
@@ -51,12 +53,13 @@ if (!$result) {
 
         function searchCompany() {
             var searchQuery = document.getElementById('search').value;
-            window.location.href = "indexbanner.php.php?search=" + searchQuery;
+            window.location.href = "indexbanner.php?search=" + searchQuery;
         }
-        </script>
+    </script>
 
 
 </head>
+
 <body>
     <div class="header">
         <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
@@ -66,57 +69,47 @@ if (!$result) {
         </div>
     </div>
 
-    <div class="sidebar">
-        <a class="ad-name" style="display: block;">
-        <i class="fas fa-user-circle"></i> <!-- ไอคอนโปรไฟล์ -->
-        <?=$_SESSION['Ad_name'];?> <?=$_SESSION['Ad_surname'];?> <!-- แสดงชื่อและนามสกุล -->
-        </a>
-        <a href="indexteacher.php"><i class="fas fa-chalkboard-teacher"></i><span> ข้อมูลอาจารย์</span></a>
-        <a href="indexstudent.php"><i class="fas fa-user-graduate"></i><span> ข้อมูลนิสิต</span></a>
-        <a href="indexstudentwork.php"><i class="fas fa-folder"></i><span> ผลงานนิสิต</span></a>
-        <a href="indexcompany.php"><i class="fas fa-building"></i><span> ข้อมูลสถานประกอบการ</span></a>
-        <a href="indexmajor.php"><i class="fas fa-sitemap"></i><span> ข้อมูลสาขา</span></a>
-        <a href="indexnews.php"><i class="fas fa-newspaper"></i><span> ข้อมูลข่าวสาร</span></a>
-        <a href="indexadmin.php"><i class="fas fa-user-cog"></i><span> Admin</span></a>
-        <a href="indexbanner.php" class="active"><i class="fas fa-bullhorn"></i><span> Banner</span></a>
-        <a href="logout.php"><i class="fas fa-sign-out-alt"></i><span> ออกจากระบบ</span></a>
-    </div>
-
-    
-    
+    <?php include('sidebar.php'); ?>
 
     <div class="content">
-    <h2>การแจ้งเตือน</h2>
-    <div class="d-flex justify-content-between mb-3"> <a href="add_teacher.php" class="btn btn-success">เพิ่มการแจ้งเตือน</a> </div>
-        
+        <h2>Banner</h2>
+        <div class="d-flex justify-content-between mb-3"> <a href="add_banner.php" class="btn btn-success"><i class="fas fa-plus"></i> เพิ่มBanner</a> </div>
+
         <div class="table-container">
 
-        <table id="bannerTable" class="table table-bordered table-hover table-striped">
+            <table id="bannerTable" class="table table-bordered table-hover table-striped">
                 <thead>
                     <tr>
                         <th>การจัดการ</th>
-                        <th>รูป</th>
+                        <th>status</th>
+                        <th>รูป (970px250px)</th>
                         <th>ID</th>
                         <th>คำอธิบาย</th>
-                        <th>status</th>
+
                     </tr>
                 </thead>
                 <tbody>
                     <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr>
-                        <td>
-                            <a href="edit_teacher.php?id=<?php echo $row['Bn_id']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-pencil-alt"></i>แก้ไข</a>
-                            <a href="delete_teacher.php?id=<?php echo $row['Bn_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่?');"><i class="fas fa-trash-alt"></i>ลบ</a>
-                        </td>
-                        <td>
-                            <img src="../images/<?php echo $row['Bn_image']; ?>" alt="รูป" width="80" height="auto">
-                        </td>
-                        <td><?php echo $row['Bn_id']; ?></td>
-                        <td><?php echo $row['Bn_explain']; ?></td>
-                        <td><?php echo $row['Bn_status']; ?></td>
-                    </td>
-                    </td>
-                    </tr>
+                        <tr>
+                            <td>
+                                <a href="edit_banner.php?id=<?php echo $row['Bn_id']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                                <a href="delete_banner.php?id=<?php echo $row['Bn_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่?');"><i class="fas fa-trash-alt"></i></a>
+                            </td>
+                            <td>
+                                <i class="bi <?= $row['Bn_status'] == 1 ? 'bi-toggle-on fs-3' : 'bi-toggle-off fs-3' ?> status-toggle"
+                                    data-id="<?= $row['Bn_id'] ?>"
+                                    data-status="<?= $row['Bn_status'] ?>"
+                                    style="cursor: pointer; font-size: 1.5rem; color: <?= $row['Bn_status'] == 1 ? 'green' : 'red' ?>;"></i>
+                            </td>
+                            <td>
+                                <img src="../images/banner/<?php echo $row['Bn_image']; ?>" alt="รูป" width="80" height="auto">
+                            </td>
+                            <td><?php echo $row['Bn_id']; ?></td>
+                            <td><?php echo $row['Bn_explain']; ?></td>
+
+                            </td>
+                            </td>
+                        </tr>
                     <?php } ?>
                 </tbody>
             </table>
@@ -130,6 +123,43 @@ if (!$result) {
             window.location.href = "indexbanner.php?search=" + searchQuery;
         }
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggles = document.querySelectorAll('.status-toggle');
+
+            toggles.forEach(function(el) {
+                el.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const currentStatus = parseInt(this.dataset.status);
+                    const newStatus = currentStatus === 1 ? 0 : 1;
+                    const icon = this;
+
+                    fetch('toggle_statusBn.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `id=${id}&status=${newStatus}`
+                        })
+                        .then(response => response.text())
+                        .then(result => {
+                            if (result === 'success') {
+                                icon.classList.remove(currentStatus === 1 ? 'bi-toggle-on' : 'bi-toggle-off');
+                                icon.classList.add(newStatus === 1 ? 'bi-toggle-on' : 'bi-toggle-off');
+                                icon.style.color = newStatus === 1 ? 'green' : 'red';
+                                icon.dataset.status = newStatus;
+                            } else {
+                                alert('เกิดข้อผิดพลาด: ' + result);
+                            }
+                        })
+                        .catch(error => {
+                            alert('ข้อผิดพลาดในการเชื่อมต่อ: ' + error);
+                        });
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
-<?php mysqli_close($conn); ?>  
+<?php mysqli_close($conn); ?>

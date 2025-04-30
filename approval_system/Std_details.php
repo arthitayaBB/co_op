@@ -12,21 +12,40 @@ if (!preg_match('/^[a-z0-9]+$/', $std_id)) {
     die("Invalid student ID.");
 }
 
+// ดึงข้อมูล proposal
 $sql = "SELECT * FROM proposal WHERE LOWER(Std_id) = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $std_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// เตรียม query ดึงชื่อบริษัท
 $sql_company = "SELECT NamecomTH FROM company WHERE company_id = ?";
 $stmt_company = $conn->prepare($sql_company);
 
-$sql_advisor = "SELECT Tec_name FROM teacher WHERE Tec_id = ?";
+// เตรียม query ดึงชื่อ + นามสกุลอาจารย์ที่ปรึกษา 2 คน
+$sql_advisor = "
+    SELECT 
+        CONCAT(t1.Tec_name, ' ', t1.Tec_surname) AS advisor1, 
+        CONCAT(t2.Tec_name, ' ', t2.Tec_surname) AS advisor2
+    FROM advisor a
+    LEFT JOIN teacher t1 ON a.Tec_id1 = t1.Tec_id
+    LEFT JOIN teacher t2 ON a.Tec_id2 = t2.Tec_id
+    WHERE LOWER(a.Std_id) = ?
+";
 $stmt_advisor = $conn->prepare($sql_advisor);
+$stmt_advisor->bind_param("s", $std_id);
+$stmt_advisor->execute();
+$result_advisor = $stmt_advisor->get_result();
+$advisor_data = $result_advisor->fetch_assoc();
+$advisor1 = $advisor_data['advisor1'] ?? 'ไม่มีข้อมูล';
+$advisor2 = $advisor_data['advisor2'] ?? 'ไม่มีข้อมูล';
+
 ?>
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,11 +56,13 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
             font-family: 'Kanit', sans-serif;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
+
         .card {
             border: none;
             border-radius: 15px;
@@ -50,10 +71,12 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             background-color: #ffffff;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
+
         .card-header {
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
@@ -62,14 +85,18 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             font-size: 1.5rem;
             border-radius: 15px 15px 0 0;
         }
+
         .card-body {
             padding: 30px;
         }
-        .table th, .table td {
+
+        .table th,
+        .table td {
             vertical-align: middle;
             text-align: left;
             font-size: 1rem;
         }
+
         .btn-back {
             background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
@@ -82,9 +109,11 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             text-align: center;
             border: none;
         }
+
         .btn-back:hover {
             transform: translateY(-3px);
         }
+
         .btn-download {
             background: linear-gradient(135deg, #28a745, #218838);
             color: white;
@@ -93,6 +122,7 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             text-align: center;
             border: none;
         }
+
         .btn-show {
             background: linear-gradient(135deg, #17a2b8, #138496);
             color: white;
@@ -101,9 +131,12 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             text-align: center;
             border: none;
         }
-        .btn-download:hover, .btn-show:hover {
+
+        .btn-download:hover,
+        .btn-show:hover {
             transform: translateY(-3px);
         }
+
         .alert-warning {
             background-color: #f8d7da;
             color: #721c24;
@@ -111,6 +144,7 @@ $stmt_advisor = $conn->prepare($sql_advisor);
             border-radius: 8px;
             font-size: 1.1rem;
         }
+
         h2 {
             color: #0056b3;
             font-weight: 600;
@@ -119,6 +153,7 @@ $stmt_advisor = $conn->prepare($sql_advisor);
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="container mt-5">
         <a href="approval_system.php" class="btn btn-back">กลับ</a>
@@ -168,13 +203,13 @@ $stmt_advisor = $conn->prepare($sql_advisor);
                             </tr>
                             <tr>
                                 <th>อาจารย์ที่ปรึกษา</th>
-                                <td>" . htmlspecialchars($advisor_name) . "</td>
+                                 <td>" . htmlspecialchars($advisor1) . " และ <br>" . htmlspecialchars($advisor2) . "</td>
                             </tr>
                             <tr>
                                 <th>ไฟล์โปรเจกต์</th>
                                 <td>
-                                    <a href='ProposalPDF/" . htmlspecialchars($row["File_name"]) . "' class='btn btn-download' download>ดาวน์โหลด</a>
-                                    <a href='ProposalPDF/" . htmlspecialchars($row["File_name"]) . "' class='btn btn-show' target='_blank'>เปิดดู</a>
+
+                                    <a href='../uploads/project/" . htmlspecialchars($row["File_name"]) . "' class='btn btn-show' target='_blank'>เปิดดู</a>
                                 </td>
                             </tr>
                             <tr>
@@ -182,10 +217,11 @@ $stmt_advisor = $conn->prepare($sql_advisor);
                                 <td>
                                     <form action='save_comment.php' method='POST'>
                                         <input type='hidden' name='Proposal_id' value='" . htmlspecialchars($row["Proposal_id"]) . "'>
-                                        <textarea name='comment' rows='3' class='form-control' placeholder='ข้อเสนอแนะของอาจารย์'></textarea>
+                                        <textarea name='comment' rows='3' class='form-control' placeholder='ข้อเสนอแนะของอาจารย์'>" . htmlspecialchars($note) . "</textarea>
                                         <button type='submit' class='btn btn-primary mt-2'>บันทึกหมายเหตุ</button>
                                     </form>
                                 </td>
+
                             </tr>
                         </table>
                     </div>
@@ -201,4 +237,5 @@ $stmt_advisor = $conn->prepare($sql_advisor);
         ?>
     </div>
 </body>
+
 </html>

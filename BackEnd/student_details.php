@@ -3,133 +3,172 @@ include 'connectdb.php';
 include 'check_admin.php';
 
 if (isset($_GET['Std_id'])) {
-    $std_id = mysqli_real_escape_string($conn, $_GET['Std_id']);
-    $query = "SELECT * FROM student WHERE Std_id = '$std_id'";
-    $result = mysqli_query($conn, $query);
+  $std_id = mysqli_real_escape_string($conn, $_GET['Std_id']);
+  $query = "SELECT * FROM student WHERE Std_id = '$std_id'";
+  $result = mysqli_query($conn, $query);
 
-    if (!$result) {
-        die("Error: " . mysqli_error($conn));
-    }
+  if (!$result) {
+    die("Error: " . mysqli_error($conn));
+  }
 
-    $row = mysqli_fetch_assoc($result);
+  $row = mysqli_fetch_assoc($result);
 
-    if (!$row) {
-        echo "<script>alert('ไม่พบข้อมูลนิสิตที่เลือก'); window.location.href='indexstudent.php';</script>";
-        exit();
-    }
-} else {
-    echo "<script>alert('ไม่มีข้อมูลนิสิตที่เลือก'); window.location.href='indexstudent.php';</script>";
+  if (!$row) {
+    echo "<script>alert('ไม่พบข้อมูลนิสิตที่เลือก'); window.location.href='indexstudent.php';</script>";
     exit();
+  }
+} else {
+  echo "<script>alert('ไม่มีข้อมูลนิสิตที่เลือก'); window.location.href='indexstudent.php';</script>";
+  exit();
 }
+// เตรียม query ดึงชื่อ + นามสกุลอาจารย์ที่ปรึกษา 2 คน
+$sql_advisor = "
+    SELECT 
+        CONCAT(t1.Tec_name, ' ', t1.Tec_surname) AS advisor1, 
+        CONCAT(t2.Tec_name, ' ', t2.Tec_surname) AS advisor2
+    FROM advisor a
+    LEFT JOIN teacher t1 ON a.Tec_id1 = t1.Tec_id
+    LEFT JOIN teacher t2 ON a.Tec_id2 = t2.Tec_id
+    WHERE LOWER(a.Std_id) = ?
+";
+$stmt_advisor = $conn->prepare($sql_advisor);
+$stmt_advisor->bind_param("s", $std_id);
+$stmt_advisor->execute();
+$result_advisor = $stmt_advisor->get_result();
+$advisor_data = $result_advisor->fetch_assoc();
+$advisor1 = $advisor_data['advisor1'] ?? 'ไม่มีข้อมูล';
+$advisor2 = $advisor_data['advisor2'] ?? 'ไม่มีข้อมูล';
+
 ?>
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>รายละเอียดนิสิต</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
- <style>
-  body {
-    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-    font-family: 'Noto Sans Thai', sans-serif;
-    color: #01579b;
-  }
-  .container {
-    max-width: 1000px;
-    margin: 50px auto;
-    background: white;
-    padding: 30px 40px;
-    border-radius: 20px;
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  .header h1 {
-    font-size: 2.5rem;
-    color: #0277bd;
-  }
-  .profile-img-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  .profile-img {
-    width: 150px;
-    height: 150px;
-    overflow: hidden;
-    border-radius: 50%;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    border: 5px solid #0277bd;
-    transition: transform 0.3s ease;
-  }
-  .profile-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .profile-img:hover {
-    transform: scale(1.05);
-  }
+  <style>
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      font-family: 'Noto Sans Thai', sans-serif;
+      color: #01579b;
+    }
 
-  /* เพิ่มช่องที่ใหญ่ขึ้น */
-  .details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(298px, 1fr)); /* ปรับขนาดช่อง */
-    gap: 25px; /* เว้นช่องระหว่างการ์ด */
-  }
-  .detail-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-height: 150px; /* เพิ่มความสูงขั้นต่ำ */
-  }
-  .detail-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 10px 20px rgba(0,0,0,0.15);
-  }
-  .detail-label {
-    font-weight: 500;
-    margin-bottom: 8px;
-    font-size: 1.2rem; /* เพิ่มขนาดฟอนต์ */
-    color: #01579b;
-  }
-  .detail-value {
-    font-size: 1.1rem; /* เพิ่มขนาดฟอนต์ */
-    color: #555;
-    white-space: nowrap;
-  }
+    .container {
+      max-width: 1000px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+    }
 
-  .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 30px;
-  }
-  .button {
-    padding: 12px 30px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-block;
-  }
-  .button-danger {
-    background-color: #d32f2f;
-    color: #fff;
-  }
-  .button-print {
-    background-color: #0277bd;
-    color: white;
-  }
-</style>
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #0277bd;
+    }
+
+    .profile-img-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      overflow: hidden;
+      border-radius: 50%;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+      border: 5px solid #0277bd;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-img:hover {
+      transform: scale(1.05);
+    }
+
+    /* เพิ่มช่องที่ใหญ่ขึ้น */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(298px, 1fr));
+      /* ปรับขนาดช่อง */
+      gap: 25px;
+      /* เว้นช่องระหว่างการ์ด */
+    }
+
+    .detail-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-height: 150px;
+      /* เพิ่มความสูงขั้นต่ำ */
+    }
+
+    .detail-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .detail-label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+      /* เพิ่มขนาดฟอนต์ */
+      color: #01579b;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      /* เพิ่มขนาดฟอนต์ */
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .button {
+      padding: 12px 30px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .button-danger {
+      background-color: #d32f2f;
+      color: #fff;
+    }
+
+    .button-print {
+      background-color: #0277bd;
+      color: white;
+    }
+  </style>
 
 </head>
+
 <body>
 
   <div class="container">
@@ -139,8 +178,8 @@ if (isset($_GET['Std_id'])) {
     <div class="profile-img-wrapper">
       <div class="profile-img">
         <?php if (!empty($row['Std_picture'])) { ?>
-          <img src="../profile_pic/<?php echo htmlspecialchars($row['Std_picture']); ?>" 
-               alt="รูปประจำตัว" class="img-fluid">
+          <img src="../profile_pic/<?php echo htmlspecialchars($row['Std_picture']); ?>"
+            alt="รูปประจำตัว" class="img-fluid">
         <?php } else { ?>
           <img src="img_student/default.jpg" alt="รูปประจำตัว" class="img-fluid">
         <?php } ?>
@@ -160,9 +199,9 @@ if (isset($_GET['Std_id'])) {
       <div class="detail-card">
         <div class="detail-label">ชื่อเต็ม</div>
         <div class="detail-value">
-          <?php echo htmlspecialchars($row['Std_prefix']) . ' ' . 
-                     htmlspecialchars($row['Std_name']) . ' ' . 
-                     htmlspecialchars($row['Std_surname']); ?>
+          <?php echo htmlspecialchars($row['Std_prefix']) . ' ' .
+            htmlspecialchars($row['Std_name']) . ' ' .
+            htmlspecialchars($row['Std_surname']); ?>
         </div>
       </div>
       <div class="detail-card">
@@ -187,7 +226,10 @@ if (isset($_GET['Std_id'])) {
       </div>
       <div class="detail-card">
         <div class="detail-label">อาจารย์ที่ปรึกษา</div>
-        <div class="detail-value"><?php echo htmlspecialchars($row['Tec_id']); ?></div>
+        <div class="detail-value">
+          <?= '1.'.htmlspecialchars($advisor1)  .'<br>'.'2.'. htmlspecialchars($advisor2) ?>
+        </div>
+
       </div>
       <div class="detail-card">
         <div class="detail-label">เบอร์โทร</div>
@@ -213,9 +255,10 @@ if (isset($_GET['Std_id'])) {
 
     <div class="button-group">
       <a href="indexstudent.php" class="button button-danger">กลับ</a>
-      <a href="view_student.php?Std_id=<?php echo $std_id; ?>" class="button button-print">แบบฟอร์ม</a>
+      <a href="view_student.php?Std_ids=<?php echo $std_id; ?>" class="button button-print">แบบฟอร์ม</a>
     </div>
   </div>
 
 </body>
+
 </html>

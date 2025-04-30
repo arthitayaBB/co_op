@@ -1,6 +1,6 @@
-<?php 
+<?php
 session_start();
-include('connectdb.php'); 
+include('connectdb.php');
 
 // ตรวจสอบว่ามีการส่งข้อมูลผ่านฟอร์มหรือไม่
 if (isset($_POST['login'])) {
@@ -27,7 +27,7 @@ if (isset($_POST['login'])) {
     // ตรวจสอบว่ามีข้อมูลผู้ใช้หรือไม่
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        
+
         // เปรียบเทียบรหัสผ่านโดยใช้ MD5
         if (md5($password) === $row['Ad_pwd']) {
             // ถ้ารหัสผ่านถูกต้อง จัดเก็บข้อมูลใน session
@@ -35,176 +35,199 @@ if (isset($_POST['login'])) {
             $_SESSION['Ad_name'] = $row['Ad_name'];
             $_SESSION['Ad_surname'] = $row['Ad_surname'];
             $_SESSION['user_email'] = $row['Ad_email'];
-            
+
             // เปลี่ยนเส้นทางไปยังหน้า indexteacher.php
-            header("Location: indexteacher.php");
+            header("Location: dashboard.php");
             exit();
         } else {
             echo "<script>alert('Incorrect password');</script>";
         }
-
     } else {
         echo "<script>alert('User not found');</script>";
     }
 }
 ?>
- 
-
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1885ed">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <title>Login Page</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap");
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: "Quicksand", sans-serif;
-        }
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #111;
-            width: 100%;
-            overflow: hidden;
-        }
-        .ring {
-            position: relative;
-            width: 450px;
-            height: 450px;
+            background: linear-gradient(135deg, rgb(187, 223, 255), #1e69de);
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .ring i {
-            position: absolute;
-            inset: 0;
-            border: 2px solid #fff;
-            transition: 0.5s;
-        }
-        .ring i:nth-child(1) {
-            border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
-            animation: animate 6s linear infinite;
-            border-color: #0078ff;
-        }
-        .ring i:nth-child(2) {
-            border-radius: 41% 44% 56% 59%/38% 62% 63% 37%;
-            animation: animate 4s linear infinite;
-            border-color: #0057b8;
-        }
-        .ring i:nth-child(3) {
-            border-radius: 41% 44% 56% 59%/38% 62% 63% 37%;
-            animation: animate2 10s linear infinite;
-            border-color: #00aaff;
-        }
-        .ring:hover i {
-            border: 6px solid var(--clr);
-            filter: drop-shadow(0 0 20px var(--clr));
-        }
-        @keyframes animate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes animate2 {
-            0% { transform: rotate(360deg); }
-            100% { transform: rotate(0deg); }
-        }
-        .login {
-            position: absolute;
-            width: 300px;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .login h2 {
 
-            font-size: 2em;
-            color: #0078ff;
-        }
-        .login .inputBx {
+        .login-container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 50px 30px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            text-align: center;
             position: relative;
-            width: 100%;
         }
-        .login .inputBx input {
-            position: relative;
-            width: 100%;
-            padding: 12px 20px;
-            background: transparent;
-            border: 2px solid #fff;
-            border-radius: 15px;
-            font-size: 1.2em;
-            color: #fff;
-            box-shadow: none;
-            outline: none;
-            transition: 0.3s;
-        }
-        .login .inputBx input[type="submit"] {
-            width: 100%;
-            background: #0078ff;
-            background: linear-gradient(45deg, #0078ff, #0057b8);
-            border: none;
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: white;
             cursor: pointer;
-            transition: 0.3s;
+            z-index: 2;
         }
-        .login .inputBx input[type="submit"]:hover {
-            background: linear-gradient(45deg, #0057b8, #0078ff);
-            transform: scale(1.05);
-        }
-        .login .inputBx input::placeholder {
-            color: rgba(255, 255, 255, 0.75);
-        }
-        .login .links {
-            position: relative;
-            width: 100%;
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            background: #003366;
+            border-radius: 50%;
             display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
+            margin: -80px auto 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        .login .links a {
+
+        .avatar i {
+            color: white;
+            font-size: 40px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 340px !important;
+            /* ยืดให้เต็มความกว้างที่กำหนดใน .login-container */
+            max-width: 500px;
+            /* กำหนดความยาวสูงสุด */
+            padding: 14px 40px;
+            /* เพิ่ม padding เพื่อให้กล่องมีขนาดใหญ่ขึ้น */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            text-decoration: none;
-            transition: 0.3s;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
         }
-        .login .links a:hover {
-            color: #0078ff;
+
+
+        .input-group .icon-left {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .input-group .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #003366;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            background: #001f4d;
+        }
+
+        .text-center {
+            color: white;
+        }
+
+        .input-group input:focus {
+            border-color: #1e69de;
         }
     </style>
 </head>
+
 <body>
 
-<div class="ring">
-    <i></i>
-    <i></i>
-    <i></i>
-</div>
+    <div class="login-container">
+        <div class="close-btn" onclick="window.location.href='../index.php';">
+            <i class="fas fa-times"></i>
+        </div>
 
-<div class="login">
-    <h2>Login</h2>
-    <form method="POST">
-        <div class="inputBx">
-            <input type="email" name="email" placeholder="Email" required>
+        <div class="avatar">
+            <i class="fa fa-user"></i>
         </div>
-        <div class="inputBx">
-            <input type="password" name="password" placeholder="Password" required>
-        </div>
-        <div class="inputBx">
-            <input type="submit" value="Sign in" name="login">
-        </div>
-       
-    </form>
-</div>
+
+        <form method="POST">
+            <h1 class="text-center">Admin Login</h1>
+
+            <div class="input-group">
+                <i class="fa fa-envelope icon-left"></i>
+                <input type="email" name="email" placeholder="Email ID" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-lock icon-left"></i>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <input type="submit" class="btn-login" name="login" value="LOGIN">
+        </form>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            // toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // เปลี่ยนไอคอนตา
+            if (type === 'text') {
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            } else {
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
+            }
+        });
+    </script>
 
 </body>
+
 </html>

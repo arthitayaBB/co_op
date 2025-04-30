@@ -18,31 +18,39 @@ $filter_major = (!empty($pr) && $pr !== "all") ? "AND m.Major_id = '$pr'" : "";
 // เงื่อนไขกรองปีการศึกษา (Academic Year)
 $filter_year = (!empty($year) && $year !== "all") ? "AND pr.Pr_year = '$year'" : "";
 
-// ดึงข้อมูลข่าวตามหน้าปัจจุบัน
+
+// ดึงข้อมูลข่าวตามหน้าปัจจุบัน (เฉพาะ Pr_status = 1)
 $sql = "
     SELECT pr.*, m.M_sub
     FROM public_relations pr
     INNER JOIN company c ON pr.Company_id = c.Company_id
     INNER JOIN major m ON c.Major_id = m.Major_id
-    WHERE pr.Pr_detail LIKE '%$kw%' $filter_major $filter_year
+    WHERE pr.Pr_detail LIKE '%$kw%' 
+        $filter_major 
+        $filter_year 
+        AND pr.Pr_status = 1
     ORDER BY pr.Pr_date DESC
     LIMIT $start, $limit
 ";
 
 $rs = mysqli_query($conn, $sql);
 
-// นับจำนวนข่าวทั้งหมด
+// นับจำนวนข่าวทั้งหมด (เฉพาะ Pr_status = 1)
 $total_sql = "
     SELECT COUNT(*)
     FROM public_relations pr
     INNER JOIN company c ON pr.Company_id = c.Company_id
     INNER JOIN major m ON c.Major_id = m.Major_id
-    WHERE pr.Pr_detail LIKE '%$kw%' $filter_major $filter_year
+    WHERE pr.Pr_detail LIKE '%$kw%' 
+        $filter_major 
+        $filter_year 
+        AND pr.Pr_status = 1
 ";
 
 $total_rs = mysqli_query($conn, $total_sql);
 $total_row = mysqli_fetch_array($total_rs)[0];
 $total_pages = ceil($total_row / $limit);
+
 ?>
 
 <!DOCTYPE html>

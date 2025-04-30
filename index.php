@@ -18,17 +18,87 @@ session_start();
     <link rel="stylesheet" href="style.css"> <!-- เรียกใช้ไฟล์ CSS ที่แยกออกมา -->
 
 </head>
+<style>
+     
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4); /* โปร่งแสง */
+      backdrop-filter: blur(8px);     /* เบลอพื้นหลัง */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
 
+    #intro img {
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 80vh;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+    #intro p {
+      color: #fff;
+      font-size: 1.3em;
+      margin: 20px 0;
+    }
+    #enter-btn {
+  padding: 10px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  background-color: #007bff; /* ฟ้า */
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#enter-btn:hover {
+  background-color: #0056b3; /* สีฟ้าเข้มเมื่อ hover */
+}
+
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    #main {
+      display: none;
+      padding: 40px;
+      background: url('your-background.jpg') center/cover no-repeat; /* ตัวอย่างพื้นหลัง */
+      min-height: 100vh;
+    }
+
+    #main h1, #main p {
+      color: #333;
+    }
+  </style>
+</style>
 <body>
 
     <?php include("navbar.php"); ?> <!-- เรียกใช้ navbar ที่แยกออกมา -->
 
+    <div id="intro">
+    <img src="images/design/intro-web.svg" alt="Welcome Image" />
+    <p>ยินดีต้อนรับเข้าสู่เว็บไซต์ของเรา</p>
+    <button id="enter-btn">เข้าสู่เว็บไซต์</button>
+  </div>
 
     <!-- Carousel 1: myCarousel -->
     <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
         <div class="carousel-inner">
-            <?php       // ดึงข้อมูลจากตาราง banner
-            $sql = "SELECT Bn_image FROM banner";
+        <?php
+            // ดึงข้อมูลจากตาราง banner ที่ Bn_status = 1 เท่านั้น
+            $sql = "SELECT * FROM banner WHERE Bn_status = 1";
             $result = $conn->query($sql);
 
             // สร้าง carousel item
@@ -43,7 +113,9 @@ session_start();
                     echo '</div>';
                 }
             } else {
-                echo "ไม่มีข้อมูลในตาราง banner";
+                echo '<div class="carousel-item active">';
+                echo '<div class="text-center p-5 bg-secondary text-white">ไม่มีข้อมูลแบนเนอร์ที่ใช้งานอยู่</div>';
+                echo '</div>';
             }
             ?>
         </div>
@@ -62,84 +134,74 @@ session_start();
     <br>
 
     <?php
-    $sql1 = "
-        SELECT sw.*, s.Std_name, s.Std_surname, m.Major_name
-        FROM student_work sw
-        INNER JOIN student s ON sw.Std_id = s.Std_id
-        INNER JOIN major m ON s.Major_id = m.Major_id
-        ORDER BY sw.Date DESC";
-    $rs1 = mysqli_query($conn, $sql1);
+$sql1 = "
+    SELECT sw.*, s.Std_name, s.Std_surname, m.Major_name
+    FROM student_work sw
+    INNER JOIN student s ON sw.Std_id = s.Std_id
+    INNER JOIN major m ON s.Major_id = m.Major_id
+    ORDER BY sw.Date DESC";
+$rs1 = mysqli_query($conn, $sql1);
 
-    if (!$rs1) {
-        die("Query failed: " . mysqli_error($conn));
-    }
+if (!$rs1) {
+    die("Query failed: " . mysqli_error($conn));
+}
 
-    // เก็บข้อมูลทั้งหมดใน array
-    $works = [];
-    while ($row = mysqli_fetch_array($rs1, MYSQLI_BOTH)) {
-        $works[] = $row;
-    }
-    ?>
+// เก็บข้อมูลทั้งหมดใน array
+$works = [];
+while ($row = mysqli_fetch_array($rs1, MYSQLI_BOTH)) {
+    $works[] = $row;
+}
+?>
 
-    <!-- Carousel 2: workCarousel -->
-
-    <div id="workCarousel" class="carousel slide" data-bs-ride="false">
-        <div class="carousel-inner fade-in">
-            <a href="detail_stdwork.php?id=<?= $work['Work_id']; ?>" class="text-decoration-none text-dark">
-                <?php foreach (array_chunk($works, 2) as $index => $workPair): ?>
-                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                        <div class="d-flex justify-content-center">
-                            <?php foreach ($workPair as $data1): ?>
-                                <div class="card mx-2 shadow-sm move" style="max-width: 45rem; width: 100%;">
-                                    <div class="row g-0">
-                                        <div class="col-md-8 d-flex flex-column p-3">
-                                            <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="text-decoration-none text-dark">
-                                                <!-- หัวข้อ: ตัด 1 บรรทัด -->
-                                                <h5 class="card-title text-truncate" style="max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                    <?= htmlspecialchars($data1['Work_name']) ?>
-                                                </h5>
-                                            </a>
-                                            <!-- สาขา-->
-                                            <p class="card-text text-muted"><?= htmlspecialchars($data1['Major_name']) ?></p>
-                                            <!-- รายละเอียด: ตัด 2 บรรทัด -->
-                                            <p class="cut-text">
-                                                <?= htmlspecialchars($data1['Work_detail']) ?>
-                                            </p>
-
-                                            <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="stretched-link">อ่านต่อ</a>
-                                        </div>
-                                        <!-- รูปภาพ -->
-                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
-                                            <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>"
-                                                alt="รูปผลงาน"
-                                                class="img-fluid rounded-end"
-                                                style="width: 150px; height: 200px; object-fit: contain;">
-                                        </div>
-
-
-
-
-
-
-                                    </div>
-            </a>
-        </div>
-    <?php endforeach; ?>
+<!-- Carousel 2: workCarousel -->
+<div id="workCarousel" class="carousel slide" data-bs-ride="false">
+    <div class="carousel-inner fade-in">
+        <?php foreach (array_chunk($works, 2) as $index => $workPair): ?>
+            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                <div class="d-flex justify-content-center">
+                    <?php foreach ($workPair as $data1): ?>
+                        <div class="card mx-2 shadow-sm move" style="max-width: 45rem; width: 100%;">
+                            <div class="row g-0">
+                                <div class="col-md-8 d-flex flex-column p-3">
+                                    <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="text-decoration-none text-dark">
+                                        <!-- หัวข้อ: ตัด 1 บรรทัด -->
+                                        <h5 class="card-title text-truncate" style="max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <?= htmlspecialchars($data1['Work_name']) ?>
+                                        </h5>
+                                    </a>
+                                    <!-- สาขา-->
+                                    <p class="card-text text-muted"><?= htmlspecialchars($data1['Major_name']) ?></p>
+                                    <!-- รายละเอียด: ตัด 2 บรรทัด -->
+                                    <p class="cut-text">
+                                        <?= htmlspecialchars($data1['Work_detail']) ?>
+                                    </p>
+                                    <a href="detail_stdwork.php?id=<?= $data1['Work_id']; ?>" class="stretched-link">อ่านต่อ</a>
+                                </div>
+                                <!-- รูปภาพ -->
+                                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                    <img src="images/pic_stdwork/<?= htmlspecialchars($data1['Work_picture']) ?>"
+                                        alt="รูปผลงาน"
+                                        class="img-fluid rounded-end"
+                                        style="width: 150px; height: 200px; object-fit: contain;">
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
-    </div>
-<?php endforeach; ?>
-</div>
 
-<!-- ปุ่มเลื่อนซ้ายสำหรับ workCarousel -->
-<button class="carousel-control-prev" type="button" data-bs-target="#workCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-</button>
-<!-- ปุ่มเลื่อนขวาสำหรับ workCarousel -->
-<button class="carousel-control-next" type="button" data-bs-target="#workCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-</button>
+    <!-- ปุ่มเลื่อนซ้ายสำหรับ workCarousel -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#workCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <!-- ปุ่มเลื่อนขวาสำหรับ workCarousel -->
+    <button class="carousel-control-next" type="button" data-bs-target="#workCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
 </div>
 
 
@@ -156,7 +218,8 @@ session_start();
         <?php
         //ดึงข้อมูลข่าว
         $limit = 4; // จำนวนข่าวที่ต้องการแสดง
-        $sql2 = "SELECT * FROM news ORDER BY N_date DESC LIMIT $limit";
+        $sql2 = "SELECT * FROM news WHERE N_status = 1 ORDER BY N_date DESC LIMIT $limit";
+
         $rs2 = mysqli_query($conn, $sql2);
         $i = 0; // ตัวนับ
 
@@ -247,7 +310,7 @@ session_start();
 
         <?php
         $limitPr = 6;
-        $sql = "SELECT * FROM public_relations ORDER BY Pr_date DESC LIMIT $limitPr";
+        $sql = "SELECT * FROM public_relations WHERE Pr_status = 1 ORDER BY Pr_date DESC LIMIT $limitPr";
         $rs = mysqli_query($conn, $sql);
 
         if (!$rs) {
@@ -301,6 +364,31 @@ session_start();
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script><!-- ควบคุม navbar และ fade-in -->
+<script>
+    const intro = document.getElementById('intro');
+    const main = document.getElementById('main');
+    const enterBtn = document.getElementById('enter-btn');
+
+    const lastVisit = localStorage.getItem('lastVisit');
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000; // 1 ชั่วโมงในหน่วยมิลลิวินาที
+
+    if (lastVisit && now - parseInt(lastVisit) < oneHour) {
+      // ถ้ามีเวลาเข้าครั้งก่อนและยังไม่เกิน 1 ชั่วโมง
+      intro.style.display = 'none';
+      main.style.display = 'block';
+    } else {
+      // แสดง Intro และรอให้ผู้ใช้กดปุ่ม
+      enterBtn.addEventListener('click', () => {
+        localStorage.setItem('lastVisit', Date.now().toString());
+        intro.style.animation = 'fadeOut 1s forwards';
+        setTimeout(() => {
+          intro.style.display = 'none';
+          main.style.display = 'block';
+        }, 1000);
+      });
+    }
+  </script>
 
 <footer class="footer mt-5 py-4 fade-in" style="background-color: #f8f9fa;">
     <div class="container text-center">
@@ -321,6 +409,7 @@ session_start();
         <!-- ข้อความลิขสิทธิ์ -->
         <p class="mt-3">© 2025 Your Company. All Rights Reserved.</p>
     </div>
+
 </footer>
 </body>
 

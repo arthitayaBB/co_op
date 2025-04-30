@@ -5,18 +5,31 @@ session_start();
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
-$Std_id = $_SESSION['Std_id']; 
+$Std_id = $_SESSION['Std_id'];
 
 
-// คิวรีข้อมูลจากฐานข้อมูล
 $sql = "
-    SELECT std.*, m.Major_name, t.Tec_name,t.Tec_surname, p.Pro_status, p.Note, p.Proposal_name
+    SELECT std.*, 
+           m.Major_name, 
+           t.Tec_name, 
+           t.Tec_surname, 
+           p.Pro_status, 
+           p.Note, 
+           p.Proposal_name,
+           t1.Tec_name AS Advisor1_name, 
+           t1.Tec_surname AS Advisor1_surname, 
+           t2.Tec_name AS Advisor2_name, 
+           t2.Tec_surname AS Advisor2_surname
     FROM student std
     INNER JOIN major m ON std.Major_id = m.Major_id
     INNER JOIN teacher t ON m.Major_id = t.Major_id 
-    INNER JOIN proposal p ON std.Std_id = p.Std_id   
+    INNER JOIN proposal p ON std.Std_id = p.Std_id
+    LEFT JOIN advisor a ON std.Std_id = a.Std_id
+    LEFT JOIN teacher t1 ON a.Tec_id1 = t1.Tec_id  -- เชื่อมอาจารย์ที่ปรึกษาคนแรก
+    LEFT JOIN teacher t2 ON a.Tec_id2 = t2.Tec_id  -- เชื่อมอาจารย์ที่ปรึกษาคนที่สอง
     WHERE std.Std_id = $Std_id
 ";
+
 
 $result = mysqli_query($conn, $sql);
 $std = mysqli_fetch_assoc($result);
@@ -37,7 +50,7 @@ $std = mysqli_fetch_assoc($result);
 <style>
   body {
     background-color: #f4f7fa;
-   
+
   }
 
   .btn-group a {
@@ -91,17 +104,17 @@ $std = mysqli_fetch_assoc($result);
   }
 
   .btn-blue {
-    background-color:skyblue;
+    background-color: skyblue;
     /* สีเหลือง */
     border-color: skyblue;
     color: white;
   }
 
   .btn-blue:hover {
-    background-color:rgb(0, 130, 230);
-    border-color:rgb(0, 130, 230);
+    background-color: rgb(0, 130, 230);
+    border-color: rgb(0, 130, 230);
     color: white;
-   
+
   }
 
   .status-label {
@@ -131,29 +144,100 @@ $std = mysqli_fetch_assoc($result);
   }
 
   .note-text {
-  display: flex;
-  gap: 5px; /* เพิ่มระยะห่างระหว่างข้อความและไอคอน */
-  font-size: 1rem; /* ปรับขนาดตัวอักษร */
-  color: #333; /* สีของข้อความ */
-  justify-content: flex-end; /* จัดข้อความให้ไปทางขวามือ */
-  width: 100%; /* ให้ span ใช้ความกว้างเต็ม */
-  color: #dc3545;
+    display: flex;
+    gap: 5px;
+    /* เพิ่มระยะห่างระหว่างข้อความและไอคอน */
+    font-size: 1rem;
+    /* ปรับขนาดตัวอักษร */
+    color: #333;
+    /* สีของข้อความ */
+    justify-content: flex-end;
+    /* จัดข้อความให้ไปทางขวามือ */
+    width: 100%;
+    /* ให้ span ใช้ความกว้างเต็ม */
+    color: #dc3545;
+  }
+
+  @media (max-width: 1200px) {
+  .btn-group a {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+  .card-header {
+    font-size: 1.3rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .status-label {
+    font-size: 0.9rem;
+  }
+
+  .note-text {
+    font-size: 0.9rem;
+  }
 }
 
-
-
-  @media (max-width: 768px) {
-
-    .table th,
-    .table td {
-      padding: 8px;
-      font-size: 0.9rem;
-    }
-
-    .status-label {
-      font-size: 0.8rem;
-    }
+@media (max-width: 768px) {
+  .btn-group a {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
   }
+
+  .card-header {
+    font-size: 1.2rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .status-label {
+    font-size: 0.8rem;
+  }
+
+  .note-text {
+    font-size: 0.8rem;
+  }
+
+  .table-responsive {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-group a {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .card-header {
+    font-size: 1.1rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px;
+    font-size: 0.85rem;
+  }
+
+  .status-label {
+    font-size: 0.7rem;
+  }
+
+  .note-text {
+    font-size: 0.7rem;
+  }
+}
+
 </style>
 
 <body>
@@ -172,22 +256,23 @@ $std = mysqli_fetch_assoc($result);
       </div>
       <div class="table-responsive">
         <table class="table">
-          <tr>
-            <th style="width: 250px;">ชื่อ-สกุล</th>
-            <th>สาขา</th>
-            <th>อาจารย์ที่ปรึกษา</th>
-            <th>โปรเจค</th>
-            <th>สถานะ</th>
-            <th>หมายเหตุ</th>
-          </tr>
+          <th style="width: 200px;">ชื่อ-สกุล</th>
+          <th style="width: 150px;">สาขา</th>
+          <th style="width: 300px;">อาจารย์ที่ปรึกษา</th>
+          <th style="width: 250px;">โปรเจค</th>
+          <th style="width: 150px;">สถานะ</th>
+          <th style="width: 250px;">หมายเหตุ</th>
           <tr>
             <td><?php echo $std['Std_prefix'] . ' ' . $std['Std_name'] . ' ' . $std['Std_surname']; ?></td>
             <td><?php echo $std['Major_name']; ?></td>
-            <td><?php echo $std['Tec_name'] . ' ' . $std['Tec_surname']; ?></td>
             <td>
-            <?php echo $std['Proposal_name']; ?>
-              <a href="project.php?id=<?= $Std_id?>">
-              <i class="bi bi-box-arrow-in-up"></i>
+              <?php echo $std['Advisor1_name'] . ' ' . $std['Advisor1_surname'] . ' <hr> ' . $std['Advisor2_name'] . ' ' . $std['Advisor2_surname']; ?>
+            </td>
+
+            <td>
+              <?php echo $std['Proposal_name']; ?>
+              <a href="project.php?id=<?= $Std_id ?>">
+                <i class="bi bi-box-arrow-in-up"></i>
               </a>
             </td>
 
@@ -211,9 +296,9 @@ $std = mysqli_fetch_assoc($result);
                 case 3:
                   echo "<span class='status-label status-pending'>รอตรวจสอบ</span>";
                   break;
-                  case 4:
-                    echo "<span class='status-label' style='background-color: gray;'>กรุณาเพิ่มโปรเจค</span>";
-                    break;
+                case 4:
+                  echo "<span class='status-label' style='background-color: gray;'>กรุณาเพิ่มโปรเจค</span>";
+                  break;
                 default:
                   echo "<span class='status-label' style='background-color: gray;'>ไม่มีข้อมูล</span>";
               }
@@ -224,8 +309,8 @@ $std = mysqli_fetch_assoc($result);
           </tr>
         </table>
       </div>
-    </div><br>
-  </div><span class="note-text">**หมายเหตุ คลิก <i class="bi bi-box-arrow-in-up"></i> เพื่ออัพโหลดโปรเจคของนิสิต</span>
+    </div><br><span class="note-text">**หมายเหตุ คลิก <i class="bi bi-box-arrow-in-up"></i> เพื่ออัพโหลดโปรเจคของนิสิต</span><br>
+  </div>
 
 
 

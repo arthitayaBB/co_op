@@ -53,8 +53,8 @@
                     </a>
                     <ul class="dropdown-menu text-small shadow dropdown-menu-end" style="width: max-content; max-width: 100vw; overflow-x: auto;">
                         <?php if (isset($_SESSION['Std_id'])): ?>
-                            <li><a class="dropdown-item" href="std_home.php"><span>บัญชี</span></a></li>
-                            <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><span>ตั้งค่าบัญชี</span></a></li>
+                            <li><a class="dropdown-item" href="std_home.php"><span>หน้าหลัก</span></a></li>
+                            <li><a class="dropdown-item" href="std_profile.php?id=<?php echo $_SESSION['Std_id']; ?>"><span>ตั้งค่าบัญชี</span></a></li>
                             <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item" href="logout_std.php"><span>ออกจากระบบ</span></a></li>
@@ -154,7 +154,7 @@
 
                         <ul class="nav flex-column ms-5" id="login" style="display: none;">
                             <?php if (isset($_SESSION['Std_id'])): ?>
-                                <li><a class="dropdown-item" href="std_home.php"><i class="bi bi-person-circle me-2"></i> บัญชี</a></li>
+                                <li><a class="dropdown-item" href="std_home.php"><i class="bi bi-person-circle me-2"></i>หน้าหลัก</a></li>
                                 <li><a class="dropdown-item" href="c-update.php?cid=<?php echo $_SESSION['Std_id']; ?>"><i class="bi bi-gear me-2"></i> ตั้งค่าบัญชี</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
