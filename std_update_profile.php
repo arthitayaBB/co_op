@@ -24,7 +24,10 @@ if ($result->num_rows === 1) {
     die("ไม่พบข้อมูลนักศึกษา");
 }
 
-
+// เปิด error reporting
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 ?>
 
 <!DOCTYPE html>
@@ -480,7 +483,7 @@ if ($result->num_rows === 1) {
 
         if ($major_data) {
             $major_id = $major_data['Major_id'];
-            $tec_id = $major_data['Tec_id'];
+        
 
             // เตรียมข้อมูล
             $student_id = $_POST['studentId'];
@@ -496,7 +499,6 @@ if ($result->num_rows === 1) {
         GPA = '{$_POST['GPA']}',
         GPAX = '{$_POST['GPAX']}',
         CGX = '{$_POST['CGX']}',
-        Tec_id = '$tec_id',
         Std_phone = '{$_POST['phone']}',
         Std_email = '{$_POST['email']}',
         Academic_year = '{$_POST['Acayear']}',
