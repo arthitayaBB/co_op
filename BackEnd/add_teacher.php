@@ -126,7 +126,7 @@ mysqli_close($conn);
 
             <div class="form-group">
                 <label for="Tecpicture" class="form-label">รูปภาพ</label>
-                <input type="file" name="Tecpicture" id="Tecpicture" class="form-control">
+                <input type="file" name="Tecpicture" id="Tecpicture" class="form-control " accept="image/*>
             </div>
 
             <div class="form-group">
