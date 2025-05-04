@@ -52,6 +52,7 @@ $company = mysqli_fetch_assoc($result);
                         <p><strong>ตำแหน่งที่เปิดรับสมัคร : </strong> <?php echo $company['Position']; ?></p>
                         <p><strong>ลักษณะบริษัท : </strong></strong> <?php echo $company['Job_description']; ?></p>
                         <p><strong>ระยะเวลาการฝึกงาน : </strong> <?php echo $company['Duration']; ?></p>
+                        <p><strong>สวัสดิการ : </strong> <?php echo $company['welfare']; ?></p>
                         <hr>
 
                         <p><strong>จังหวัด : </strong> <?php echo $company['Province']; ?></p>
