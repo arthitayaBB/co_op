@@ -28,13 +28,14 @@ if (isset($_POST['login'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        // เปรียบเทียบรหัสผ่านโดยใช้ MD5
-        if (md5($password) === $row['Ad_pwd']) {
+       
+        if (password_verify($password, $row['Ad_pwd'])) {
             // ถ้ารหัสผ่านถูกต้อง จัดเก็บข้อมูลใน session
             $_SESSION['Admin_id'] = $row['Admin_id'];
             $_SESSION['Ad_name'] = $row['Ad_name'];
             $_SESSION['Ad_surname'] = $row['Ad_surname'];
             $_SESSION['user_email'] = $row['Ad_email'];
+
 
             // เปลี่ยนเส้นทางไปยังหน้า indexteacher.php
             header("Location: dashboard.php");
@@ -57,7 +58,7 @@ if (isset($_POST['login'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <title>Login Page</title>
+    <title>Login-Admin</title>
     <style>
         body {
             margin: 0;
