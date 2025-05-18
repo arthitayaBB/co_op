@@ -4,7 +4,11 @@ include 'check_admin.php';
 
 if (isset($_GET['Std_id'])) {
   $std_id = mysqli_real_escape_string($conn, $_GET['Std_id']);
-  $query = "SELECT * FROM student WHERE Std_id = '$std_id'";
+  $query = "SELECT student.*, major.Major_name 
+            FROM student 
+            LEFT JOIN major ON student.Major_id = major.Major_id 
+            WHERE student.Std_id = '$std_id'";
+
   $result = mysqli_query($conn, $query);
 
   if (!$result) {
@@ -206,7 +210,7 @@ $advisor2 = $advisor_data['advisor2'] ?? 'ไม่มีข้อมูล';
       </div>
       <div class="detail-card">
         <div class="detail-label">สาขา</div>
-        <div class="detail-value"><?php echo htmlspecialchars($row['Major_id']); ?></div>
+        <div class="detail-value"><?php echo htmlspecialchars($row['Major_name']); ?></div>
       </div>
       <div class="detail-card">
         <div class="detail-label">ชั้นปี</div>
@@ -225,12 +229,32 @@ $advisor2 = $advisor_data['advisor2'] ?? 'ไม่มีข้อมูล';
         <div class="detail-value"><?php echo htmlspecialchars($row['CGX']); ?></div>
       </div>
       <div class="detail-card">
-        <div class="detail-label">อาจารย์ที่ปรึกษา</div>
-        <div class="detail-value">
-          <?= '1.'.htmlspecialchars($advisor1)  .'<br>'.'2.'. htmlspecialchars($advisor2) ?>
-        </div>
+  <div class="detail-label">อาจารย์ที่ปรึกษา</div>
+  <div class="detail-value">
+    <?php
+      $advisors = [];
 
-      </div>
+      if (!empty($advisor1) && $advisor1 !== 'ไม่มีข้อมูล') {
+        $advisors[] = htmlspecialchars($advisor1);
+      }
+
+      if (!empty($advisor2) && $advisor2 !== 'ไม่มีข้อมูล') {
+        $advisors[] = htmlspecialchars($advisor2);
+      }
+
+      // แสดงผล
+      if (count($advisors) === 1) {
+        echo $advisors[0];
+      } elseif (count($advisors) === 2) {
+        echo '1. ' . $advisors[0] . '<br>';
+        echo '2. ' . $advisors[1];
+      } else {
+        echo 'ไม่มีข้อมูล';
+      }
+    ?>
+  </div>
+</div>
+
       <div class="detail-card">
         <div class="detail-label">เบอร์โทร</div>
         <div class="detail-value"><?php echo htmlspecialchars($row['Std_phone']); ?></div>

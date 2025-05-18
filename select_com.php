@@ -1,8 +1,7 @@
 <?php
 include_once("connectdb.php");
 
-//include_once("checklogin.php");
-session_start();
+include ("checklogin.php");
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;

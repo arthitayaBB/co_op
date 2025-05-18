@@ -7,13 +7,15 @@ if (isset($_GET['search'])) {
     $search = $_GET['search'];
 }
 
-// Change query to fetch teacher data
 $query = "SELECT teacher.*, major.Major_name 
-          FROM teacher
-          LEFT JOIN major ON teacher.Major_id = major.Major_id
-          WHERE teacher.Tec_id LIKE '%$search%' 
-          OR teacher.Tec_name LIKE '%$search%' 
-          OR teacher.Tec_surname LIKE '%$search%'";
+        FROM teacher 
+        LEFT JOIN major ON teacher.Major_id = major.Major_id
+        WHERE (
+            teacher.Tec_id LIKE '%$search%' 
+            OR teacher.Tec_name LIKE '%$search%' 
+            OR teacher.Tec_surname LIKE '%$search%'
+        )";
+
 
 $result = mysqli_query($conn, $query);
 
@@ -66,14 +68,7 @@ if (!$result) {
 
 <body>
 
-    <div class="header">
-        <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
-        <div class="header-content">
-            <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
-            <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
-        </div>
 
-    </div>
     <?php include('sidebar.php'); ?>
 
 

@@ -51,7 +51,7 @@ mysqli_close($conn);
 </head>
 <body>
 
-<button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
+
 
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->

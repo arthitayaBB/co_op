@@ -1,6 +1,6 @@
 <?php
 include_once("connectdb.php");
-session_start();
+include ("checklogin.php");
 
 $Std_id = $_SESSION['Std_id'] ?? 0;
 
@@ -24,10 +24,7 @@ if ($result->num_rows === 1) {
     die("ไม่พบข้อมูลนักศึกษา");
 }
 
-// เปิด error reporting
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
 ?>
 
 <!DOCTYPE html>
@@ -483,7 +480,6 @@ ini_set('display_errors', 1);
 
         if ($major_data) {
             $major_id = $major_data['Major_id'];
-        
 
             // เตรียมข้อมูล
             $student_id = $_POST['studentId'];

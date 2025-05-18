@@ -1,32 +1,45 @@
 <?php
 include 'connectdb.php';
 include 'check_admin.php';
-// ตรวจสอบว่ามีการส่งค่า 'id' มาใน URL หรือไม่
-if (isset($_GET['id'])) {
-    $student_id = $_GET['id'];
 
-    // เตรียมคำสั่ง SQL สำหรับการลบข้อมูล
-    $query = "DELETE FROM student WHERE Std_id = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    
-    // ผูกค่ากับตัวแปร
-    mysqli_stmt_bind_param($stmt, "s", $student_id);
-    
-    // ดำเนินการลบข้อมูล
-    if (mysqli_stmt_execute($stmt)) {
-        // ถ้าลบสำเร็จ
-        echo "<script>alert('ข้อมูลนิสิตถูกลบเรียบร้อยแล้ว'); window.location.href = 'indexstudent.php';</script>";
-    } else {
-        // ถ้าลบไม่สำเร็จ
-        echo "<script>alert('เกิดข้อผิดพลาดในการลบข้อมูล'); window.location.href = 'indexstudent.php';</script>";
+if (isset($_GET['id'])) {
+    $Std_id = mysqli_real_escape_string($conn, $_GET['id']);
+
+    // ดึงชื่อไฟล์รูปภาพจากฐานข้อมูล
+    $pic_query = "SELECT Std_picture FROM student WHERE Std_id = '$Std_id'";
+    $pic_result = mysqli_query($conn, $pic_query);
+    $pic_data = mysqli_fetch_assoc($pic_result);
+
+    if ($pic_data && !empty($pic_data['Std_picture'])) {
+        $picture_path = '../profile_pic/' . $pic_data['Std_picture'];
+        if (file_exists($picture_path)) {
+            unlink($picture_path); // ลบไฟล์รูปภาพ
+        }
     }
 
-    // ปิดการเชื่อมต่อฐานข้อมูล
-    mysqli_stmt_close($stmt);
-} else {
-    // ถ้าไม่มีค่า 'id' ใน URL ให้กลับไปที่หน้า indexstudent.php
-    echo "<script>window.location.href = 'indexstudent.php';</script>";
-}
+    // ลบข้อมูลจากตาราง job_offer
+    $delete_job_offer = "DELETE FROM job_offer WHERE Std_id = '$Std_id'";
+    mysqli_query($conn, $delete_job_offer);
 
-mysqli_close($conn);
+    // ลบข้อมูลจากตาราง advisor
+    $delete_advisor = "DELETE FROM advisor WHERE Std_id = '$Std_id'";
+    mysqli_query($conn, $delete_advisor);
+
+    // ลบข้อมูลจากตาราง proposal
+    $delete_proposal = "DELETE FROM proposal WHERE Std_id = '$Std_id'";
+    mysqli_query($conn, $delete_proposal);
+
+    // ลบข้อมูลจากตาราง student
+    $delete_student = "DELETE FROM student WHERE Std_id = '$Std_id'";
+    if (mysqli_query($conn, $delete_student)) {
+        echo "<script>
+                alert('ลบนิสิตและข้อมูลที่เกี่ยวข้องเรียบร้อยแล้ว');
+                window.location.href = 'indexstudent.php';
+              </script>";
+    } else {
+        echo "เกิดข้อผิดพลาดในการลบข้อมูล: " . mysqli_error($conn);
+    }
+} else {
+    echo "ไม่พบรหัสนิสิตที่ต้องการลบ";
+}
 ?>

@@ -1,6 +1,7 @@
 <?php
 include 'connectdb.php';
 include 'check_admin.php';
+
 if (isset($_GET['id'])) {
     $teacher_id = $_GET['id'];
 
@@ -10,14 +11,23 @@ if (isset($_GET['id'])) {
 
     if (mysqli_num_rows($check_result) > 0) {
         $row = mysqli_fetch_assoc($check_result);
-        $image_path = "img_teacher/" . $row['Tec_picture']; // ที่อยู่ของไฟล์ (เปลี่ยนเป็นโฟลเดอร์ที่คุณใช้)
+        $image_path = "img_teacher/" . $row['Tec_picture'];
 
-        // ลบไฟล์รูปภาพ ถ้าไฟล์มีอยู่จริง
+        // ลบไฟล์รูปภาพ ถ้ามีอยู่จริง
         if (!empty($row['Tec_picture']) && file_exists($image_path)) {
             unlink($image_path);
         }
 
-        // ลบข้อมูลออกจากฐานข้อมูล
+        $update_advisor_query = "
+            UPDATE advisor 
+            SET 
+                Tec_id1 = CASE WHEN Tec_id1 = '$teacher_id' THEN NULL ELSE Tec_id1 END,
+                Tec_id2 = CASE WHEN Tec_id2 = '$teacher_id' THEN NULL ELSE Tec_id2 END
+            WHERE Tec_id1 = '$teacher_id' OR Tec_id2 = '$teacher_id';
+        ";
+        mysqli_query($conn, $update_advisor_query);
+
+        // ลบข้อมูลอาจารย์
         $delete_query = "DELETE FROM teacher WHERE Tec_id = '$teacher_id'";
         $delete_result = mysqli_query($conn, $delete_query);
 

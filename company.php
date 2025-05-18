@@ -43,21 +43,6 @@ $s = !empty($com) ? "AND c.Major_id = '$com'" : "";
     color: black !important;
   }
 
-  .card {
-    width: 100%;
-    max-width: 350px;
-    /* กำหนดความกว้างสูงสุด */
-    min-height: 290px;
-    /* กำหนดความสูงขั้นต่ำ */
-    max-height: 290px;
-    /* กำหนดความสูงสูงสุด */
-  }
-
-  .card-body {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
 </style>
 
 <body>

@@ -65,6 +65,7 @@ if (isset($_POST['Submit'])) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <title>แก้ไขข้อมูลแบนเนอร์</title>
@@ -74,45 +75,47 @@ if (isset($_POST['Submit'])) {
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
 
-<div class="container mt-5">
-<h2 class="heading">เพิ่มข้อมูลแบนเนอร์</h2>
-<!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
-<button class="close-btn" onclick="window.history.back();">×</button>
+    <div class="container mt-5">
+        <h2 class="heading">แก้ไขข้อมูลแบนเนอร์</h2>
+        <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
+        <button class="close-btn" onclick="window.history.back();">×</button>
 
-    <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3 text-center">
-            <?php if (!empty($banner['Bn_image'])): ?>
-                <img src="../images/banner/<?php echo htmlspecialchars($banner['Bn_image']); ?>" 
-                     alt="รูปแบนเนอร์" class="img-thumbnail mb-2" style="width: 120px;">
-            <?php else: ?>
-                <p class="text-muted">ไม่มีรูปภาพ</p>
-            <?php endif; ?>
-<br>
-            <label class="form-label">อัปโหลดรูปภาพใหม่ (ถ้าต้องการเปลี่ยน)</label>
-            <input type="file" class="form-control" name="Bn_id" accept="image/*">
-        </div>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3 text-center">
+                <?php if (!empty($banner['Bn_image'])): ?>
+                    <img src="../images/banner/<?php echo htmlspecialchars($banner['Bn_image']); ?>"
+                        alt="รูปแบนเนอร์" class="img-thumbnail mb-2" style="width: 120px;">
+                <?php else: ?>
+                    <p class="text-muted">ไม่มีรูปภาพ</p>
+                <?php endif; ?>
+                <br>
+                <label class="form-label">อัปโหลดรูปภาพใหม่ (ถ้าต้องการเปลี่ยน)</label>
+                <input type="file" class="form-control" name="Bn_id" accept="image/*">
+            </div>
 
-        <div class="mb-3">
-            <label for="Bn_explain" class="form-label">รายละเอียด</label>
-            <input type="text" name="Bn_explain" id="Bn_explain" class="form-control"
-                   value="<?php echo htmlspecialchars($banner['Bn_explain']); ?>" required>
-        </div>
+            <div class="mb-3">
+                <label for="Bn_explain" class="form-label">รายละเอียด</label>
+                <input type="text" name="Bn_explain" id="Bn_explain" class="form-control"
+                    value="<?php echo htmlspecialchars($banner['Bn_explain']); ?>" required>
+            </div>
 
-        <div class="mb-3">
-            <label for="Bn_status" class="form-label">Status</label>
-            <select name="Bn_status" id="Bn_status" class="form-control" required>
-                <option value="0" <?= $banner['Bn_status'] == 0 ? 'selected' : '' ?>>ไม่แสดง</option>
-                <option value="1" <?= $banner['Bn_status'] == 1 ? 'selected' : '' ?>>แสดง</option>
-            </select>
-        </div>
+            <div class="mb-3">
+                <label for="Bn_status" class="form-label">Status</label>
+                <select name="Bn_status" id="Bn_status" class="form-control" required>
+                    <option value="0" <?= $banner['Bn_status'] == 0 ? 'selected' : '' ?>>ไม่แสดง</option>
+                    <option value="1" <?= $banner['Bn_status'] == 1 ? 'selected' : '' ?>>แสดง</option>
+                </select>
+            </div>
 
-        <div class="form-group text-center mt-3">
-            <button type="submit" name="Submit" class="btn btn-primary">บันทึกข้อมูล</button>
-        </div>
-    </form>
-</div>
+            <div class="form-group text-center mt-3">
+                <button type="submit" name="Submit" class="btn btn-primary">บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
 
 </body>
+
 </html>

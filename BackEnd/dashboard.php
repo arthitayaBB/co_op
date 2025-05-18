@@ -59,14 +59,6 @@ if (!$result) {
 
 <body>
 
-    <div class="header">
-        <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
-        <div class="header-content">
-            <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
-            <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
-        </div>
-    </div>
-
     <?php include('sidebar.php'); ?>
 
     <div class="content">
@@ -105,7 +97,7 @@ if (!$result) {
                         ];
 
                         // ดึงข้อมูล Teachers
-                        $teachers_result = $conn->query("SELECT COUNT(*) AS count FROM teacher");
+                        $teachers_result = $conn->query("SELECT COUNT(*) AS count FROM teacher ");
                         $teachers_count = $teachers_result->fetch_assoc()['count'];
                         $summary[] = [
                             'label' => 'Teachers',
@@ -371,18 +363,18 @@ if (!$result) {
 
                         <?php
                         $sqloffer = "SELECT 
-                    s.academic_year,
-                    SUM(CASE WHEN j.Offer_status = 1 THEN 1 ELSE 0 END) AS employed_count,
-                    SUM(CASE WHEN j.Offer_status = 2 THEN 1 ELSE 0 END) AS unemployed_count,
-                    SUM(CASE WHEN j.Offer_status = 3 THEN 1 ELSE 0 END) AS declined_count
-                FROM 
-                    job_offer j
-                JOIN 
-                    student s ON j.Std_id = s.Std_id
-                GROUP BY 
-                    s.academic_year
-                ORDER BY 
-                    s.academic_year ASC";
+                            s.academic_year,
+                            SUM(CASE WHEN j.Offer_status = 1 THEN 1 ELSE 0 END) AS employed_count,
+                            SUM(CASE WHEN j.Offer_status = 2 THEN 1 ELSE 0 END) AS unemployed_count,
+                            SUM(CASE WHEN j.Offer_status = 3 THEN 1 ELSE 0 END) AS declined_count
+                                FROM 
+                            job_offer j
+                        JOIN 
+                            student s ON j.Std_id = s.Std_id
+                        GROUP BY 
+                            s.academic_year
+                        ORDER BY 
+                            s.academic_year ASC";
 
                         $result = mysqli_query($conn, $sqloffer);
 
@@ -521,197 +513,451 @@ if (!$result) {
 
                 </div>
 
-                <div class="card border-0 bg-light p-4 rounded-4">
-                    <h5 class="mb-3 text-start">
-                        <i class="bi bi-building-fill fs-3 me-2" style="color: #6699FF;"></i> สถานประกอบการ
-                    </h5>
 
-                    <!--กราฟสาขา-->
-                    <?php
-                    $sqlm = "
+
+
+
+            </div>
+
+
+            <div class="card border-0 bg-light p-4 rounded-4">
+                <h5 class="mb-3 text-start">
+                    <i class="bi bi-building-fill fs-3 me-2" style="color: #6699FF;"></i> สถานประกอบการ
+                </h5>
+
+                <!--กราฟสาขา-->
+                <?php
+                $sqlm = "
                         SELECT m.Major_name, COUNT(c.Company_id) AS Company_count
                         FROM company c
                         JOIN major m ON c.Major_id = m.Major_id
                         GROUP BY m.Major_id
                         ";
 
-                    $result = $conn->query($sqlm);
-                    $majors = [];
-                    $counts = [];
+                $result = $conn->query($sqlm);
+                $majors = [];
+                $counts = [];
 
-                    while ($row = $result->fetch_assoc()) {
-                        $majors[] = $row['Major_name'];
-                        $counts[] = $row['Company_count'];
+                while ($row = $result->fetch_assoc()) {
+                    $majors[] = $row['Major_name'];
+                    $counts[] = $row['Company_count'];
+                }
+
+                ?>
+
+                <!-- Canvas สำหรับแสดงกราฟ สภารประกอบการ-->
+                <div class="d-flex justify-content-center">
+                    <div style="width: 100%;">
+                        <canvas id="companyByMajorChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    window.onload = function() {
+                        const ctxm = document.getElementById('companyByMajorChart').getContext('2d');
+
+                        const majors = <?= json_encode($majors); ?>;
+                        const counts = <?= json_encode($counts); ?>;
+                        const colors = ['#b388eb', '#9d8df1', '#82b1ff', '#80cbc4', '#81d4fa', '#a5d6a7', '#f48fb1', '#ce93d8'];
+
+                        // สร้าง dataset ละ 1 สาขา
+                        const datasets = majors.map((major, index) => ({
+                            label: major,
+                            data: majors.map((_, i) => (i === index ? counts[index] : 0)), // ให้ค่าแค่ตำแหน่งตัวเอง
+                            backgroundColor: colors[index % colors.length],
+                            borderRadius: 3
+                        }));
+
+                        const companyByMajorChart = new Chart(ctxm, {
+                            type: 'bar',
+                            data: {
+                                labels: majors,
+                                datasets: datasets
+                            },
+                            options: {
+                                indexAxis: 'y',
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'right' // หรือ 'top', 'bottom', 'left'
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        stacked: true
+                                    },
+                                    y: {
+                                        stacked: true
+                                    }
+                                }
+                            }
+                        });
+                    };
+                </script>
+            </div>
+
+
+            <div class="row g-4">
+                <!-- คอลัมน์ซ้าย: Proposal Status -->
+                <div class="col-md-6">
+                    <?php
+
+
+                    // ดึงปีการศึกษาทั้งหมด
+                    $years_query = mysqli_query($conn, "SELECT DISTINCT Sug_year FROM proposal ORDER BY Sug_year DESC");
+                    $years = [];
+                    while ($row = mysqli_fetch_assoc($years_query)) {
+                        $years[] = $row['Sug_year'];
                     }
+
+                    // แยกตัวแปรปีสำหรับแต่ละฝั่ง
+                    $latest_year = $years[0] ?? date("Y"); // ปีล่าสุดจากฐานข้อมูล
+                    $selected_year = $latest_year;
+                    $selected_com_year = $latest_year;
 
                     ?>
 
-                    <!-- Canvas สำหรับแสดงกราฟ สภารประกอบการ-->
-                    <div class="d-flex justify-content-center">
-                        <div style="width: 100%;">
-                            <canvas id="companyByMajorChart" height="100"></canvas>
+                    <div class="card border-0 bg-light p-4 rounded-4">
+                        <h5 class="mb-3 text-start">
+                            <i class="fas fa-file-alt me-2 fs-3" style="color:rgb(13, 197, 253);"></i>Proposal
+                        </h5>
+                        <div class="card-body text-start" style="color: #333;">
+                            <!-- ฟอร์มเลือกปี Proposal -->
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-auto">
+                                    <label for="year" class="col-form-label">ปีการศึกษา:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select name="year" id="year" class="form-select" style="min-width: 200px;">
+                                        <?php foreach ($years as $year): ?>
+                                            <option value="<?= $year ?>" <?= ($year == $selected_year) ? 'selected' : '' ?>>
+                                                <?= $year ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="proposal-status-list" class="text-start mt-3">
+                                <!-- จะถูกเติมข้อมูลด้วย JavaScript -->
+                            </div>
                         </div>
                     </div>
 
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
                     <script>
-                        window.onload = function() {
-                            const ctxm = document.getElementById('companyByMajorChart').getContext('2d');
+                        function loadProposalStatus(year) {
+                            fetch('get_proposal_status.php?year=' + year)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const container = document.getElementById('proposal-status-list');
+                                    container.innerHTML = '<ul class="list-unstyled">' + data.map(item =>
+                                        `<li class="mb-2 d-flex align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi ${item.icon} ${item.color} fs-5"></i>
+                                    <span>${item.label}</span>
+                                </div>
+                                <strong class="ms-auto">${item.count} </strong><span class="ms-2"> รายการ</span>
+                            </li>`
+                                    ).join('') + '</ul>';
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching data:', err);
+                                });
+                        }
 
-                            const majors = <?= json_encode($majors); ?>;
-                            const counts = <?= json_encode($counts); ?>;
-                            const colors = ['#b388eb', '#9d8df1', '#82b1ff', '#80cbc4', '#81d4fa', '#a5d6a7', '#f48fb1', '#ce93d8'];
+                        document.getElementById('year').addEventListener('change', function() {
+                            loadProposalStatus(this.value);
+                        });
 
-                            // สร้าง dataset ละ 1 สาขา
-                            const datasets = majors.map((major, index) => ({
-                                label: major,
-                                data: majors.map((_, i) => (i === index ? counts[index] : 0)), // ให้ค่าแค่ตำแหน่งตัวเอง
-                                backgroundColor: colors[index % colors.length],
-                                borderRadius: 3
-                            }));
-
-                            const companyByMajorChart = new Chart(ctxm, {
-                                type: 'bar',
-                                data: {
-                                    labels: majors,
-                                    datasets: datasets
-                                },
-                                options: {
-                                    indexAxis: 'y',
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'right' // หรือ 'top', 'bottom', 'left'
-                                        }
-                                    },
-                                    scales: {
-                                        x: {
-                                            beginAtZero: true,
-                                            stacked: true
-                                        },
-                                        y: {
-                                            stacked: true
-                                        }
-                                    }
-                                }
-                            });
-                        };
+                        window.addEventListener('DOMContentLoaded', function() {
+                            loadProposalStatus(document.getElementById('year').value);
+                        });
                     </script>
+                </div>
+
+                <!-- คอลัมน์ขวา: การตอบรับจากสถานประกอบการ -->
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light p-4 rounded-4">
+                        <h5 class="mb-3 text-start">
+                            <i class="fas fa-handshake me-2 fs-3" style="color:#ffc107;"></i>การตอบรับจากสถานประกอบการ
+                        </h5>
+                        <div class="card-body text-start" style="color: #333;">
+
+                            <!-- Dropdown ปีแบบไม่ใช้ form -->
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-auto">
+                                    <label for="com_year" class="col-form-label">ปีการศึกษา:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select id="com_year" class="form-select" style="min-width: 200px;">
+                                        <?php foreach ($years as $year): ?>
+                                            <option value="<?= $year ?>" <?= ($year == $selected_com_year) ? 'selected' : '' ?>>
+                                                <?= $year ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- ตรงนี้จะถูกเติมด้วย JS -->
+                            <div id="com-status-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function loadComStatus(year) {
+                        fetch('get_com_status.php?year=' + year)
+                            .then(response => response.json())
+                            .then(data => {
+                                const container = document.getElementById('com-status-list');
+                                container.innerHTML = '<ul class="list-unstyled">' + data.map(item =>
+                                    `<li class="mb-2 d-flex align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi ${item.icon} ${item.color} fs-5"></i>
+                                                <span>${item.label}</span>
+                                            </div>
+                                            <strong class="ms-auto">${item.count} </strong><span class="ms-2"> รายการ</span>
+                                        </li>`
+                                ).join('') + '</ul>';
+                            })
+                            .catch(err => {
+                                console.error('Error fetching com_status data:', err);
+                            });
+                    }
+
+                    document.getElementById('com_year').addEventListener('change', function() {
+                        loadComStatus(this.value);
+                    });
+
+                    window.addEventListener('DOMContentLoaded', function() {
+                        loadComStatus(document.getElementById('com_year').value);
+                    });
+                </script>
+
+            </div>
 
 
+            <div class="row g-4">
+                <!-- รายการที่ 1 -->
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="bi bi-file-earmark-bar-graph-fill fs-3 me-2" style="color: #008000;"></i> รายงานรายชื่อนิสิต
+                        </h5>
 
+                        <?php
+                        // ดึงปีการศึกษาจาก student
+                        $sqlyear = "SELECT DISTINCT Academic_year FROM student ORDER BY Academic_year DESC";
+                        $result = $conn->query($sqlyear);
+                        ?>
+
+                        <form id="downloadForm1" action="export_student.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="year" id="yearSelect" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row = $result->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row['Academic_year']) ?>">
+                                            <?= htmlspecialchars($row['Academic_year']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn btn-success mt-2">
+                                    <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
                 </div>
 
-                <div class="row g-4">
-                    <!-- รายการที่ 1 -->
-                    <div class="col-md-4">
-                        <div class="card border-0 bg-light p-4 rounded-4 h-100">
-                            <h5 class="mb-3 text-start">
-                                <i class="bi bi-file-earmark-bar-graph-fill fs-3 me-2" style="color: #9370DB;"></i> รายงานรายชื่อนิสิต
-                            </h5>
 
-                            <?php
-                            // ดึงปีการศึกษาจาก student
-                            $sqlyear = "SELECT DISTINCT Academic_year FROM student ORDER BY Academic_year DESC";
-                            $result = $conn->query($sqlyear);
-                            ?>
+                <!-- รายการที่ 2 -->
 
-                            <form id="downloadForm1" action="export_student.php" method="GET" target="_blank">
-                                <div class="d-flex flex-column gap-2">
-                                    <select name="year" id="yearSelect" class="form-select" style="width: 100%;">
-                                        <option value="">-- ทั้งหมด --</option>
-                                        <?php while ($row = $result->fetch_assoc()) { ?>
-                                            <option value="<?= htmlspecialchars($row['Academic_year']) ?>">
-                                                <?= htmlspecialchars($row['Academic_year']) ?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="bi bi-building-fill fs-3 me-2" style="color: #0d6efd;"></i> รายงานรายชื่อสถานประกอบการ
+                        </h5>
 
-                                    <button type="submit" class="btn btn-success mt-2">
-                                        <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                        <?php
+                        // ดึงสาขาจาก major
+                        $sql_major = "SELECT Major_id, Major_name FROM major WHERE Major_id != 0 ORDER BY Major_name ASC";
+                        $result_major = $conn->query($sql_major);
+                        ?>
 
+                        <form id="downloadForm2" action="export_company.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="major_id" id="majorSelect" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row_major = $result_major->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row_major['Major_id']) ?>">
+                                            <?= htmlspecialchars($row_major['Major_name']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn btn-primary mt-2">
+                                    <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-
-                    <!-- รายการที่ 2 -->
-
-                    <div class="col-md-4">
-                        <div class="card border-0 bg-light p-4 rounded-4 h-100">
-                            <h5 class="mb-3 text-start">
-                                <i class="bi bi-building fs-3 me-2" style="color: #20B2AA;"></i> รายงานรายชื่อบริษัท
-                            </h5>
-
-                            <?php
-                            // ดึงสาขาจาก major
-                            $sql_major = "SELECT Major_id, Major_name FROM major WHERE Major_id != 0 ORDER BY Major_name ASC";
-                            $result_major = $conn->query($sql_major);
-                            ?>
-
-                            <form id="downloadForm2" action="export_company.php" method="GET" target="_blank">
-                                <div class="d-flex flex-column gap-2">
-                                    <select name="major_id" id="majorSelect" class="form-select" style="width: 100%;">
-                                        <option value="">-- ทั้งหมด --</option>
-                                        <?php while ($row_major = $result_major->fetch_assoc()) { ?>
-                                            <option value="<?= htmlspecialchars($row_major['Major_id']) ?>">
-                                                <?= htmlspecialchars($row_major['Major_name']) ?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
-
-                                    <button type="submit" class="btn btn-primary mt-2">
-                                        <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-
-                    <!-- รายการที่ 3 -->
-                    <div class="col-md-4">
-                        <div class="card border-0 bg-light p-4 rounded-4 h-100">
-                            <h5 class="mb-3 text-start">
-                                <i class="bi bi-bar-chart-line-fill fs-3 me-2" style="color: #FF8C00;"></i> รายงานนิสิต-สถานประกอบการ
-                            </h5>
-
-                            <?php
-                            // ดึงปีการศึกษาจาก student
-                            $sqlyear = "SELECT DISTINCT Academic_year FROM student ORDER BY Academic_year DESC";
-                            $result = $conn->query($sqlyear);
-                            ?>
-
-                            <form id="downloadForm3" action="export_stdmatchcom.php" method="GET" target="_blank">
-                                <div class="d-flex flex-column gap-2">
-                                    <select name="yearstd" id="yearSelect" class="form-select" style="width: 100%;">
-                                        <option value="">-- ทั้งหมด --</option>
-                                        <?php while ($row = $result->fetch_assoc()) { ?>
-                                            <option value="<?= htmlspecialchars($row['Academic_year']) ?>">
-                                                <?= htmlspecialchars($row['Academic_year']) ?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
-
-                                    <button type="submit" class="btn mt-2" style="background-color: #ff9800; color: white; border: none;">
-                                        <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
-                                    </button>
-
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-
-
-
-
-
                 </div>
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+                <!-- รายการที่ 3 -->
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="bi bi-bar-chart-line-fill fs-3 me-2" style="color: #FF8C00;"></i> รายงานนิสิต-สถานประกอบการ
+                        </h5>
+
+                        <?php
+                        // ดึงปีการศึกษาจาก student
+                        $sqlyear = "SELECT DISTINCT Academic_year FROM student ORDER BY Academic_year DESC";
+                        $result = $conn->query($sqlyear);
+                        ?>
+
+                        <form id="downloadForm3" action="export_stdmatchcom.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="yearstd" id="yearSelect" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row = $result->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row['Academic_year']) ?>">
+                                            <?= htmlspecialchars($row['Academic_year']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn mt-2" style="background-color: #ff9800; color: white; border: none;">
+                                    <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
+                                </button>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- รายการที่ 4 -->
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="fas fa-print fs-3 me-2" style="color: #DC143C;"></i>พิมพ์ใบส่งตัวนิสิต
+                        </h5>
+                        <?php
+                        // ดึงปีการศึกษาจาก student
+                        $sqlyear = "SELECT DISTINCT Academic_year FROM student ORDER BY Academic_year DESC";
+                        $result = $conn->query($sqlyear);
+                        ?>
+
+                        <form id="downloadForm4" action="export_student_form.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="year" id="yearSelect" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row = $result->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row['Academic_year']) ?>">
+                                            <?= htmlspecialchars($row['Academic_year']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn mt-2" style="background-color: #DC143C; color: white; border: none;">
+                                    <i class="fas fa-print"></i> พิมพ์
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- รายการที่ 5 -->
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="fa fa-hand-holding-usd fs-3 me-2" style="color: #9370DB;"></i> รายงานสวัสดิการสถานฯจากนิสิต
+                        </h5>
+                        <?php
+                        $sql_major5 = "SELECT Major_id, Major_name FROM major WHERE Major_id != 0 ORDER BY Major_name ASC";
+                        $result_major5 = $conn->query($sql_major5);
+                        ?>
+
+                        <form id="downloadForm" action="export_welfare_com.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="major_id" id="majorSelect4" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row_major = $result_major5->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row_major['Major_id']) ?>">
+                                            <?= htmlspecialchars($row_major['Major_name']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn mt-2" style="background-color: #9370DB; color: white; border: none;">
+                                    <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- รายการที่ 6 -->
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-4 rounded-4 h-100">
+                        <h5 class="mb-3 text-start">
+                            <i class="bi bi-journal-text fs-3 me-2" style="color: #00CED1;"></i> รายงาน Proposal
+                        </h5>
+
+                        <?php
+                        // ดึงปีจาก proposal
+                        $sql_proposal_years = "SELECT DISTINCT Sug_year FROM proposal ORDER BY Sug_year DESC";
+                        $result_proposal_years = $conn->query($sql_proposal_years);
+                        ?>
+
+                        <form id="downloadForm6" action="export_proposal.php" method="GET" target="_blank">
+                            <div class="d-flex flex-column gap-2">
+                                <select name="year" id="proposalYearSelect" class="form-select" style="width: 100%;">
+                                    <option value="">-- ทั้งหมด --</option>
+                                    <?php while ($row = $result_proposal_years->fetch_assoc()) { ?>
+                                        <option value="<?= htmlspecialchars($row['Sug_year']) ?>">
+                                            <?= htmlspecialchars($row['Sug_year']) ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <button type="submit" class="btn mt-2" style="background-color: #00CED1; color: white; border: none;">
+                                    <i class="fas fa-file-csv"></i> ดาวน์โหลด CSV
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

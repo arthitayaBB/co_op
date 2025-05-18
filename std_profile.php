@@ -1,6 +1,6 @@
 <?php
 include_once("connectdb.php");
-session_start();
+include ("checklogin.php");
 
 $Std_id = $_SESSION['Std_id'] ?? 0;
 

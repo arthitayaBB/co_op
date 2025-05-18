@@ -31,17 +31,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $Std_pwd = $_POST['Std_pwd'];
 
     if (!empty($Std_pwd)) {
-        $hashed_password = md5($Std_pwd); // เข้ารหัสด้วย MD5
+        // ใช้ password_hash เพื่อเข้ารหัสรหัสผ่าน
+        $hashed_password = password_hash($Std_pwd, PASSWORD_DEFAULT); 
     } else {
         die("กรุณากรอกรหัสผ่าน");
     }
+    
+ // ตรวจสอบ Std_id ซ้ำ
+ $check_std_id_sql = "SELECT Std_id FROM student WHERE Std_id = '$Std_id'";
+ $check_result = mysqli_query($conn, $check_std_id_sql);
 
+ if (mysqli_num_rows($check_result) > 0) {
+     echo "<script>alert('รหัสนิสิตนี้มีอยู่ในระบบแล้ว'); window.history.back();</script>";
+     exit(); // หยุดการทำงานหลังแจ้งเตือน
+ }
     // อัปโหลดรูป
     if ($_FILES['Std_picture']['name']) {
         $target_dir = "../profile_pic/";
-        $target_file = $target_dir . basename($_FILES["Std_picture"]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $imageFileType = strtolower(pathinfo($_FILES["Std_picture"]["name"], PATHINFO_EXTENSION));
+        $Std_picture = "profile_" . $Std_id . "." . $imageFileType;
+        $target_file = $target_dir . $Std_picture;
 
         $check = getimagesize($_FILES["Std_picture"]["tmp_name"]);
         if ($check === false) {
@@ -57,9 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!move_uploaded_file($_FILES["Std_picture"]["tmp_name"], $target_file)) {
             die("เกิดข้อผิดพลาดในการอัปโหลดไฟล์.");
         }
-
-        $Std_picture = basename($_FILES["Std_picture"]["name"]);
     }
+
 
     // ดึงข้อมูล Major และ Advisor
     $Major_id = mysqli_real_escape_string($conn, $_POST['Major_id']);
@@ -71,14 +79,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     LEFT JOIN teacher t2 ON t.Major_id = t2.Major_id AND t2.Tec_id != t.Tec_id 
     WHERE t.Major_id = '$Major_id' 
     LIMIT 1";
-    
+
     $result_major = mysqli_query($conn, $sql_major);
     $major_data = mysqli_fetch_assoc($result_major);
-    
+
     if ($major_data) {
         $tec_id1 = $major_data['Tec_id1'];
         $tec_id2 = !empty($major_data['Tec_id2']) ? $major_data['Tec_id2'] : 'NULL';
-        
+
+       
+
+
         // Insert เข้า student
         $query = "INSERT INTO student 
         (Std_id, Id_number, Std_prefix, Std_name, Std_surname, Major_id, Academic_year, Grade_level, GPA, GPAX, CGX, Std_add, province, Zip_id, Std_phone, Std_email, Std_pwd, Std_picture) 
@@ -90,13 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $proposal_sql = "INSERT INTO proposal (
                 Std_id, Sug_year, Pro_status, Com_status, Proposal_name, File_name, Company_id, Note
             ) VALUES (
-                '$Std_id', '$Academic_year', 4, 4, '', '', 0, ''
+                '$Std_id', '$Academic_year',4, 4, '', '', NULL, ''
             )";
             mysqli_query($conn, $proposal_sql);
 
             // Insert เข้า advisor
             $advisor_sql = "INSERT INTO advisor (Tec_id1, Tec_id2, Std_id)
-                            VALUES ('$tec_id1', ".($tec_id2 === 'NULL' ? "NULL" : "'$tec_id2'").", '$Std_id')";
+                            VALUES ('$tec_id1', " . ($tec_id2 === 'NULL' ? "NULL" : "'$tec_id2'") . ", '$Std_id')";
             mysqli_query($conn, $advisor_sql);
 
             echo "<script>alert('เพิ่มข้อมูลนิสิตสำเร็จ'); window.location.href = 'indexstudent.php';</script>";
@@ -154,12 +165,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="Std_id" class="form-label">รหัสนิสิต</label>
-                    <input type="text" class="form-control" id="Std_id" name="Std_id" required>
+                    <input type="text" class="form-control" id="Std_id" name="Std_id" maxlength="11" required>
                 </div>
 
                 <div class="form-group col-md-6">
                     <label for="Id_number" class="form-label">รหัสบัตรประชาชน</label>
-                    <input type="text" class="form-control" id="Id_number" name="Id_number" required>
+                    <input type="text" class="form-control" id="Id_number" name="Id_number" maxlength="13" required>
                 </div>
             </div>
 
@@ -206,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="Academic_year" class="form-label">ปีการศึกษา</label>
-                        <input type="text" class="form-control" id="Academic_year" name="Academic_year">
+                        <input type="number" class="form-control" id="Academic_year" name="Academic_year">
                     </div>
                 </div>
             </div>
@@ -215,22 +226,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row">
                 <div class="form-group col-md-3">
                     <label for="Grade_level" class="form-label">ชั้นปี</label>
-                    <input type="text" class="form-control" id="Grade_level" name="Grade_level" required>
+                    <input type="number" class="form-control" id="Grade_level" name="Grade_level" required>
                 </div>
 
                 <div class="form-group col-md-3">
                     <label for="GPA" class="form-label">GPA</label>
-                    <input type="text" class="form-control" id="GPA" name="GPA" required>
+                    <input type="number" class="form-control" id="GPA" name="GPA" min="0" max="4" step="0.01" required>
                 </div>
 
                 <div class="form-group col-md-3">
                     <label for="GPAX" class="form-label">GPAX</label>
-                    <input type="text" class="form-control" id="GPAX" name="GPAX" required>
+                    <input type="number" class="form-control" id="GPAX" name="GPAX" min="0" max="4" step="0.01" required>
                 </div>
 
                 <div class="form-group col-md-3">
                     <label for="CGX" class="form-label">CGX</label>
-                    <input type="text" class="form-control" id="CGX" name="CGX" required>
+                    <input type="number" class="form-control" id="CGX" name="CGX" min="0" step="1" required>
                 </div>
             </div>
             <div class="row ">
@@ -361,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <div class="form-group">
                 <label for="Std_phone" class="form-label">เบอร์โทรศัพท์</label>
-                <input type="text" class="form-control" id="Std_phone" name="Std_phone" required>
+                <input type="text" class="form-control" id="Std_phone" name="Std_phone" maxlength="10" required>
             </div>
 
             <div class="form-group">

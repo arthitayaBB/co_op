@@ -20,7 +20,8 @@ if (isset($_POST['Submit'])) {
     $Majorid = mysqli_real_escape_string($conn, $_POST['Majorid']);
 
     if (!empty($Tecpwd)) {
-        $hashedPwd = md5($Tecpwd); // เข้ารหัสด้วย MD5
+        // เข้ารหัสรหัสผ่านด้วย password_hash แทน md5
+        $hashedPwd = password_hash($Tecpwd, PASSWORD_DEFAULT);
     } else {
         die("กรุณากรอกรหัสผ่าน");
     }
@@ -92,7 +93,7 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>เพิ่มข้อมูลอาจารย์</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
@@ -128,6 +129,7 @@ mysqli_close($conn);
     <label for="Tecpicture" class="form-label">รูปภาพ</label>
     <input type="file" name="Tecpicture" id="Tecpicture" class="form-control" accept="image/*">
 </div>
+
 
             <div class="form-group">
                 <label class="form-label">รหัสสาขา</label>

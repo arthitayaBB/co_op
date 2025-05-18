@@ -139,7 +139,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link link-dark">
+                            <a href="contact.php" class="nav-link link-dark">
                                 <i class="bi bi-envelope me-2"></i>
                                 ติดต่อสอบถาม
                             </a>

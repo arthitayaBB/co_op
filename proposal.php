@@ -1,7 +1,6 @@
 <?php
 include_once("connectdb.php");
-session_start();
-
+include ("checklogin.php");
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
@@ -53,20 +52,11 @@ $std = mysqli_fetch_assoc($result);
 
   }
 
-  .btn-group a {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-radius: 50px;
-    padding: 12px 25px;
-    font-size: 1.1rem;
-    font-weight: bold;
-  }
+
 
   .card-header {
     background-color: #afbfff;
-    color: black;
+    color: #1a237e;
     font-weight: bold;
     font-size: 1.5rem;
     text-align: center;
@@ -90,31 +80,47 @@ $std = mysqli_fetch_assoc($result);
     border-radius: 8px;
   }
 
+  .custom-tab {
+    background-color: #e6f2ff;
+    /* ฟ้าอ่อน */
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    margin-right: 6px;
+    color: #0056b3;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
 
+  .custom-tab:hover {
+    background-color: #d0e7ff;
+    color: #004080;
+  }
 
-  .btn-primary {
-    background-color: #0066cc;
+  .custom-tab.active {
+    background-color: #007bff;
     /* สีน้ำเงิน */
-    border-color: #005bb5;
+    color: #fff;
+    box-shadow: 0 -2px 8px rgba(0, 123, 255, 0.3);
   }
 
-  .btn-primary:hover {
-    background-color: #005bb5;
-    border-color: #004c99;
+  .tab-container {
+    background-color: #f0f8ff;
+    /* สีพื้นหลังกรอบ */
+    padding: 10px;
+    border-radius: 12px;
   }
 
-  .btn-blue {
-    background-color: skyblue;
-    /* สีเหลือง */
-    border-color: skyblue;
-    color: white;
-  }
-
-  .btn-blue:hover {
-    background-color: rgb(0, 130, 230);
-    border-color: rgb(0, 130, 230);
-    color: white;
-
+  .tab-content {
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    margin-top: -10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   }
 
   .status-label {
@@ -159,97 +165,103 @@ $std = mysqli_fetch_assoc($result);
   }
 
   @media (max-width: 1200px) {
-  .btn-group a {
-    padding: 10px 20px;
-    font-size: 1rem;
+    .btn-group a {
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
+
+    .card-header {
+      font-size: 1.3rem;
+    }
+
+    .table th,
+    .table td {
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    .status-label {
+      font-size: 0.9rem;
+    }
+
+    .note-text {
+      font-size: 0.9rem;
+    }
   }
 
-  .card-header {
-    font-size: 1.3rem;
+  @media (max-width: 768px) {
+    .btn-group a {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .card-header {
+      font-size: 1.2rem;
+    }
+
+    .table th,
+    .table td {
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+
+    .status-label {
+      font-size: 0.8rem;
+    }
+
+    .note-text {
+      font-size: 0.8rem;
+    }
+
+    .table-responsive {
+      margin-top: 20px;
+    }
   }
 
-  .table th,
-  .table td {
-    padding: 10px;
-    font-size: 1rem;
-  }
+  @media (max-width: 480px) {
+    .btn-group a {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
 
-  .status-label {
-    font-size: 0.9rem;
-  }
+    .card-header {
+      font-size: 1.1rem;
+    }
 
-  .note-text {
-    font-size: 0.9rem;
-  }
-}
+    .table th,
+    .table td {
+      padding: 6px;
+      font-size: 0.85rem;
+    }
 
-@media (max-width: 768px) {
-  .btn-group a {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-  }
+    .status-label {
+      font-size: 0.7rem;
+    }
 
-  .card-header {
-    font-size: 1.2rem;
+    .note-text {
+      font-size: 0.7rem;
+    }
   }
-
-  .table th,
-  .table td {
-    padding: 8px;
-    font-size: 0.9rem;
-  }
-
-  .status-label {
-    font-size: 0.8rem;
-  }
-
-  .note-text {
-    font-size: 0.8rem;
-  }
-
-  .table-responsive {
-    margin-top: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .btn-group a {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-
-  .card-header {
-    font-size: 1.1rem;
-  }
-
-  .table th,
-  .table td {
-    padding: 6px;
-    font-size: 0.85rem;
-  }
-
-  .status-label {
-    font-size: 0.7rem;
-  }
-
-  .note-text {
-    font-size: 0.7rem;
-  }
-}
-
 </style>
 
 <body>
   <?php include("navbar.php"); ?><br>
 
   <div class="container">
-    <div class="btn-group">
-      <a href="std_home.php" class="btn btn-primary">กลับหน้าหลัก</a>
-      <a href="proposal.php" class="btn btn-secondary">ยื่นข้อเสนอ</a>
-      <a href="chose_com.php" class="btn btn-blue">เลือกสถานประกอบการ</a>
-    </div>
 
+    <div class="d-flex">
+      <a href="std_home.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'std_home.php' ? 'active' : ''; ?>">
+        <i class="bi bi-calendar-event-fill"></i> หน้าหลัก
+      </a>
+      <a href="proposal.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'proposal.php' ? 'active' : ''; ?>">
+        <i class="bi bi-list-task"></i> ยื่นข้อเสนอ
+      </a>
+      <a href="chose_com.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'chose_com.php' ? 'active' : ''; ?>">
+        <i class="bi bi-bank"></i> สถานประกอบการ
+      </a>
+    </div>
+    
     <div class="card">
       <div class="card-header">
         ขออนุมัติฝึกสหกิจศึกษา (<?php echo $std['Std_id'] . ' - ' . $std['Std_prefix'] . $std['Std_name'] . ' ' . $std['Std_surname']; ?>)

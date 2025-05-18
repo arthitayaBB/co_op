@@ -8,13 +8,24 @@ if (isset($_GET['search'])) {
     $search = $_GET['search']; 
 }
 
-$query = "SELECT * FROM company WHERE NamecomTH LIKE '%$search%' OR NamecomEng LIKE '%$search%' OR Company_add LIKE '%$search%'";
+
+$query = "
+    SELECT company.*, major.Major_name 
+    FROM company 
+    LEFT JOIN major ON company.Major_id = major.Major_id 
+    WHERE company.NamecomTH LIKE '%$search%' 
+       OR company.NamecomEng LIKE '%$search%' 
+       OR company.Company_add LIKE '%$search%'
+";
+
 $result = mysqli_query($conn, $query);
 
 if (!$result) {
     die("Query failed: " . mysqli_error($conn));
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -54,15 +65,30 @@ if (!$result) {
             window.location.href = "indexcompany.php?search=" + searchQuery;
         }
     </script>
+        <style>
+
+
+.left {
+    max-width: 200px;
+    /* ปรับได้ตามต้องการ */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.limited-width {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+}
+</style>
 </head>
+
 <body>
-    <div class="header">
-        <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
-        <div class="header-content">
-            <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
-            <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
-        </div>
-    </div>
+
 
     <?php include('sidebar.php'); ?>
 
@@ -80,6 +106,7 @@ if (!$result) {
           <th>ID</th>
           <th>ชื่อบริษัท (TH)</th>
           <th>ชื่อบริษัท (EN)</th>
+          <th>สาขา</th>
         </tr>
       </thead>
       <tbody>
@@ -87,10 +114,10 @@ if (!$result) {
         <tr>
           <td>
             <a href="edit_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-warning btn-sm btn-spacing">
-                <i class="fas fa-pencil-alt"></i> แก้ไข
+                <i class="fas fa-pencil-alt"></i> 
             </a>
-            <a href="delete_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-danger btn-sm btn-spacing" onClick="return confirm('คุณแน่ใจหรือไม่?');">
-                <i class="fas fa-trash-alt"></i> ลบ
+            <a href="delete_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-danger btn-sm btn-spacing" onClick="return confirm('คุณแน่ใจหรือไม่? ข่าวประชาสัมพันธ์ที่เกี่ยวกับบริษัทนี้จะถูกลบไปด้วย');">
+                <i class="fas fa-trash-alt"></i> 
             </a>
            <a href="view_company.php?Company_id=<?php echo $row['Company_id']; ?>" class="btn btn-primary btn-sm text-white rounded-pill" title="ดูรายละเอียด">
     <i class="fas fa-eye"></i> รายละเอียด
@@ -98,6 +125,7 @@ if (!$result) {
            <td><?php echo $row['Company_id']; ?></td>
           <td class="left"><?php echo $row['NamecomTH']; ?></td>
           <td class="left"><?php echo $row['NamecomEng']; ?></td>
+          <td class ="left"><?php echo $row['Major_name']?></td>
           
         </tr>
         <?php } ?>

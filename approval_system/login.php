@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($username) || empty($password)) {
         $error_message = "กรุณากรอกข้อมูลให้ครบถ้วน";
     } else {
-      
         $login_query = "SELECT * FROM teacher WHERE Tec_email = ?";
         $stmt = $conn->prepare($login_query);
         $stmt->bind_param("s", $username);  
@@ -22,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result->num_rows > 0) {
             $teacher = $result->fetch_assoc();
 
-            // ตรวจสอบรหัสผ่าน
-            if (md5($password) == $teacher['Tec_pwd']) {
+            // ตรวจสอบรหัสผ่านแบบ hash
+            if (password_verify($password, $teacher['Tec_pwd'])) {
                 $_SESSION['teacher_id'] = $teacher['Tec_id'];
                 header("Location: approval_system.php");
                 exit;
@@ -31,11 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error_message = "รหัสผ่านไม่ถูกต้อง";
             }
         } else {
-            $error_message = "ไม่พบEmail";
+            $error_message = "ไม่พบ Email นี้ในระบบ";
         }
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <img src="https://cdn-icons-png.flaticon.com/512/219/219983.png" alt="user icon">
 
-        <h1 class="h5 mb-3 fw-normal">Sign in</h1>
+        <h1 class="h5 mb-3 fw-normal">Sign in-สำหับอาจารย์</h1>
 
         <form method="POST" action="">
             <!-- ช่องกรอก Email -->

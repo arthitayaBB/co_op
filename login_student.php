@@ -6,23 +6,28 @@ if (isset($_POST['Submit'])) {
     $email = $_POST['email'];
     $password = $_POST['pwd'];
 
-    $stmt = $conn->prepare("SELECT * FROM student WHERE Std_email = ? AND Std_pwd = ?");
-    $hashed_password = md5($password);
-    $stmt->bind_param("ss", $email, $hashed_password);
+    $stmt = $conn->prepare("SELECT * FROM student WHERE Std_email = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    $num = $result->num_rows;
 
-    if ($num > 0) {
+    if ($result->num_rows > 0) {
         $data = $result->fetch_assoc();
-        $_SESSION['Std_id'] = $data['Std_id'];
-        echo "<script>window.location='std_home.php';</script>";
-        exit;
+
+        // ตรวจสอบรหัสผ่านที่ผู้ใช้กรอกกับรหัสผ่านในฐานข้อมูล
+        if (password_verify($password, $data['Std_pwd'])) {
+            $_SESSION['Std_id'] = $data['Std_id'];
+            echo "<script>window.location='std_home.php';</script>";
+            exit;
+        } else {
+            echo "<script>alert('รหัสผ่านไม่ถูกต้อง');</script>";
+        }
     } else {
-        echo "<script>alert('Username หรือ Password ไม่ถูกต้อง');</script>";
+        echo "<script>alert('ไม่พบผู้ใช้นี้');</script>";
     }
 }
 ?>
+
 
 
 
@@ -131,6 +136,7 @@ if (isset($_POST['Submit'])) {
         <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Avatar" width="80" class="mb-4">
 
         <form method="POST" action="">
+        <h3 class="text-center" style="color: #0b5ed7;">เข้าสู่ระบบ-สำหรับนิสิต</h3>
             <div class="form-group">
                 <i class="fa fa-user"></i>
                 <input type="email" class="form-control" name="email" placeholder="Email" required>

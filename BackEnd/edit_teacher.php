@@ -74,9 +74,10 @@ if (isset($_POST['Submit'])) {
     }
 
     if (!empty($Tecpwd)) {
-        $hashedPwd = md5($Tecpwd); // แฮชรหัสผ่านแบบไม่มี salt
+        $hashedPwd = password_hash($Tecpwd, PASSWORD_DEFAULT); 
         $updateSql .= ", Tec_pwd = '$hashedPwd'";
     }
+    
 
     // เพิ่มเงื่อนไข WHERE
     $updateSql .= " WHERE Tec_id = $TecId";
@@ -93,10 +94,7 @@ if (isset($_POST['Submit'])) {
     }
 }
 
- // เปิด error reporting
- mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
- error_reporting(E_ALL);
- ini_set('display_errors', 1);
+
 
 mysqli_close($conn);
 ?>
@@ -107,7 +105,7 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>แก้ไขข้อมูลอาจารย์</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>

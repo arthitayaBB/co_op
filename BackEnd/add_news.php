@@ -73,7 +73,7 @@ if (isset($_POST['Submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>เพิ่มข้อมูลนิสิต</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
@@ -87,7 +87,7 @@ if (isset($_POST['Submit'])) {
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
 
-        <h2 class="heading">เพิ่มข้อมูล</h2>
+        <h2 class="heading">เพิ่มข้อมูลนิสิต</h2>
         <form method="POST" enctype="multipart/form-data">
             <div class="mb-3 text-center">
                 <!-- แสดงรูปภาพข่าวถ้ามี -->

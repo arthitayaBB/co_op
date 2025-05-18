@@ -1,4 +1,5 @@
-<?php
+
+}<?php
 include 'connectdb.php';
 include 'check_admin.php';
 
@@ -35,20 +36,30 @@ if (isset($_POST['Submit'])) {
                         Ad_email = '$ademail'";
 
         if (!empty($adpwd)) {
-            $hashedPwd = md5($adpwd);
+            // ใช้ password_hash() เพื่อแฮชรหัสผ่าน
+            $hashedPwd = password_hash($adpwd, PASSWORD_DEFAULT);
+
+            // เพิ่มคำสั่ง UPDATE เพื่ออัปเดตรหัสผ่านที่แฮชแล้ว
             $updateSql .= ", Ad_pwd = '$hashedPwd'";
         }
 
         $updateSql .= " WHERE Admin_id = $Adminid";
 
-        // **DEBUG: เช็ก SQL Query**
-        echo "<pre>$updateSql</pre>";
+        // แสดง SQL Query สำหรับตรวจสอบ
+        // echo "<pre>$updateSql</pre>";
 
         if (mysqli_query($conn, $updateSql)) {
-            header("Location: indexadmin.php");
+            // แจ้งเตือนเมื่ออัปเดตสำเร็จ
+            echo "<script>
+                    alert('ข้อมูลผู้ใช้งานได้รับการอัปเดตเรียบร้อยแล้ว');
+                    window.location.href = 'indexadmin.php';
+                  </script>";
             exit();
         } else {
-            die("Error updating record: " . mysqli_error($conn));
+            // แจ้งเตือนเมื่อเกิดข้อผิดพลาด
+            echo "<script>
+                    alert('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+                  </script>";
         }
     } else {
         die("Error: Invalid Admin ID");
@@ -59,13 +70,15 @@ mysqli_close($conn);
 ?>
 
 
+
+
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>แก้ไขข้อมูล-Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
@@ -124,10 +137,10 @@ mysqli_close($conn);
                 }
             </script>
 
-<div class="form-group text-center">
+            <div class="form-group text-center">
 
-            <button type="submit" name="Submit" class="btn btn-primary">บันทึก</button>
-</div>
+                <button type="submit" name="Submit" class="btn btn-primary">บันทึก</button>
+            </div>
         </form>
     </div>
     <script src="scriptBEadd.js"></script>

@@ -25,18 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $province = $_POST['Province'];
     $phone = $_POST['Com_phone'];
     $email = $_POST['Com_email'];
-	$Website = $_POST['Website'];
-	$Contact_com = $_POST['Contact_com'];
-	$Position = $_POST['Position'];
-	$Duration = $_POST['Duration'];
-	$Job_description = $_POST['Job_description'];
-	$welfare = $_POST['welfare'];
-	$Fax_number = $_POST['Fax_number'];
-	$Map = $_POST['Map'];
-	$year = $_POST['Academic_year'];
-	$Major=$_POST['Major_id'];
-	
-	$update_query = "UPDATE company SET
+    $Website = $_POST['Website'];
+    $Contact_com = $_POST['Contact_com'];
+    $Position = $_POST['Position'];
+    $Duration = $_POST['Duration'];
+    $Job_description = $_POST['Job_description'];
+    $welfare = $_POST['welfare'];
+    $Fax_number = $_POST['Fax_number'];
+    $Map = $_POST['Map'];
+    $year = $_POST['Academic_year'];
+    $Major = $_POST['Major_id'];
+
+    $update_query = "UPDATE company SET
     NamecomTH='$name_th', 
     NamecomEng='$name_en', 
     Company_add='$address', 
@@ -72,6 +72,7 @@ if (isset($_GET['id'])) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -81,101 +82,105 @@ if (isset($_GET['id'])) {
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
 
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
 
-    <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
 
     <div class="container mt-5">
-        <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
+        <!-- ปุ่มย้อนกลับ -->
         <button class="close-btn" onclick="window.history.back();">×</button>
 
-        <h2 class="text-center mb-4">แก้ไขข้อมูลสถานประกอบการ</h2>
+        <h2 class="heading">แก้ไขข้อมูลสถานประกอบการ</h2>
         <form method="post">
-            <div class="mb-3">
-                <label class="form-label">ID</label>
-                <input type="text" class="form-control" name="Company_id" value="<?php echo $company['Company_id']; ?>" readonly>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ชื่อบริษัท (ไทย)</label>
-                <input type="text" class="form-control" name="NamecomTH" value="<?php echo $company['NamecomTH']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ชื่อบริษัท (อังกฤษ)</label>
-                <input type="text" class="form-control" name="NamecomEng" value="<?php echo $company['NamecomEng']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ที่อยู่บริษัท</label>
-                <input type="text" class="form-control" name="Company_add" value="<?php echo $company['Company_add']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">จังหวัด</label>
-                <input type="text" class="form-control" name="Province" value="<?php echo $company['Province']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">หมายเลขโทรศัพท์</label>
-                <input type="text" class="form-control" name="Com_phone" value="<?php echo $company['Com_phone']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">อีเมล์</label>
-                <input type="email" class="form-control" name="Com_email" value="<?php echo $company['Com_email']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">เว็บไซต์</label>
-                <input type="url" class="form-control" name="Website" value="<?php echo $company['Website']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ผู้ติดต่อ</label>
-                <input type="text" class="form-control" name="Contact_com" value="<?php echo $company['Contact_com']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ตำแหน่ง</label>
-                <input type="text" class="form-control" name="Position" value="<?php echo $company['Position']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ระยะเวลา</label>
-                <input type="text" class="form-control" name="Duration" value="<?php echo $company['Duration']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">คำอธิบายงาน</label>
-                <input type="text" class="form-control" name="Job_description" value="<?php echo $company['Job_description']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">สวัสดิการ</label>
-                <input type="text" class="form-control" name="welfare" value="<?php echo $company['welfare']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">เบอร์โทรสาร</label>
-                <input type="text" class="form-control" name="Fax_number" value="<?php echo $company['Fax_number']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">แผนที่</label>
-                <input type="text" class="form-control" name="Map" value="<?php echo $company['Map']; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ปีการศึกษา</label>
-                <input type="text" class="form-control" name="Academic_year" value="<?php echo $company['Academic_year']; ?>" required>
-            </div>
-            <div class="mb-3 input-group">
-      <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
-        <select name="Major_id" class="form-select" required>
-          <option value="">-- กรุณาเลือกสาขา --</option>
-            <?php
-            include 'connectdb.php'; 
-            $result = mysqli_query($conn, "SELECT Major_id, Major_name FROM major");
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "<option value='{$row['Major_id']}'>{$row['Major_name']}</option>";
-            }
-            ?>
-        </select>
-    </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อบริษัท (ไทย)</label>
+                    <input type="text" name="NamecomTH" class="form-control" value="<?php echo $company['NamecomTH']; ?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อบริษัท (อังกฤษ)</label>
+                    <input type="text" name="NamecomEng" class="form-control" value="<?php echo $company['NamecomEng']; ?>">
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">ที่อยู่</label>
+                    <textarea name="Company_add" class="form-control" required><?php echo $company['Company_add']; ?></textarea>
+                </div>
 
-            <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">จังหวัด</label>
+                    <input type="text" name="Province" class="form-control" value="<?php echo $company['Province']; ?>">
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">เบอร์โทร</label>
+                    <input type="text" name="Com_phone" class="form-control" value="<?php echo $company['Com_phone']; ?>">
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">เบอร์โทรสาร</label>
+                    <input type="text" name="Fax_number" class="form-control" value="<?php echo $company['Fax_number']; ?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">อีเมล</label>
+                    <input type="email" name="Com_email" class="form-control" value="<?php echo $company['Com_email']; ?>">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">เว็บไซต์</label>
+                    <input type="url" name="Website" class="form-control" value="<?php echo $company['Website']; ?>">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อผู้ติดต่อ</label>
+                    <input type="text" name="Contact_com" class="form-control" value="<?php echo $company['Contact_com']; ?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ตำแหน่ง</label>
+                    <input type="text" name="Position" class="form-control" value="<?php echo $company['Position']; ?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ระยะเวลา</label>
+                    <input type="text" name="Duration" class="form-control" value="<?php echo $company['Duration']; ?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ปีการศึกษา</label>
+                    <input type="text" name="Academic_year" class="form-control" value="<?php echo $company['Academic_year']; ?>" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">รายละเอียดงาน</label>
+                    <input type="text" name="Job_description" class="form-control" value="<?php echo $company['Job_description']; ?>" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">สวัสดิการ</label>
+                    <input type="text" name="welfare" class="form-control" value="<?php echo $company['welfare']; ?>" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">แผนที่</label>
+                    <textarea name="Map" class="form-control" rows="3" required><?php echo $company['Map']; ?></textarea>
+                    <div class="form-text">กรุณาใส่ลิงก์แผนที่ Google Maps แบบฝังแผนที่</div>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">สาขา</label>
+                    <select name="Major_id" class="form-control" required>
+                        <option value="">-- กรุณาเลือกสาขา --</option>
+                        <?php
+                        include 'connectdb.php';
+                        $result = mysqli_query($conn, "SELECT Major_id, Major_name FROM major");
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $selected = ($company['Major_id'] == $row['Major_id']) ? 'selected' : '';
+                            echo "<option value='{$row['Major_id']}' $selected>{$row['Major_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ปุ่มบันทึก -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary ">บันทึกข้อมูล</button>
+            </div>
         </form>
     </div>
 
-<script src="scriptBEadd.js"></script>
+
+
 </body>
+
 </html>

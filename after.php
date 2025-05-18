@@ -1,6 +1,7 @@
 <?php
 include_once("connectdb.php");
-session_start();
+include ("checklogin.php");
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -18,7 +19,13 @@ $result = mysqli_query($conn, $sql);
 $sw = mysqli_fetch_assoc($result);
 
 $company_id = $sw['Company_id'] ?? null;
+
+// ตรวจสอบว่ามีการส่งโปรเจคไปแล้วหรือยัง
+$sql_check = "SELECT * FROM student_work WHERE Std_id = $Std_id LIMIT 1";
+$result_check = mysqli_query($conn, $sql_check);
+$existing_work = mysqli_fetch_assoc($result_check);
 ?>
+
 
 <!doctype html>
 <html lang="th">
@@ -77,68 +84,75 @@ $company_id = $sw['Company_id'] ?? null;
             <i class="bi bi-file-earmark-text-fill me-2" style="color: skyblue;"></i>ส่งโปรเจคสหกิจ
         </h4>
 
-
-        <form method="post" action="" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="bi bi-briefcase-fill me-2" style="color: skyblue;"></i>ชื่อโปรเจค
-                    </label>
-                    <input type="text" name="Workname" class="form-control" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="bi bi-calendar-event-fill me-2" style="color: skyblue;"></i>ปีการศึกษา
-                    </label>
-                    <input type="number" name="Workyear" class="form-control" required>
-                </div>
-
-                <div class="col-12 mb-3">
-                    <label class="form-label">
-                        <i class="bi bi-card-text me-2" style="color: skyblue;"></i>รายละเอียด
-                    </label>
-                    <textarea name="Workdetails" class="form-control" rows="3" required></textarea>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="bi bi-image-fill me-2" style="color: skyblue;"></i>รูปภาพหน้าปก
-                    </label>
-                    <input type="file" name="Workpicture" class="form-control" accept="image/*" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        <i class="bi bi-file-earmark-pdf-fill me-2" style="color: skyblue;"></i>ไฟล์โปรเจค (เฉพาะ PDF)
-                    </label>
-                    <input type="file" name="Workfile" class="form-control" accept="application/pdf" required>
-                </div>
-
-
-                <div class="col-12 mb-4">
-                    <h5 class="text-center mt-4 mb-3"><i class="bi-chat-dots-fill me-2" style="color: skyblue;"></i>ผลการฝึกงาน (คำแนะนำสู่รุ่นน้อง)</h5>
-                    <select name="Workresult" class="form-select" required>
-                        <option value="" disabled selected>-- กรุณาเลือกผลการฝึกงาน --</option>
-                        <option value="1">ได้งาน</option>
-                        <option value="3">เสนอแต่ไม่รับ</option>
-                        <option value="2">ไม่ได้งาน</option>
-                    </select>
-                </div>
-
-                <div class="col-12 mb-4">
-                    <label class="form-label">
-                        <i class="bi bi-gift-fill me-2" style="color: skyblue;"></i>สวัสดิการที่ได้รับ
-                    </label>
-
-                    <input type="text" name="Workbenefit" class="form-control" required>
-                </div>
-
-                <div class="col-12">
-                    <button type="submit" name="Submit" class="btn btn-info w-100">ส่งข้อมูล</button>
-                </div>
+        <?php if ($existing_work): ?>
+            <div class="alert alert-info text-center">
+                <strong>คุณได้ส่งโปรเจคสหกิจแล้ว</strong><br>
+                โปรเจค: <?= htmlspecialchars($existing_work['Work_name']) ?><br>
+                ปีการศึกษา: <?= htmlspecialchars($existing_work['Work_year']) ?>
             </div>
-        </form>
+        <?php else: ?>
+            <form method="post" action="" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-briefcase-fill me-2" style="color: skyblue;"></i>ชื่อโปรเจค
+                        </label>
+                        <input type="text" name="Workname" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-calendar-event-fill me-2" style="color: skyblue;"></i>ปีการศึกษา
+                        </label>
+                        <input type="number" name="Workyear" class="form-control" required>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-card-text me-2" style="color: skyblue;"></i>รายละเอียด
+                        </label>
+                        <textarea name="Workdetails" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-image-fill me-2" style="color: skyblue;"></i>รูปภาพหน้าปก
+                        </label>
+                        <input type="file" name="Workpicture" class="form-control" accept="image/*" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-file-earmark-pdf-fill me-2" style="color: skyblue;"></i>ไฟล์โปรเจค (เฉพาะ PDF)
+                        </label>
+                        <input type="file" name="Workfile" class="form-control" accept="application/pdf" required>
+                    </div>
+
+
+                    <div class="col-12 mb-4">
+                        <h5 class="text-center mt-4 mb-3"><i class="bi-chat-dots-fill me-2" style="color: skyblue;"></i>ผลการฝึกงาน (คำแนะนำสู่รุ่นน้อง)</h5>
+                        <select name="Workresult" class="form-select" required>
+                            <option value="" disabled selected>-- กรุณาเลือกผลการฝึกงาน --</option>
+                            <option value="1">ได้งาน</option>
+                            <option value="3">เสนอแต่ไม่รับ</option>
+                            <option value="2">ไม่ได้งาน</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-gift-fill me-2" style="color: skyblue;"></i>สวัสดิการที่ได้รับ
+                        </label>
+
+                        <input type="text" name="Workbenefit" class="form-control" required>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" name="Submit" class="btn btn-info w-100">ส่งข้อมูล</button>
+                    </div>
+                </div>
+            </form>
+        <?php endif; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -221,7 +235,7 @@ $company_id = $sw['Company_id'] ?? null;
 
         // ทำการ insert ทีละอัน
         if (mysqli_query($conn, $sql1) && mysqli_query($conn, $sql2) && mysqli_query($conn, $sql3)) {
-            echo "<script>alert('บันทึกข้อมูลทั้งหมดสำเร็จ!'); window.location='proposal.php';</script>";
+            echo "<script>alert('บันทึกข้อมูลทั้งหมดสำเร็จ!'); window.location='std_home.php';</script>";
         } else {
             echo "<script>alert('เกิดข้อผิดพลาด: " . mysqli_error($conn) . "');</script>";
         }

@@ -2,27 +2,22 @@
 include 'connectdb.php';
 include 'check_admin.php';
 
-if (isset($_GET['Std_ids'])) {
-    $std_ids = explode(",", $_GET['Std_ids']);
-    $placeholders = implode(",", array_fill(0, count($std_ids), "?"));
-    $query = "SELECT * FROM student WHERE Std_id IN ($placeholders)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param(str_repeat('s', count($std_ids)), ...$std_ids);
+$academic_year = $_GET['year'] ?? null;
+
+if ($academic_year) {
+    $stmt = $conn->prepare("SELECT * FROM student WHERE Academic_year = ?");
+    $stmt->bind_param("s", $academic_year);
     $stmt->execute();
     $result = $stmt->get_result();
-
-    $students = [];
-    while ($row = $result->fetch_assoc()) {
-        $students[] = $row;
-    }
-
-    if (empty($students)) {
-        die("❌ ไม่พบข้อมูลนิสิตที่รหัสนี้");
-    }
 } else {
-    die("❌ ไม่ได้รับค่ารหัสนิสิต");
+    $stmt = $conn->prepare("SELECT * FROM student");
+    $stmt->execute();
+    $result = $stmt->get_result();
 }
+
+$students = $result->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -302,9 +297,7 @@ if (isset($_GET['Std_ids'])) {
         <button class="print-btn" onclick="window.print()">
             <i class="fas fa-print"></i> พิมพ์
         </button>
-        <button class="print-btn cancel" onclick="window.history.back()">
-            <i class="fas fa-times-circle"></i> ยกเลิก
-        </button>
+
     </div>
 
 </body>

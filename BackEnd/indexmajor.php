@@ -51,13 +51,7 @@ if (!$result) {
 </head>
 <body>
 
-<div class="header">
-    <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
-    <div class="header-content">
-        <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
-        <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
-    </div>
-</div>
+
 
 <?php include('sidebar.php'); ?>
 

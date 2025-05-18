@@ -143,7 +143,7 @@ if (isset($_POST['Submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลนิสิต</title>
+    <title>แก้ไขข้อมูลข่าวกิจกรรมสหกิจศึกษา</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
@@ -155,10 +155,10 @@ if (isset($_POST['Submit'])) {
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
 
-        <h2 class="heading">แก้ไขข้อมูล</h2>
+        <h2 class="heading">แก้ไขข้อมูลข่าวกิจกรรมสหกิจศึกษา</h2>
         <form method="POST" enctype="multipart/form-data">
             <div class="mb-3 text-center">
-                <label class="form-label">รูปภาพปัจจุบัน</label>
+            <label class="form-label">อัปโหลดรูปภาพ(สูงสุด 4 รูป)</label>
                 <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
                     <?php
                     $hasImages = false;
@@ -184,7 +184,7 @@ if (isset($_POST['Submit'])) {
                     <?php endif; ?>
                 </div>
 
-                <label class="form-label">อัปโหลดรูปภาพใหม่ (สูงสุด 4 รูป)</label>
+               
                 <!-- พื้นที่แสดง preview รูปใหม่ -->
                 <div id="previewContainer" class="mt-3 d-flex flex-wrap justify-content-center gap-2">
                     <p id="noImageText" class="text-muted">ไม่มีรูปภาพใหม่</p>

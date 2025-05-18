@@ -78,9 +78,10 @@ session_start();
 
     <?php
     $sql2 = "SELECT t.*, m.Major_name
-          FROM teacher t
-          INNER JOIN major m ON t.Major_id = m.Major_id";
+   FROM teacher t
+   INNER JOIN major m ON t.Major_id = m.Major_id";
     $rs2 = mysqli_query($conn, $sql2);
+
     ?>
 
 

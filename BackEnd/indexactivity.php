@@ -20,6 +20,7 @@ if (!$result) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ข่าวกิจกรรมสหกิจศึกษา</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -62,19 +63,12 @@ if (!$result) {
 </style>
 
 <body>
-    <div class="header">
-        <img src="../BackEnd/img/mbs.png" alt="โลโก้คณะ">
-        <div class="header-content">
-            <h1>บริหารจัดการและประชาสัมพันธ์ สหกิจศึกษา</h1>
-            <p>คณะการบัญชีและการจัดการ มหาวิทยาลัยมหาสารคาม</p>
-        </div>
-    </div>
 
     <?php include('sidebar.php'); ?>
 
     <div class="content">
-        <h2>Banner</h2>
-        <div class="d-flex justify-content-between mb-3"> <a href="add_pr.php" class="btn btn-success"><i class="fas fa-plus"></i> เพิ่มBanner</a> </div>
+        <h2>ข่าวกิจกรรมสหกิจศึกษา</h2>
+        <div class="d-flex justify-content-between mb-3"> <a href="add_pr.php" class="btn btn-success"><i class="fas fa-plus"></i> ข่าวกิจกรรมสหกิจศึกษา</a> </div>
 
         <div class="table-container">
 

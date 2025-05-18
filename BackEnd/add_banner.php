@@ -59,7 +59,7 @@ if (isset($_POST['Submit'])) {
 
 <div class="container mt-5">
     <button class="close-btn" onclick="window.history.back();">×</button>
-    <h2 class="heading">เพิ่มข้อมูลแบนเนอร์</h2>
+    <h2 class="heading">เพิ่มข้อมูลBanner</h2>
     <form method="POST" enctype="multipart/form-data">
         <div class="mb-3 text-center">
             <img id="preview" src="" alt="Preview" class="img-thumbnail d-block mx-auto mb-2 d-none" style="width: 120px; height: auto;">
@@ -103,6 +103,8 @@ if (isset($_POST['Submit'])) {
         </div>
     </form>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   
 
 <script src="scriptBEadd.js"></script>
 </body>

@@ -1,25 +1,34 @@
 <?php
 include_once("connectdb.php");
-session_start();
+include ("checklogin.php");
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_SESSION['Std_id']) ? intval($_SESSION['Std_id']) : 0;
 $Std_id = $_SESSION['Std_id'];
 
-// คิวรีข้อมูลจากฐานข้อมูล
 $sql = "
-    SELECT std.*, p.Com_status, p.Pro_status, p.Proposal_name, c.NamecomTH, c.Company_add, c.Province, c.Com_phone,c.NamecomEng
+    SELECT 
+        std.*, 
+        p.Pro_status, 
+        p.Com_status,
+        c.NamecomTH, 
+        c.NamecomEng, 
+        c.Company_add, 
+        c.Province, 
+        c.Com_phone 
     FROM student std
     INNER JOIN proposal p ON std.Std_id = p.Std_id
-    INNER JOIN company c ON p.Company_id = c.Company_id
-    WHERE std.Std_id  = $Std_id
+    LEFT JOIN company c ON p.Company_id = c.Company_id
+
+    WHERE std.Std_id = $Std_id
 ";
 
 
 
 $result = mysqli_query($conn, $sql);
-$p = mysqli_fetch_assoc($result);
+$std = mysqli_fetch_assoc($result);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -39,23 +48,57 @@ $p = mysqli_fetch_assoc($result);
 
     }
 
-    .btn-group a {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        border-radius: 50px;
-        padding: 12px 25px;
-        font-size: 1.1rem;
+    .custom-tab {
+        background-color: #e6f2ff;
+    
+        padding: 10px 18px;
+        border: none;
+        border-radius: 12px 12px 0 0;
+        margin-right: 6px;
+        color: #0056b3;
         font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
     }
 
-    .card-header {
-        background-color: #FED32B;
-        font-weight: bold;
-        font-size: 1.5rem;
-        text-align: center;
+    .custom-tab:hover {
+        background-color: #d0e7ff;
+        color: #004080;
     }
+
+    .custom-tab.active {
+        background-color: #007bff;
+        /* สีน้ำเงิน */
+        color: #fff;
+        box-shadow: 0 -2px 8px rgba(0, 123, 255, 0.3);
+    }
+
+    .tab-container {
+        background-color: #f0f8ff;
+        /* สีพื้นหลังกรอบ */
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    .tab-content {
+        padding: 20px;
+        background-color: white;
+        border-radius: 12px;
+        margin-top: -10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+   .card-header {
+    background-color: #AFEEEE; 
+    color: #1a237e;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
 
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -76,30 +119,8 @@ $p = mysqli_fetch_assoc($result);
 
 
 
-    .btn-primary {
-        background-color: #0066cc;
-        /* สีน้ำเงิน */
-        border-color: #005bb5;
-    }
 
-    .btn-primary:hover {
-        background-color: #005bb5;
-        border-color: #004c99;
-    }
 
-    .btn-blue {
-        background-color: skyblue;
-        /* สีเหลือง */
-        border-color: skyblue;
-        color: white;
-    }
-
-    .btn-blue:hover {
-        background-color: rgb(0, 130, 230);
-        border-color: rgb(0, 130, 230);
-        color: white;
-
-    }
 
     .status-label {
         font-weight: bold;
@@ -229,21 +250,28 @@ $p = mysqli_fetch_assoc($result);
     <?php include("navbar.php"); ?><br>
 
     <div class="container">
-        <div class="btn-group">
-            <a href="std_home.php" class="btn btn-primary">กลับหน้าหลัก</a>
-            <a href="proposal.php" class="btn btn-secondary">ยื่นข้อเสนอ</a>
-            <a href="chose_com.php" class="btn btn-blue">เลือกสถานประกอบการ</a>
+
+        <div class="d-flex">
+            <a href="std_home.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'std_home.php' ? 'active' : ''; ?>">
+                <i class="bi bi-calendar-event-fill"></i> หน้าหลัก
+            </a>
+            <a href="proposal.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'proposal.php' ? 'active' : ''; ?>">
+                <i class="bi bi-list-task"></i> ยื่นข้อเสนอ
+            </a>
+            <a href="chose_com.php" class="custom-tab <?php echo basename($_SERVER['PHP_SELF']) == 'chose_com.php' ? 'active' : ''; ?>">
+                <i class="bi bi-bank"></i> สถานประกอบการ
+            </a>
         </div>
 
-        <div class="card">
+        <div class="card ">
             <div class="card-header">
-                เลือกสถานประกอบการ (<?php echo $p['Std_id'] . ' - ' . $p['Std_prefix'] . $p['Std_name'] . ' ' . $p['Std_surname']; ?>)
+                เลือกสถานประกอบการ (<?php echo $std['Std_id'] . ' - ' . $std['Std_prefix'] . $std['Std_name'] . ' ' . $std['Std_surname']; ?>)
             </div>
             <div class="table-responsive">
                 <table class="table">
                     <tr>
                     <tr>
-                        <th style="width: 150px;"> </th> <!-- ใช้ช่องว่างเล็กๆ ถ้าต้องการแค่เป็นช่องว่าง -->
+                        <th style="width: 150px;"> </th>
                         <th style="width: 250px;">ชื่อสถานประกอบการ</th>
                         <th style="width: 300px;">ที่อยู่</th>
                         <th style="width: 150px;">จังหวัด</th>
@@ -253,18 +281,20 @@ $p = mysqli_fetch_assoc($result);
                     </tr>
                     <tr>
                         <td><a href="select_com.php?id=<?= $Std_id ?>" class="btn btn-link"><i class=" bi bi-building-add me-2 fs-4"></i>เลือกสถานประกอบการ</a></td>
-                        <td><?php echo $p['NamecomTH'] . '<br>' . $p['NamecomEng'] ?></td>
-                        <td><?php echo $p['Company_add']; ?></td>
                         <td>
-                            <?php echo $p['Province']; ?>
+                            <?php
+                            echo (!empty($std['NamecomTH']) ? $std['NamecomTH'] : '') .
+                                '<br>' .
+                                (!empty($std['NamecomEng']) ? $std['NamecomEng'] : '');
+                            ?>
                         </td>
-                        <td>
-                            <?php echo $p['Com_phone']; ?>
-                        </td>
+                        <td><?php echo !empty($std['Company_add']) ? $std['Company_add'] : ''; ?></td>
+                        <td><?php echo !empty($std['Province']) ? $std['Province'] : ''; ?></td>
+                        <td><?php echo !empty($std['Com_phone']) ? $std['Com_phone'] : ''; ?></td>
 
                         <td>
                             <?php echo "สถานะการขอยื่นฝึกฯ <br><br>";
-                            $status = $p['Pro_status'];
+                            $status = $std['Pro_status'];
                             switch ($status) {
                                 case 0:
                                     echo "<span class='status-label status-rejected'>ไม่อนุมัติ</span>";
@@ -287,7 +317,7 @@ $p = mysqli_fetch_assoc($result);
                             ?>
                             <hr>
                             <?php echo "สถานะการตอบรับจากสถานประกอบการ <br><br>";
-                            $status = $p['Com_status'];
+                            $status = $std['Com_status'];
                             switch ($status) {
                                 case 0:
                                     echo "<span class='status-label status-rejected'>ไม่อนุมัติ</span>";

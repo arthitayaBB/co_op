@@ -1,5 +1,5 @@
 <?php
-include 'connectdb.php'; 
+include 'connectdb.php';
 include 'check_admin.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nameTH = mysqli_real_escape_string($conn, $_POST['NamecomTH']);
@@ -37,6 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,109 +47,114 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
     <link rel="stylesheet" href="stylBEadd.CSS">
 </head>
+
 <body>
 
-    <!-- พื้นหลัง Particles -->
-    <div id="particles-js"></div>
 
-    <button class="toggle-btn" onclick="toggleDarkMode()">Dark/Light Mode</button>
+
 
     <div class="container mt-5">
         <!-- ปุ่มกากบาทสำหรับกลับไปหน้าก่อน -->
         <button class="close-btn" onclick="window.history.back();">×</button>
 
         <h2 class="heading">เพิ่มข้อมูลสถานประกอบการ</h2>
-    <form method="POST">
+
         <form method="POST">
-    <div class="mb-3">
-        <label class="form-label">ชื่อบริษัท (TH)</label>
-        <input type="text" name="NamecomTH" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ชื่อบริษัท (EN)</label>
-        <input type="text" name="NamecomEng" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ที่อยู่</label>
-        <input type="text" name="Company_add" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">จังหวัด</label>
-        <input type="text" name="Province" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">เบอร์โทร</label>
-        <input type="text" name="Com_phone" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">อีเมล</label>
-        <input type="email" name="Com_email" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">เว็บไซต์</label>
-        <input type="url" name="Website" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ชื่อผู้ติดต่อ</label>
-        <input type="text" name="Contact_com" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ตำแหน่ง</label>
-        <input type="text" name="Position" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ระยะเวลา</label>
-        <input type="text" name="Duration" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">รายละเอียดงาน</label>
-        <input type="text" name="Job_description" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">สวัสดิการ</label>
-        <input type="text" name="welfare" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">เบอร์โทรสาร</label>
-        <input type="text" name="Fax_number" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">แผนที่</label>
-        <input type="text" name="Map" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">ปีการศึกษา</label>
-        <input type="text" name="Academic_year" class="form-control" required>
-    </div>
-    <div class="mb-3 input-group">
-      <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
-        <select name="Major_id" class="form-select" required>
-          <option value="">-- กรุณาเลือกสาขา --</option>
-            <?php
-            include 'connectdb.php'; 
-            $result = mysqli_query($conn, "SELECT Major_id, Major_name FROM major");
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "<option value='{$row['Major_id']}'>{$row['Major_name']}</option>";
-            }
-            ?>
-        </select>
-    </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อบริษัท (TH)</label>
+                    <input type="text" name="NamecomTH" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อบริษัท (EN)</label>
+                    <input type="text" name="NamecomEng" class="form-control">
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">ที่อยู่</label>
+                    <textarea  name="Company_add" class="form-control" required></textarea>
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">จังหวัด</label>
+                    <input type="text" name="Province" class="form-control">
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">เบอร์โทร</label>
+                    <input type="text" name="Com_phone" class="form-control">
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label">เบอร์โทรสาร</label>
+                    <input type="text" name="Fax_number" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">อีเมล</label>
+                    <input type="email" name="Com_email" class="form-control">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">เว็บไซต์</label>
+                    <input type="url" name="Website" class="form-control">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ชื่อผู้ติดต่อ</label>
+                    <input type="text" name="Contact_com" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ตำแหน่ง</label>
+                    <input type="text" name="Position" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ระยะเวลา</label>
+                    <input type="text" name="Duration" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">ปีการศึกษา</label>
+                    <input type="text" name="Academic_year" class="form-control" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">รายละเอียดงาน</label>
+                    <input type="text" name="Job_description" class="form-control" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">สวัสดิการ</label>
+                    <input type="text" name="welfare" class="form-control" required>
+                </div>
+                <div class="mb-3 col-12">
+                    <label class="form-label">แผนที่</label>
+                    <textarea name="Map" class="form-control" rows="3" required></textarea>
+                    <div class="form-text">กรุณาใส่ลิงก์แผนที่ Google Maps แบบฝังแผนที่</div>
+                </div>
+                <div class="mb-3 col-md-12">
+                    <label class="form-label">สาขา</label>
+                    <select name="Major_id" class="form-control" required>
+                        <option value="">-- กรุณาเลือกสาขา --</option>
+                        <?php
+                        $sql1 = "SELECT Major_id, Major_name FROM major;";
+                        $rs1 = mysqli_query($conn, $sql1);
 
-    <!-- เพิ่มปุ่มบันทึกข้อมูล -->
-    <div class="text-center">
-        <button type="submit" class="btn btn-success mt-4">บันทึกข้อมูล</button>
+                        if (!$rs1) {
+                            die("Query failed: " . mysqli_error($conn));
+                        }
+
+                        while ($row = mysqli_fetch_array($rs1, MYSQLI_ASSOC)) {
+                            echo "<option value='{$row['Major_id']}'>{$row['Major_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- ปุ่มบันทึก -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary ">บันทึกข้อมูล</button>
+            </div>
+        </form>
+
+
+
     </div>
-</form>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
 
-<script>
-        // ฟังก์ชันสลับโหมด
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
-    </script>
-
-<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
-<script src="scriptBEadd.js"></script>
 
 </body>
+
 </html>

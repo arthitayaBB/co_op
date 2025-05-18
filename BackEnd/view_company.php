@@ -1,9 +1,18 @@
 <?php
 include 'connectdb.php';
 include 'check_admin.php';
+
 if (isset($_GET['Company_id'])) {
   $company_id = mysqli_real_escape_string($conn, $_GET['Company_id']);
-  $query = "SELECT * FROM company WHERE Company_id = '$company_id'";
+
+  // JOIN ตาราง major เพื่อดึง Major_name
+  $query = "
+        SELECT company.*, major.Major_name 
+        FROM company 
+        LEFT JOIN major ON company.Major_id = major.Major_id 
+        WHERE company.Company_id = '$company_id'
+    ";
+
   $result = mysqli_query($conn, $query);
   $row = mysqli_fetch_assoc($result);
 
@@ -12,13 +21,13 @@ if (isset($_GET['Company_id'])) {
   if (!preg_match("~^(?:f|ht)tps?://~i", $website)) {
     $website = "http://" . $website;
   }
-  // อัปเดตค่าใน array เพื่อใช้ในส่วน HTML ด้านล่าง
   $row['Website'] = $website;
 } else {
   echo "<script>alert('ไม่มีข้อมูลบริษัทที่เลือก'); window.location.href='index.php';</script>";
   exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -269,34 +278,42 @@ if (isset($_GET['Company_id'])) {
         <div class="detail-label">เบอร์โทรสาร</div>
         <div class="detail-value"><?php echo $row['Fax_number']; ?></div>
       </div>
+
       <div class="detail-card">
-        <div class="detail-label">แผนที่</div>
-        <div class="detail-value">
-          <!-- ปุ่มเพื่อเปิด iframe แสดงแผนที่ -->
-          <a href="javascript:void(0);" onclick="document.getElementById('mapIframe').style.display = 'block';" class="button button-primary" style="padding:6px 15px; border-radius: 15px; background-color:#388e3c;">
-            ดูแผนที่
-          </a>
-
-          <!-- iframe แสดงแผนที่ -->
-          <div id="mapIframe" style="display:none; margin-top: 15px;">
-            <iframe src="<?php echo $row['Map']; ?>"
-              width="100%"
-              height="300px"
-              style="border: none; border-radius: 15px; max-width: 800px;">
-            </iframe>
-          </div>
-        </div>
-
-
+        <div class="detail-label">สาขา</div>
+        <div class="detail-value"><?php echo $row['Major_name']; ?></div>
       </div>
+
       <div class="detail-card">
         <div class="detail-label">ปีการศึกษา</div>
         <div class="detail-value"><?php echo $row['Academic_year']; ?></div>
       </div>
+
       <div class="detail-card">
-        <div class="detail-label">รหัสสาขา</div>
-        <div class="detail-value"><?php echo $row['Major_id']; ?></div>
+        <div class="detail-label">แผนที่</div>
+        <div class="detail-value">
+          <!-- ปุ่มแสดง iframe -->
+          <a href="javascript:void(0);"
+            onclick="document.getElementById('mapIframe').style.display = 'block';"
+            class="button button-primary"
+            style="padding:6px 15px; border-radius: 15px; background-color:#388e3c;">
+            ดูแผนที่
+          </a>
+
+          <!-- iframe ฝังแผนที่ (src มาจาก embed link ที่เก็บในฐานข้อมูล) -->
+          <div id="mapIframe" style="display:none; margin-top: 15px;">
+            <iframe src="<?php echo htmlspecialchars($row['Map']); ?>"
+              width="100%"
+              height="300px"
+              style="border: none; border-radius: 15px; max-width: 800px;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
       </div>
+
     </div>
     <div class="button-group">
       <a href="indexcompany.php" class="button button-danger">กลับ</a>

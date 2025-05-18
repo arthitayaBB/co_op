@@ -11,10 +11,12 @@ if (isset($_POST['Submit'])) {
     $Adpwd = isset($_POST['Adpwd']) ? trim($_POST['Adpwd']) : '';
 
     if (!empty($Adpwd)) {
-        $hashedPwd = md5($Adpwd); // เข้ารหัสด้วย MD5
+        // ใช้ password_hash() เพื่อแฮชรหัสผ่าน
+        $hashedPwd = password_hash($Adpwd, PASSWORD_DEFAULT); // เพิ่มการเข้ารหัสรหัสผ่าน
     } else {
         die("กรุณากรอกรหัสผ่าน");
     }
+    
 
 
     // คำสั่ง SQL เพื่อเพิ่มข้อมูลอาจารย์

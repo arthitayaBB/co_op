@@ -52,47 +52,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
     // อัปโหลดรูปภาพ
-    $Std_picture = $_FILES['Std_picture']['name'];
-    if ($Std_picture) {
+    if (!empty($_FILES['Std_picture']['name'])) {
+        $imageFileType = strtolower(pathinfo($_FILES["Std_picture"]["name"], PATHINFO_EXTENSION));
+        $Std_picture = "profile_" . $Std_id . "." . $imageFileType;
         $target_dir = "../profile_pic/";
-        $target_file = $target_dir . basename($_FILES["Std_picture"]["name"]);
-        move_uploaded_file($_FILES["Std_picture"]["tmp_name"], $target_file);
+        $target_file = $target_dir . $Std_picture;
+
+        // ตรวจสอบว่าเป็นรูปภาพจริง
+        $check = getimagesize($_FILES["Std_picture"]["tmp_name"]);
+        if ($check === false) {
+            die("ไฟล์ที่อัปโหลดไม่ใช่รูปภาพ.");
+        }
+
+        // ตรวจสอบขนาดไฟล์ (ไม่เกิน 500KB)
+        if ($_FILES["Std_picture"]["size"] > 500000) {
+            die("ขนาดไฟล์ใหญ่เกินไป.");
+        }
+
+        // ตรวจสอบนามสกุลที่อนุญาต
+        if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
+            die("ไฟล์ต้องเป็น JPG, JPEG, PNG หรือ GIF เท่านั้น.");
+        }
+
+        // อัปโหลดไฟล์
+        if (!move_uploaded_file($_FILES["Std_picture"]["tmp_name"], $target_file)) {
+            die("เกิดข้อผิดพลาดในการอัปโหลดไฟล์.");
+        }
     } else {
         $Std_picture = $row['Std_picture']; // ใช้รูปเดิมถ้าไม่ได้อัปโหลดใหม่
     }
 
+
     // เริ่มสร้าง SQL อัปเดต
     $update_query = "UPDATE student SET 
-                    Id_number = '$Id_number',
-                    Std_prefix = '$Std_prefix',
-                    Std_name = '$Std_name',
-                    Std_surname = '$Std_surname',
-                    Major_id = '$Major_id',
-                    Grade_level = '$Grade_level',
-                    GPA = '$GPA',
-                    GPAX = '$GPAX',
-                    CGX = '$CGX',
-                    Std_phone = '$Std_phone',
-                    Std_email = '$Std_email',
-                    Std_picture = '$Std_picture',
-                   Std_add = '$address',
-                    Province = '$province',
-                    Zip_id = '$postcode',
-                    Academic_year = '$Academic_year'
-
-";
+            Id_number = '$Id_number',
+            Std_prefix = '$Std_prefix',
+            Std_name = '$Std_name',
+            Std_surname = '$Std_surname',
+            Major_id = '$Major_id',
+            Grade_level = '$Grade_level',
+            GPA = '$GPA',
+            GPAX = '$GPAX',
+            CGX = '$CGX',
+            Std_phone = '$Std_phone',
+            Std_email = '$Std_email',
+            Std_picture = '$Std_picture',
+            Std_add = '$address',
+            Province = '$province',
+            Zip_id = '$postcode',
+            Academic_year = '$Academic_year'
+            ";
 
 
     // ถ้ามีการเปลี่ยนรหัสผ่าน
     if (!empty($Stdpwd)) {
-        $hashedPwd = md5($Stdpwd); // หรือจะเปลี่ยนไปใช้ password_hash() ก็ได้เพื่อความปลอดภัยสูงกว่า
+        // ใช้ password_hash() เพื่อแฮชรหัสผ่าน
+        $hashedPwd = password_hash($Stdpwd, PASSWORD_DEFAULT);
         $update_query .= ", Std_pwd = '$hashedPwd'";
     }
-
+    
     $update_query .= " WHERE Std_id = '$Std_id'";
-
     if (mysqli_query($conn, $update_query)) {
-        header("Location: indexstudent.php"); // หลังอัปเดตเสร็จ กลับไปหน้าแสดงข้อมูลนิสิต
+        echo "<script>
+            alert('อัปเดตข้อมูลนิสิตเรียบร้อยแล้ว');
+            window.location.href = 'indexstudent.php';
+        </script>";
         exit();
     } else {
         echo "ไม่สามารถอัปเดตข้อมูลได้: " . mysqli_error($conn);
@@ -125,22 +149,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
         <form action="edit_student.php?id=<?php echo $row['Std_id']; ?>" method="POST" enctype="multipart/form-data">
-        <div class="mb-3 text-center">
-            <label class="form-label">รูปภาพ</label><br>
-            <img id="preview" src="../profile_pic/<?= htmlspecialchars($row['Std_picture']) ?>" width="150" class="mb-2"><br>
-            <label class="form-label">กรุณาอัพโหลดรูปภาพใหม่</label><br>
-            <input type="file" class="form-control" name="Std_picture" id="pictureInput" accept="image/*">
-        </div>
+            <div class="mb-3 text-center">
+                <label class="form-label">รูปภาพ</label><br>
+                <img id="preview" src="../profile_pic/<?= htmlspecialchars($row['Std_picture']) ?>" width="150" class="mb-2"><br>
+                <label class="form-label">กรุณาอัพโหลดรูปภาพใหม่</label><br>
+                <input type="file" class="form-control" name="Std_picture" id="pictureInput" accept="image/*">
+            </div>
 
-        <script>
-            document.getElementById('pictureInput').addEventListener('change', function(event) {
-                const [file] = event.target.files;
-                if (file) {
-                    const preview = document.getElementById('preview');
-                    preview.src = URL.createObjectURL(file);
-                }
-            });
-        </script>
+            <script>
+                document.getElementById('pictureInput').addEventListener('change', function(event) {
+                    const [file] = event.target.files;
+                    if (file) {
+                        const preview = document.getElementById('preview');
+                        preview.src = URL.createObjectURL(file);
+                    }
+                });
+            </script>
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="Std_id" class="form-label">รหัสนิสิต</label>
@@ -171,27 +195,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label for="Major_id" class="form-label">สาขา</label>
-            <select class="form-control" id="Major_id" name="Major_id" required>
-                <?php while ($major_row = mysqli_fetch_assoc($major_result)) { ?>
-                    <option value="<?php echo $major_row['Major_id']; ?>" <?php echo ($row['Major_id'] == $major_row['Major_id']) ? 'selected' : ''; ?>>
-                        <?php echo $major_row['Major_name']; ?>
-                    </option>
-                <?php } ?>
-            </select>
-        </div>
-    </div>
-    
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Major_id" class="form-label">สาขา</label>
+                        <select class="form-control" id="Major_id" name="Major_id" required>
+                            <?php while ($major_row = mysqli_fetch_assoc($major_result)) { ?>
+                                <option value="<?php echo $major_row['Major_id']; ?>" <?php echo ($row['Major_id'] == $major_row['Major_id']) ? 'selected' : ''; ?>>
+                                    <?php echo $major_row['Major_name']; ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
 
-    <div class="col-md-6">
-        <div class="form-group">
-            <label for="Academic_year" class="form-label">ปีการศึกษา</label>
-            <input type="text" class="form-control" id="Academic_year" name="Academic_year" value="<?php echo $row['Academic_year']; ?>" >
-        </div>
-    </div>
-</div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="Academic_year" class="form-label">ปีการศึกษา</label>
+                        <input type="text" class="form-control" id="Academic_year" name="Academic_year" value="<?php echo $row['Academic_year']; ?>">
+                    </div>
+                </div>
+            </div>
 
 
             <div class="row">
@@ -357,7 +381,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 
-            <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+            </div>
+
         </form>
     </div>
     <script src="scriptBEadd.js"></script>

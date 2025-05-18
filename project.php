@@ -1,6 +1,6 @@
 <?php
 include_once("connectdb.php");
-session_start();
+include ("checklogin.php");
 
 // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
 $Std_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
