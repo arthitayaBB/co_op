@@ -1,6 +1,6 @@
 <?php
 include_once("connectdb.php");
-include ("checklogin.php");
+include("checklogin.php");
 
 $Std_id = $_SESSION['Std_id'] ?? 0;
 
@@ -30,6 +30,7 @@ if ($result->num_rows === 1) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
