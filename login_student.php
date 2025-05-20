@@ -36,8 +36,8 @@ if (isset($_POST['Submit'])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login</title>
-
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -136,7 +136,7 @@ if (isset($_POST['Submit'])) {
         <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Avatar" width="80" class="mb-4">
 
         <form method="POST" action="">
-        <h3 class="text-center" style="color: #0b5ed7;">เข้าสู่ระบบ-สำหรับนิสิต</h3>
+            <h3 class="text-center" style="color: #0b5ed7;">เข้าสู่ระบบ-สำหรับนิสิต</h3>
             <div class="form-group">
                 <i class="fa fa-user"></i>
                 <input type="email" class="form-control" name="email" placeholder="Email" required>

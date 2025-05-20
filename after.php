@@ -1,6 +1,6 @@
 <?php
 include_once("connectdb.php");
-include ("checklogin.php");
+include("checklogin.php");
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
@@ -32,7 +32,7 @@ $existing_work = mysqli_fetch_assoc($result_check);
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เพิ่มโปรเจคสหกิจศึกษา</title>
     <link rel="icon" href="images/Logo.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

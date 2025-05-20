@@ -21,28 +21,30 @@ session_start();
 <style>
     #intro {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
+        /* แทน top/left/right/bottom */
         background: rgba(0, 0, 0, 0.4);
-        /* โปร่งแสง */
         backdrop-filter: blur(8px);
-        /* เบลอพื้นหลัง */
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         z-index: 9999;
+        padding: 20px;
+        text-align: center;
     }
 
     #intro img {
-        width: auto;
+        width: 100%;
+        max-width: 600px;
+        /* จำกัดไม่ให้ใหญ่เกินบนหน้าจอใหญ่ */
         height: auto;
-        max-width: 90vw;
-        max-height: 80vh;
+        max-height: 60vh;
+        /* สูงสุด 60% ของความสูงจอ */
+        object-fit: contain;
         animation: fadeIn 1.5s ease-in-out;
     }
+
 
     #intro p {
         color: #fff;
@@ -56,11 +58,13 @@ session_start();
         border: none;
         border-radius: 8px;
         background-color: #007bff;
-        /* ฟ้า */
         color: white;
         cursor: pointer;
         transition: background 0.3s ease;
+        margin-top: 20px;
+        /* <-- เพิ่มตรงนี้เพื่อเว้นห่างจากภาพ */
     }
+
 
     #enter-btn:hover {
         background-color: #0056b3;
@@ -75,24 +79,23 @@ session_start();
         }
     }
 
-    #main {
-        display: none;
-        padding: 40px;
-        background: url('your-background.jpg') center/cover no-repeat;
-        /* ตัวอย่างพื้นหลัง */
-        min-height: 100vh;
-    }
+    @media (max-width: 576px) {
+        #intro img {
+            max-height: 50vh;
+        }
 
-    #main h1,
-    #main p {
-        color: #333;
+        #enter-btn {
+            
+            font-size: 1.1em;
+            margin-top: 30px;
+        }
     }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const carouselElement = document.querySelector('#workCarousel');
 
-        // ✅ สร้าง instance ของ Bootstrap Carousel ตั้งแต่เริ่ม
+
         const carouselInstance = new bootstrap.Carousel(carouselElement, {
             interval: false,
             ride: false,
@@ -135,8 +138,9 @@ session_start();
     ?>
     <!--หน้าตอนรับ -->
     <div id="intro">
-        <div id="introCarousel" class="carousel slide w-100 h-100" data-bs-ride="carousel">
-            <div class="carousel-inner h-100">
+        <div id="introCarousel" class="carousel slide" style="width:100%; max-width:600px;" data-bs-ride="carousel">
+
+            <div class="carousel-inner ">
                 <?php foreach ($intros as $index => $intro): ?>
                     <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
                         <img src="images/intro/<?= htmlspecialchars($intro['I_picture']) ?>" class="d-block mx-auto" style="max-width:90vw; max-height:80vh;" alt="Intro Image">
@@ -467,27 +471,7 @@ session_start();
         }
     </script>
 
-    <footer class="footer mt-5 py-4 fade-in" style="background-color: #f8f9fa;">
-        <div class="container text-center">
-            <!-- ข้อมูลติดต่อ -->
-            <div class="contact-info">
-                <p><strong>Contact Us</strong></p>
-                <p>Phone: +123 456 7890</p>
-                <p>Email: example@example.com</p>
-            </div>
-
-            <!-- ลิงก์ไปยังหน้าต่างต่างๆ -->
-            <div class="footer-links">
-                <p><a href="about.html" class=" text-decoration-none">About Us</a></p>
-                <p><a href="services.html" class=" text-decoration-none">Services</a></p>
-                <p><a href="privacy.html" class=" text-decoration-none">Privacy Policy</a></p>
-            </div>
-
-            <!-- ข้อความลิขสิทธิ์ -->
-            <p class="mt-3">© 2025 Your Company. All Rights Reserved.</p>
-        </div>
-
-    </footer>
+    <?php include_once("footer.php"); ?>
 </body>
 
 </html>
