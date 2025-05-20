@@ -225,7 +225,7 @@ $std = mysqli_fetch_assoc($result);
       </div>
 
       <div class="info-row">
-        <div class="info-label">สถานะยื่นฝึกงาน:</div>
+        <div class="info-label">สถานะยื่นฝึกสหกิจฯ:</div>
         <div class="info-value">
           <?php
           switch ($std['Pro_status']) {
