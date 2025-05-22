@@ -129,7 +129,10 @@ if (!$result) {
                                     <img src="../images/public_relations/<?= htmlspecialchars($row['Pr_picture4']) ?>" width="80">
                                 <?php endif; ?>
                             </td>
-                            <td class="left"><?= nl2br(htmlspecialchars($row['Pr_detail'])) ?></td>
+                            <td class="left" title="<?= htmlspecialchars($row['Pr_detail']) ?>">
+                                <?= htmlspecialchars(mb_strimwidth($row['Pr_detail'], 0, 50, '...')) ?>
+                            </td>
+
                             <?php ?>
                             <td><?= htmlspecialchars($row['NamecomTH'] ?? '-') ?></td>
 

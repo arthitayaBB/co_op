@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <img src="https://cdn-icons-png.flaticon.com/512/219/219983.png" alt="user icon">
 
-        <h1 class="h5 mb-3 fw-normal">Sign in-สำหับอาจารย์</h1>
+        <h1 class="h5 mb-3 fw-normal">Sign in-สำหรับอาจารย์</h1>
 
         <form method="POST" action="">
             <!-- ช่องกรอก Email -->

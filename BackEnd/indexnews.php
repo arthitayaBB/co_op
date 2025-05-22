@@ -74,7 +74,7 @@ if (!$result) {
 </head>
 
 <body>
- 
+
     <?php include('sidebar.php'); ?>
 
     <div class="content">
@@ -120,7 +120,10 @@ if (!$result) {
                             <td><?php echo $row['N_date']; ?></td>
                             <td class="left"><?php echo $row['N_heading']; ?></td>
 
-                            <td class="left"><?php echo $row['N_detail']; ?></td>
+                            <td class="left" title="<?php echo htmlspecialchars($row['N_detail']); ?>">
+                                <?php echo htmlspecialchars(mb_strimwidth($row['N_detail'], 0, 50, '...')); ?>
+                            </td>
+
                             <td><?php echo $row['N_refer']; ?></td>
                             <td><?php echo $row['Ad_name']; ?></td> <!-- ชื่อผู้ดูแล -->
 
