@@ -1,0 +1,362 @@
+* {
+    box-sizing: border-box;
+}
+    
+body {
+    font-family: 'Noto Sans Thai', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background: #F7F9FB;
+    height: 100vh;
+    overflow: hidden;
+}
+    
+.header {
+    background: linear-gradient(90deg, #2C3E50, #3498DB);
+    color: #ffffff;
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+    
+.header img {
+    width: 70px;
+    margin-right: 20px;
+}
+    
+.header-content h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+    
+.header-content p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* เพิ่ม CSS สำหรับปุ่มแฮมเบอร์เกอร์ */
+.hamburger-menu {
+    display: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 10px;
+}
+
+/* สไลด์บาร์ */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #2C3E50, #5DADE2);
+    height: calc(100vh - 120px);
+    position: fixed;
+    top: 120px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    border-right: 2px solid #ffffff33;
+    transition: left 0.3s ease;
+    z-index: 999;
+}
+    
+.sidebar a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 18px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+    border-radius: 8px;
+    width: 100%;
+}
+    
+.sidebar a i {
+    margin-right: 15px;
+    font-size: 22px;
+}
+    
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+}
+    
+.content {
+    margin-left: 300px;
+    margin-top: 120px;
+    padding: 30px;
+    width: calc(100% - 300px);
+    overflow: auto;
+}
+    
+.content h2 {
+    font-size: 32px;
+    color: #2C3E50;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+    
+.card {
+    background: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+    
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay เมื่อเปิดเมนูบนมือถือ */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Media Query สำหรับจอขนาดเล็ก */
+@media screen and (max-width: 992px) {
+    .hamburger-menu {
+        display: block;
+    }
+    
+    .header-content {
+        max-width: 70%;
+    }
+    
+    .header-content h1 {
+        font-size: 22px;
+    }
+    
+    .header-content p {
+        font-size: 14px;
+    }
+    
+    .sidebar {
+        left: -280px; /* ซ่อนเมนูด้านข้างเมื่อจอเล็ก */
+        top: 90px; /* ลดความสูงของเฮดเดอร์เมื่อหน้าจอเล็ก */
+        height: calc(100vh - 90px);
+    }
+    
+    .sidebar.active {
+        left: 0; /* แสดงเมนูเมื่อกดปุ่มแฮมเบอร์เกอร์ */
+    }
+    
+    .content {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 90px;
+    }
+    
+    /* ปรับขนาดของเฮดเดอร์ให้เล็กลง */
+    .header {
+        padding: 15px 20px;
+    }
+    
+    .header img {
+        width: 50px;
+    }
+}
+
+/* สำหรับหน้าจอที่เล็กมาก (โทรศัพท์มือถือ) */
+@media screen and (max-width: 576px) {
+    .header-content h1 {
+        font-size: 18px;
+    }
+    
+    .header-content p {
+        font-size: 12px;
+    }
+    
+    .header img {
+        width: 40px;
+        margin-right: 10px;
+    }
+    
+    .sidebar a {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .sidebar a i {
+        font-size: 18px;
+    }
+}
+    
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+    
+.btn-spacing {
+    margin-right: 10px;
+}
+    
+table {
+    width: 100%;
+    white-space: nowrap;
+}
+    
+table th, table td {
+    text-align: center;
+    padding: 15px 20px;
+    vertical-align: middle;
+    min-width: 150px;
+}
+    
+.table th {
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+    
+.table td {
+    background-color: #f9f9f9;
+    color: #333333;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+}
+    
+.table td.left {
+    text-align: left; /* ทำให้ข้อความในคอลัมน์รายละเอียดชิดซ้าย */
+}
+    
+.table td:hover {
+    background-color: #f1f1f1;
+}
+    
+.table td a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: 500;
+}
+    
+.table td a:hover {
+    color: #2980b9;
+}
+    
+.table tbody tr:nth-child(even) td {
+    background-color:rgb(255, 255, 255); /* สีขาว */
+}
+    
+.table tbody tr:nth-child(odd) td {
+    background-color:rgba(255, 255, 255, 0.89); /* สีเทา */
+}
+    
+.table tbody tr:hover td {
+    background-color: #e0f7fa;
+}
+    
+.table td:nth-child(13), .table td:nth-child(14) {
+    min-width: 250px;
+    word-wrap: break-word;
+    text-align: left;
+}
+    
+.btn-warning, .btn-danger {
+    padding: 5px 12px;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 25px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+    
+.btn-warning {
+    background-color: #f39c12;
+    color: white !important;
+    margin-right: 8px;
+}
+    
+.btn-warning i, .btn-danger i {
+    margin-right: 4px;
+    font-size: 14px;
+}
+    
+.btn-warning:hover {
+    background-color: #e67e22;
+    color: white !important;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+    
+.btn-danger {
+    background-color: #e74c3c;
+    color: white !important;
+    margin-left: 8px;
+}
+    
+.btn-danger:hover {
+    background-color: #c0392b;
+    color: #ffffff;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+    
+.dataTables_info {
+    margin-top: 20px;
+}
+    
+.dataTables_filter {
+    margin-bottom: 20px;
+}
+    
+.scroll-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+    
+button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.teacher-img1 {
+    width: 80px;
+    height: 80px;
+    object-fit: cover; /* ปรับขนาดรูปให้พอดี */
+    border-radius: 8px; /* ทำให้รูปโค้งมน */
+    border: 1px solid #ddd; /* ใส่กรอบบางๆ */
+}
+
+ 
+

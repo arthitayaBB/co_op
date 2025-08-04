@@ -1,0 +1,34 @@
+<?php
+include 'connectdb.php';
+
+$status_definitions = [
+    1 => ['label' => 'อนุมัติแล้ว', 'icon' => 'bi-check-circle-fill', 'color' => 'text-success'],
+    0 => ['label' => 'ไม่อนุมัติ', 'icon' => 'bi-x-circle-fill', 'color' => 'text-danger'],
+    2 => ['label' => 'แก้ไข', 'icon' => 'bi-pencil-square', 'color' => 'text-warning'],
+    3 => ['label' => 'รอตรวจสอบ', 'icon' => 'bi-hourglass-split', 'color' => 'text-secondary'],
+    4 => ['label' => 'ยังไม่เพิ่มโปรเจค', 'icon' => 'bi-file-earmark-plus', 'color' => 'text-info'],
+];
+
+$year = $_GET['year'] ?? date("Y");
+
+$results = [];
+
+foreach ($status_definitions as $code => $info) {
+    $query = mysqli_query($conn, "SELECT COUNT(*) AS total FROM proposal WHERE Pro_status = $code AND Sug_year = '$year'");
+    $count = 0;
+    if ($query && $row = mysqli_fetch_assoc($query)) {
+        $count = $row['total'];
+    }
+    $results[] = [
+        'icon' => $info['icon'],
+        'color' => $info['color'],
+        'label' => $info['label'],
+        'count' => $count
+    ];
+}
+
+header('Content-Type: application/json');
+echo json_encode($results);
+
+?>
+
