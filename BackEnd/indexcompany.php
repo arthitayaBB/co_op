@@ -116,7 +116,7 @@ if (!$result) {
             <a href="edit_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-warning btn-sm btn-spacing">
                 <i class="fas fa-pencil-alt"></i> 
             </a>
-            <a href="delete_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-danger btn-sm btn-spacing" onClick="return confirm('คุณแน่ใจหรือไม่? ข่าวประชาสัมพันธ์ที่เกี่ยวกับบริษัทนี้จะถูกลบไปด้วย');">
+            <a href="delete_company.php?id=<?php echo $row['Company_id']; ?>" class="btn btn-danger btn-sm btn-spacing" onClick="return confirm('คุณแน่ใจหรือไม่? ข้อมูลที่เกี่ยวกับบริษัทนี้จะถูกลบไปด้วย');">
                 <i class="fas fa-trash-alt"></i> 
             </a>
            <a href="view_company.php?Company_id=<?php echo $row['Company_id']; ?>" class="btn btn-primary btn-sm text-white rounded-pill" title="ดูรายละเอียด">
