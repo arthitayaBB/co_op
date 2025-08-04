@@ -94,6 +94,7 @@ if (isset($_GET['id'])) {
         <h2 class="heading">แก้ไขข้อมูลสถานประกอบการ</h2>
         <form method="post">
             <div class="row">
+                <input type="hidden" name="Company_id" value="<?php echo $company['Company_id']; ?>">
                 <div class="mb-3 col-md-6">
                     <label class="form-label">ชื่อบริษัท (ไทย)</label>
                     <input type="text" name="NamecomTH" class="form-control" value="<?php echo $company['NamecomTH']; ?>" required>
