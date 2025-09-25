@@ -5,7 +5,7 @@
 
 <br>
 แอดมิน:Pawarit@gmail.com รหัส 12345 <br>
-อาจารย์ : phaiboon.r@acc.msu.ac.th รหัส 123456<br>
+
 นิสิต :Pawin@gmail.com รหัส 12345<br>
 
 ตั้งชื่อฐานข้อมูลว่า newco_op  3ไฟล์<br>
